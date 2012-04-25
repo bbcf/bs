@@ -97,6 +97,7 @@ class FormController(BaseController):
         info = o.description()
         title = o.title()
         params = o.parameters()
-        return {'page' : 'form', 'info' : info, 'title' : title, 'parameters' : params}
+
+        return {'page' : 'form', 'info' : info, 'title' : title, 'parameters' : params, 'id' : id}
 
 
