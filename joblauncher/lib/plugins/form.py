@@ -19,7 +19,7 @@ class ThresholdForm(twf.TableForm):
     hover_help = True              # show help_text with mouse onHover
     show_errors = True             # show red labels when validators failed
     fields = [                     # define the fields you need in your form
-                                   twf.HiddenField('_private_params'),                          # field needed to transfert information to the validation system
+                                   twf.HiddenField('_pp'),                          # field needed to transfert information to the validation system
 
 
 #                                   twf.SingleSelectField(id='track', label_text='Track : ',    # simple 'select' field with a custom validator
