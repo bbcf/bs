@@ -1,0 +1,8 @@
+recursive-include joblauncher/public *
+
+include joblauncher/public/favicon.ico
+
+recursive-include joblauncher/i18n *
+
+recursive-include joblauncher/templates *
+
