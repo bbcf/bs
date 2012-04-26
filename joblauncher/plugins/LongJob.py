@@ -28,9 +28,4 @@ class LongJob(IPlugin, OperationPlugin):
         import time
         time.sleep(float(rp(kw, 'thr', 5)))
         threshold = int(rp(kw, 'thr', 0))
-        return 0
-
-
-
-
-
+        return threshold

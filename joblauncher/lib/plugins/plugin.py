@@ -16,7 +16,7 @@ class OperationPlugin(object):
         the last that will make appears the form onClick.
         """ % (root_key, root_key)
 
-        raise NotImplementedError('you must override this method in your plugin.')
+        raise NotImplementedError('you must override this method (path) in your plugin.')
 
 
     def title(self):
@@ -25,7 +25,7 @@ class OperationPlugin(object):
         ex : return 'My super title'
         '''
 
-        raise NotImplementedError('you must override this method in your plugin.')
+        raise NotImplementedError('you must override this method (title) in your plugin.')
 
     def output(self):
         '''
@@ -36,7 +36,7 @@ class OperationPlugin(object):
         return form.Example
         '''
 
-        raise NotImplementedError('you must override this method in your plugin.')
+        raise NotImplementedError('you must override this method (output) in your plugin.')
 
     def process(self, **kw):
         '''
@@ -45,19 +45,19 @@ class OperationPlugin(object):
         return kw.get('param1', 0) + kw.get('param2', 0)
         '''
 
-        raise NotImplementedError('you must override this method in your plugin.')
+        raise NotImplementedError('you must override this method (process) in your plugin.')
 
     def description(self):
         '''
         Here you can give a description to your job.
         '''
-        raise NotImplementedError('you must override this method in your plugin.')
+        raise NotImplementedError('you must override this method (description) in your plugin.')
 
     def parameters(self):
         '''
         Here you can give the parameters needed for your job to run.
         '''
-        raise NotImplementedError('you must override this method in your plugin.')
+        raise NotImplementedError('you must override this method (parameters) in your plugin.')
 
     def unique_id(self):
         '''
@@ -82,21 +82,25 @@ def rp(params, param, default=None):
 root_key = 'Operations'
 
 
-def get_plugin_byId(_id):
+def get_plugin_byId(_id, manager=None):
     '''
     Get a plugin by it's id
     '''
-    plugs = app_globals.plugin_manager.getAllPlugins()
+    if manager is None:
+        manager = app_globals.plugin_manager
+    plugs = manager.getAllPlugins()
     for p in plugs :
         if p.plugin_object.unique_id() == _id : return p
     return None
 
 
-def get_plugins_path():
+def get_plugins_path(manager=None):
     """
     Get forms paths.
     """
-    plugs = app_globals.plugin_manager.getAllPlugins()
+    if manager is None:
+        manager = app_globals.plugin_manager
+    plugs = manager.getAllPlugins()
     return _mix_plugin_paths(plugs)
 
 
