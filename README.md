@@ -13,7 +13,7 @@ Features
 *  database : Several backend can be configured as joblauncher use [SQLalchemy](http://www.sqlalchemy.org/) 
    	      such as mysql, sqlite, pgsql, oracle, ... 
 *  processing : uses [celery](http://celeryproject.org/) which make job processing highly configurable.
-*  messaging : amqp(http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol) messaging is used between the interface and the worker 
+*  messaging : [amqp](http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol) messaging is used between the interface and the worker 
    	     with [rabbitmq](http://www.rabbitmq.com/) that make it easy to bput your applications running on differents server.
     
 
