@@ -15,6 +15,35 @@ __all__ = ['FormController']
 
 
 
+to_treat_as_file_list = {'SingleSelectField' : False, 'MultipleSelectField' : True}
+"""
+Dict to discriminate file list and know if they can be multiple or single.
+"""
+
+def parse_parameters(id, fields, **kw):
+    """
+    Reformat parameters coming to get the form well displayed.
+    value are the "normal" parameters and
+    childs_args are the ones to get the list of files.
+    pp are the private parameters
+    """
+    print "parse_parameters(%s, %s, %s)" % (id, fields, kw)
+    value = {}
+    child_args = {}
+    pp = {}
+
+    for field in fields:
+        if field.id is not None:
+            print field.id
+            key = field.__class__.__name__
+            if to_treat_as_file_list.has_key(key):
+                _list = json.loads(kw.get(field.id, "[]"))
+                child_args[field.id] = {'options' : dict([(_list[i], i) for i in xrange(len(list(_list)))])}
+            else :
+                value[field.id]=kw.get(field.id, None)
+
+    pp['id']=id
+    return value, child_args, pp
 
 class FormController(BaseController):
     allow_only = has_permission(constants.permissions_read_name)
@@ -51,11 +80,16 @@ class FormController(BaseController):
 
         obj = plug.plugin_object
 
-        tmpl_context.form = obj.output()(action=url('/form/launch'))
+        form =  obj.output()
 
-        # here put needed tmplcontexts
-        kw['_pp']=json.dumps({'id' : id})
-        return {'page' : 'form', 'title' : obj.title(), 'value' : kw}
+        value, child_args, _pp = parse_parameters(id, form.fields, **kw)
+
+
+        tmpl_context.form = form(action=url('/form/launch'))
+
+        print child_args
+        value['_pp'] = _pp
+        return {'page' : 'form', 'title' : obj.title(), 'value' : value, 'ca' : child_args}
 
     @expose()
     def fire(self, id, *args, **kw):

@@ -48,4 +48,27 @@ class ImageForm(twf.TableForm):
                                    twf.CheckBox(id='per_chromosomes', label_text='Per chromosomes', help_text='Display a count per chromosomes'),
                                    ]
 
+def get_options():
+    return [(o.id, o.name) for o in tmpl_context.files]
 
+
+class FilesForm(twf.TableForm):
+
+    submit_text = 'Merge the files'     # text of the submit button
+    hover_help = True              # show help_text with mouse onHover
+    show_errors = True             # show red labels when validators failed
+    fields = [                     # define the fields you need in your form
+        twf.HiddenField('_pp'),                          # field needed to transfert information to the validation system
+        twf.SingleSelectField(id='track1', label_text='File 1 : ',    # simple 'select' field with a custom validator
+            help_text = 'Select the first file',
+                              validator=twv.NotEmpty()),
+        twf.Spacer(),                                                # a spacer between two field
+        twf.SingleSelectField(id='track_2', label_text='File 2 : ',    # simple 'select' field with a custom validator
+            help_text = 'Select the second file',
+            validator=twv.NotEmpty()),
+        twf.TextField(label_text='Threshold', id='thr',              # a simple input field (with a simple validator)
+            help_text = 'Input the trhreshold here', validator=twv.NotEmpty()),
+           ]
+
+
+prout = FilesForm()
