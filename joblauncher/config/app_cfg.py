@@ -38,8 +38,6 @@ def on_startup():
 
     print ' --- starting joblauncher application --- '+str(datetime.datetime.now())
 
-    print ' --- initializing plugins --- '
-    from joblauncher.lib import plugins
 
 
 def on_shutdown():

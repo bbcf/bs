@@ -70,5 +70,3 @@ class FilesForm(twf.TableForm):
             help_text = 'Input the trhreshold here', validator=twv.NotEmpty()),
            ]
 
-
-prout = FilesForm()

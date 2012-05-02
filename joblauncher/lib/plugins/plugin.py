@@ -73,6 +73,7 @@ class OperationPlugin(object):
 def retrieve_parameter(params, param, default=None, isfile=False):
     if isfile:
         print 'will fetch the file %s at %s ' % (param, params.get(param, default))
+
     return params.get(param, default)
 
 def rp(params, param, default=None, isfile=False):

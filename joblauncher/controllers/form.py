@@ -10,6 +10,9 @@ import json
 from pylons import tmpl_context
 from formencode import Invalid
 from joblauncher.lib.tasks import tasks
+from joblauncher.lib import services, io
+from joblauncher import lib
+
 __all__ = ['FormController']
 
 
@@ -126,6 +129,27 @@ class FormController(BaseController):
             flash(e, 'error')
             raise redirect(url('./index', params={'id' : form_id}, **kw))
 
+
+
+
+        user = handler.user.get_service_in_session(request)
+
+        print 'before '
+        print kw
+        try :
+            for k, v in pp['save_list'].iteritems():
+                if kw.has_key(k): kw[k] = services.io.fetch_file(user, k, kw.get(k))
+        except Exception as e:
+            for k, v in pp['save_list'].iteritems():
+                kw[k] = json.dumps(v)
+            if kw.has_key('_pp'): del kw['_pp']
+            for k, v in pp['save_list'].iteritems():
+                if kw.has_key(k): io.rm(kw.get(k))
+            # an error occurs when fetching the file
+            flash(e, error)
+            raise redirect(url('./index', params={'id' : form_id}, **kw))
+        print 'after '
+        print kw
         task_id = tasks.plugin_process.delay(form_id, **kw)
 
         flash('Job launched')
