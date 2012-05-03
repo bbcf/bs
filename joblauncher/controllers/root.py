@@ -70,10 +70,10 @@ class RootController(BaseController):
 
 
 
-
-    
-
-    
+    @expose('json')
+    def test(self, *args, **kw):
+        print "called root test method %s, %s" % (args, kw)
+        return {"status": "success", "retval": "1"}
 
     
 

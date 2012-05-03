@@ -50,17 +50,17 @@ class ServiceManager(object):
                     pass
 
 
-            # store services on the database
+        # store services on the database
+        serv_group = DBSession.query(Group).filter(Group.id == constants.group_services_id).first()
         for service in self.services:
             contact = self.get(service, 'contact')
-            serv_group = DBSession.query(Group).filter(Group.id == constants.group_services_id).first()
             serv = DBSession.query(User).filter(User.email == constants.service_email(contact)).first()
             if serv is None:
                 serv = User()
                 serv.name = constants.service_name(service)
                 serv.email = constants.service_email(contact)
                 serv.is_service = True
-                DBSession.add(serv)
+                session.add(serv)
                 serv_group.users.append(serv)
         DBSession.add(serv_group)
         DBSession.flush()

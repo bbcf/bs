@@ -4,6 +4,7 @@ import hashlib
 class OperationPlugin(object):
 
     uid = None
+
     """
     Inherit form this class to build your plugin.
     """
@@ -68,16 +69,26 @@ class OperationPlugin(object):
             self.uid = hashlib.sha1(self.path().__str__()).hexdigest()
         return self.uid
 
+    def _pre_process(self, service_name):
+        """
+        Initializing plugin parameters
+        """
+        self.service = service_name
+        self.files = []
 
 
-def retrieve_parameter(params, param, default=None, isfile=False):
-    if isfile:
-        print 'will fetch the file %s at %s ' % (param, params.get(param, default))
-
+def retrieve_parameter(params, param, default=None):
     return params.get(param, default)
 
-def rp(params, param, default=None, isfile=False):
-    return retrieve_parameter(params, param, default, isfile)
+def new_file(plugin, file):
+    plugin.files.append(file)
+
+
+def nf(plugin, filename):
+    return new_file(plugin, filename)
+
+def rp(params, param, default=None):
+    return retrieve_parameter(params, param, default)
 
 
 

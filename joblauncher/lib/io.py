@@ -26,3 +26,6 @@ def copy(_from,_to):
 
 def rm(_dir):
     shutil.rmtree(_dir, ignore_errors=True)
+
+def mv(src, dst):
+    shutil.move(src, dst)

@@ -2,7 +2,10 @@ from __future__ import absolute_import
 from celery.task import task, chord, subtask
 from celery.task.sets import TaskSet
 from . import get_plugin_byId
-import traceback
+from joblauncher.lib import io
+import os
+from celery.task.http import HttpDispatchTask
+
 
 @task()
 def test(x):
@@ -10,39 +13,61 @@ def test(x):
 
 
 @task(ignore_result=True)
-def plugin_process(_id, *args, **kw):
+def plugin_process(_id, service_name, tmp_dir, out_path, callback_url=None, **kw):
     """
-    Method wich retrive the plugin by it's id and lauch the processing steps (pre/process/post)
+    Method which retrieve the plugin by it's id and launch the processing steps (pre/process/post)
     """
-    plugin = _plugin_pre_process(_id, *args, **kw)
-    result = _plugin_process(plugin, *args, **kw)
-    _plugin_post_process(result)
+    plugin = _plugin_pre_process(_id, service_name, **kw)
+    result = _plugin_process(plugin, **kw)
+    _plugin_post_process(service_name, plugin, tmp_dir, out_path, result, callback_url)
 
 
-def _plugin_pre_process(_id, *args, **kw):
+def _plugin_pre_process(_id, service_name, **kw):
     """
     Pre-processing : get plugin, parse parameters
     """
     plug = get_plugin_byId(_id)
     if plug is None:
         raise Exception('Plugin not found by the worker.')
-    return plug.plugin_object
+    plugin = plug.plugin_object
+    plugin._pre_process(service_name)
+    return plugin
 
-def _plugin_process(plugin, *args, **kw):
+def _plugin_process(plugin, **kw):
     """
     Actual process that is defined int the plugin 'process' method
     """
-    return plugin.process(*args, **kw)
+    return plugin.process(**kw)
 
 
-def _plugin_post_process(result):
+def _plugin_post_process(service_name, plugin, tmp_dir, out_path, result, callback_url):
     """
-    Post-processing : write file, send result, ...
+    Post-processing : write file, send result, call callback
     """
-    print result
+    task_id = plugin_process.request.id
+    # write files in the output directory
+    new_files(service_name, task_id, out_path, plugin.files)
+    # remove temporary directory where input files where stored
+    io.rm(tmp_dir)
+    # callback
+    if callback_url is not None:
+        HttpDispatchTask.delay(url=callback_url, method="GET", result=result)
+        URL(callback_url).get_async((result,))
 
+def new_files(service_name, task_id, out_path, _files):
+    """
+    Write the files in the service directory
+    """
+    out = os.path.join(out_path, task_id)
+    try:
+        os.mkdir(out)
+    except OSError, e:
+        if e.errno == errno.EEXIST:
+            io.rm(out)
+            return new_files(service_name, task_id, out_path, _files)
 
-
+    for _f in _files:
+        io.mv(_f, out)
 
 
 #@task()

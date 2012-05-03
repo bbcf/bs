@@ -131,9 +131,6 @@ class FormController(BaseController):
             flash(e, 'error')
             raise redirect(url('./index', params={'id' : form_id}, **kw))
 
-
-
-
         user = handler.user.get_service_in_session(request)
 
         ### FETCH FILES ###
@@ -147,12 +144,13 @@ class FormController(BaseController):
             raise redirect(url('./index', params={'id' : form_id}, **kw))
 
 
-
+        service = constants.decypher_service_name(user.name)
+        out_path = services.io.out_path(service)
+        callback_url = services.service_manager.get(service, constants.SERVICE_CALLBACK_URL_PARAMETER)
         ### PLUGIN PROCESS ###
-        task_id = tasks.plugin_process.delay(form_id, **kw)
+        task_id = tasks.plugin_process.delay(form_id, service, tmp_dir, out_path, callback_url, **kw)
 
         flash('Job launched')
-        print tmp_dir
         raise redirect(url('./done',  {'task_id' : task_id}))
 
     @expose()

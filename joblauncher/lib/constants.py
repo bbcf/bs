@@ -23,7 +23,7 @@ SERVICE_IP_PARAMETER = 'remote.ip'
 SERVICE_FILE_ROOT_PARAMETER = 'file.root'
 SERVICE_URL_ROOT_PARAMETER = 'url.root'
 SERVICE_RESULT_ROOT_PARAMETER = 'result.root'
-
+SERVICE_CALLBACK_URL_PARAMETER = 'callback.url'
 
 def plugin_directory():
     return os.path.join(resource_filename('joblauncher', 'plugins'))

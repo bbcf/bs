@@ -1,6 +1,6 @@
 from . import service_manager
 from joblauncher.lib import constants, io, util
-import os, tempfile
+import os, tempfile, errno
 
 
 
@@ -38,20 +38,11 @@ def fetch_files(service, _files, form_parameters):
         raise e
     return tmp_dir
 
-
-def fetch_file(service, param, value, extension=None):
-    """
-    Fetch the file from the service and copy it in joblauncher.
-    param: service - the name of the service
-    param: param - the path where to fetch the file
-    Return: the path where the file is copied.
-    """
-    service_name = constants.decypher_service_name(service.name)
+def out_path(service_name):
     parameters = service_manager.get(service_name)
-    out = temporary_path(service_name, extension)
-    file_root = parameters.get(constants.SERVICE_FILE_ROOT_PARAMETER, None)
-    url_root = parameters.get(constants.SERVICE_URL_ROOT_PARAMETER, None)
-    print out
+    out = parameters.get(constants.SERVICE_RESULT_ROOT_PARAMETER, False)
+    if not out:
+        out = service_manager.out_path
     return out
 
 
