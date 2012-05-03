@@ -115,6 +115,8 @@ class FormController(BaseController):
         plug = plugin.get_plugin_byId(form_id)
         form = plug.plugin_object.output()(action='validation')
 
+
+        ### VALIDATE ###
         try:
             kw['_pp']=_pp
             form.validate(kw, use_request_local=True)
@@ -134,25 +136,23 @@ class FormController(BaseController):
 
         user = handler.user.get_service_in_session(request)
 
-        print 'before '
-        print kw
+        ### FETCH FILES ###
         try :
-            for k, v in pp['save_list'].iteritems():
-                if kw.has_key(k): kw[k] = services.io.fetch_file(user, k, kw.get(k))
+            tmp_dir = services.io.fetch_files(user, pp['save_list'], kw)
         except Exception as e:
             for k, v in pp['save_list'].iteritems():
                 kw[k] = json.dumps(v)
             if kw.has_key('_pp'): del kw['_pp']
-            for k, v in pp['save_list'].iteritems():
-                if kw.has_key(k): io.rm(kw.get(k))
-            # an error occurs when fetching the file
-            flash(e, error)
+            flash(e, 'error')
             raise redirect(url('./index', params={'id' : form_id}, **kw))
-        print 'after '
-        print kw
+
+
+
+        ### PLUGIN PROCESS ###
         task_id = tasks.plugin_process.delay(form_id, **kw)
 
         flash('Job launched')
+        print tmp_dir
         raise redirect(url('./done',  {'task_id' : task_id}))
 
     @expose()

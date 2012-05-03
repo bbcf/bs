@@ -1,6 +1,42 @@
 from . import service_manager
 from joblauncher.lib import constants, io, util
-import os
+import os, tempfile
+
+
+
+
+def fetch_files(service, _files, form_parameters):
+    """
+    Fetch the file given in parameter.
+    The files are stored in _files parameters but only those
+    specified in parameters.
+    This update the parameters with the new value
+    """
+    service_name = constants.decypher_service_name(service.name)
+    parameters = service_manager.get(service_name)
+    file_root = parameters.get(constants.SERVICE_FILE_ROOT_PARAMETER, None)
+    url_root = parameters.get(constants.SERVICE_URL_ROOT_PARAMETER, None)
+
+    tmp_dir = temporary_directory(service_name)
+    try :
+        for form_parameter in _files.keys():
+            if form_parameters.has_key(form_parameter):
+                value = form_parameters.get(form_parameter)
+                #TODO verify if the extension is not specified in the _files
+                extension = ''
+                tmp_file = tempfile.NamedTemporaryFile(suffix=extension, dir=tmp_dir, delete=False)
+                tmp_file.close()
+
+                if file_root is not None and url_root is not None:
+                    new = value.replace(url_root, file_root)
+                    io.copy(new, tmp_file.name)
+                else :
+                    io.download(value, tmp_file.name)
+                form_parameters[form_parameter] = tmp_file.name
+    except IOError as e:
+        io.rm(tmp_dir)
+        raise e
+    return tmp_dir
 
 
 def fetch_file(service, param, value, extension=None):
@@ -16,21 +52,15 @@ def fetch_file(service, param, value, extension=None):
     file_root = parameters.get(constants.SERVICE_FILE_ROOT_PARAMETER, None)
     url_root = parameters.get(constants.SERVICE_URL_ROOT_PARAMETER, None)
     print out
-    try :
-
-    if file_root is not None and url_root is not None:
-        new = value.replace(url_root, file_root)
-        io.copy(new, out)
-    else :
-        io.download(value, out)
-    except Exception as e:
-        io.rm(out)
     return out
 
 
 
 
 def temporary_path(service_name, extension=None, filename='in'):
+    """
+    Build a temporary path in a temporary directory
+    """
     unique = util.id_generator()
     tmp_dir = os.path.join(service_manager.in_path, service_name, unique)
     try:
@@ -44,4 +74,19 @@ def temporary_path(service_name, extension=None, filename='in'):
     unique_path = os.path.join(tmp_dir, filename)
     if extension is not None:
         return '%s.%s' % (unique_path, extension)
-    return unique_path
+    return tmp_dir, unique_path
+
+def temporary_directory(service_name):
+    """
+    Build a temporary directory in the service directory
+    """
+    unique = util.id_generator()
+    tmp_dir = os.path.join(service_manager.in_path, service_name, unique)
+    try:
+        os.mkdir(tmp_dir)
+    except OSError, e:
+        if e.errno == errno.EEXIST:
+            return temporary_directory(service_name)
+        else: #this error must be raised to tell that something wrong with mkdir
+            raise OSError
+    return tmp_dir
