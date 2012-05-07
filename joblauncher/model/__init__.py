@@ -57,5 +57,5 @@ def init_model(engine):
 
 # Import your model modules here.
 from joblauncher.model.auth import User, Group, Permission
-
-admin_models = ['User', 'Group', 'Permission']
+from joblauncher.model.database import Request, Result, Task
+admin_models = ['User', 'Group', 'Permission', 'Request']

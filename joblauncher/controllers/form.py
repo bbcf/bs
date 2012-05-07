@@ -9,6 +9,7 @@ from repoze.what.predicates import has_permission
 import json
 from pylons import tmpl_context
 from formencode import Invalid
+from joblauncher import handler
 from joblauncher.lib.tasks import tasks
 from joblauncher.lib import services, io
 from joblauncher import lib
@@ -124,8 +125,9 @@ class FormController(BaseController):
             import traceback, sys
             etype, value, tb = sys.exc_info()
             traceback.print_exception(etype, value, tb)
-            for k, v in pp['save_list'].iteritems():
-                kw[k] = json.dumps(v)
+            if pp.has_key('save_list'):
+                for k, v in pp['save_list'].iteritems():
+                    kw[k] = json.dumps(v)
 
             if kw.has_key('_pp'): del kw['_pp']
             flash(e, 'error')
@@ -137,8 +139,9 @@ class FormController(BaseController):
         try :
             tmp_dir = services.io.fetch_files(user, pp['save_list'], kw)
         except Exception as e:
-            for k, v in pp['save_list'].iteritems():
-                kw[k] = json.dumps(v)
+            if pp.has_key('save_list'):
+                for k, v in pp['save_list'].iteritems():
+                    kw[k] = json.dumps(v)
             if kw.has_key('_pp'): del kw['_pp']
             flash(e, 'error')
             raise redirect(url('./index', params={'id' : form_id}, **kw))
@@ -147,8 +150,12 @@ class FormController(BaseController):
         service = constants.decypher_service_name(user.name)
         out_path = services.io.out_path(service)
         callback_url = services.service_manager.get(service, constants.SERVICE_CALLBACK_URL_PARAMETER)
+
         ### PLUGIN PROCESS ###
-        task_id = tasks.plugin_process.delay(form_id, service, tmp_dir, out_path, callback_url, **kw)
+        async_res = tasks.plugin_process.delay(form_id, service, tmp_dir, out_path, callback_url, **kw)
+        task_id = async_res.task_id
+        ### UPDATE DB ###
+        handler.database.new_request(kw, task_id, out_path)
 
         flash('Job launched')
         raise redirect(url('./done',  {'task_id' : task_id}))

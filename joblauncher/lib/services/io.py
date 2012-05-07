@@ -9,8 +9,8 @@ def fetch_files(service, _files, form_parameters):
     """
     Fetch the file given in parameter.
     The files are stored in _files parameters but only those
-    specified in parameters.
-    This update the parameters with the new value
+    specified in the form_parameters.
+    This update the form_parameters with the new value
     """
     service_name = constants.decypher_service_name(service.name)
     parameters = service_manager.get(service_name)

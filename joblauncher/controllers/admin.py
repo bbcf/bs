@@ -21,14 +21,11 @@ __all__ = ['AdminController']
 
 
 class AdminController(BaseController):
-
     allow_only = has_permission(constants.permission_admin_name)
 
 
 
     @expose('joblauncher.templates.admin')
-
     def index(self, *args, **kw):
-
         return {'page' : 'admin', 'admin_items' : [m.lower() for m in model.admin_models]}
 

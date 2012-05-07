@@ -11,6 +11,6 @@ from joblauncher.controllers.permission import PermissionController
 from joblauncher.controllers.user import UserController
 from joblauncher.controllers.admin import AdminController
 from joblauncher.controllers.form import FormController
-
+from joblauncher.controllers.request import RequestController
 
 from joblauncher.controllers.root import RootController

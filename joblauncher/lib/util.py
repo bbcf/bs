@@ -14,14 +14,14 @@ def to_datagrid(grid_type, grid_data, grid_title, grid_display):
     @param grid_display :True if the DataGrid has to be displayed.
     @type grid_display : a boolean. (Normally it's the len() of the 'grid_data' )
     '''
-    data = {'grid':grid_type,
+    return {'grid':grid_type,
     'grid_data':grid_data,
     'grid_title':grid_title,
     'grid_display':grid_display}
-    return data
 
 
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in xrange(size))
+
 

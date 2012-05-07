@@ -60,7 +60,7 @@ class ServiceManager(object):
                 serv.name = constants.service_name(service)
                 serv.email = constants.service_email(contact)
                 serv.is_service = True
-                session.add(serv)
+                DBSession.add(serv)
                 serv_group.users.append(serv)
         DBSession.add(serv_group)
         DBSession.flush()
@@ -81,7 +81,6 @@ class ServiceManager(object):
         Check if the parameter specified with the value specified exist.
         If yes, it return the service.
         """
-        print self.parameters
         for service in self.services:
             if self.get(service, param) == value: return service
         return False

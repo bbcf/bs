@@ -7,7 +7,7 @@ from joblauncher.model import DBSession
 from repoze.what.predicates import has_permission
 from joblauncher.controllers import ErrorController, LoginController, GroupController
 from joblauncher.controllers import PermissionController, UserController, AdminController
-from joblauncher.controllers import FormController
+from joblauncher.controllers import FormController, RequestController
 
 __all__ = ['RootController']
 
@@ -44,6 +44,7 @@ class RootController(BaseController):
     users = UserController(DBSession, menu_items=models)
     admin = AdminController()
     form = FormController()
+    requests = RequestController()
 
 
 
@@ -73,7 +74,7 @@ class RootController(BaseController):
     @expose('json')
     def test(self, *args, **kw):
         print "called root test method %s, %s" % (args, kw)
-        return {"status": "success", "retval": "1"}
+        return {}
 
     
 
@@ -86,27 +87,18 @@ class RootController(BaseController):
     
 
     @require(has_permission('admin', msg='Only for admins'))
-
     @expose('joblauncher.templates.environ')
-
     def environ(self):
-
         """This method showcases TG's access to the wsgi environment."""
-
         return dict(page='environ',environment=request.environ)
 
 
 
     @require(has_permission('admin', msg='Only for admins'))
-
     @expose('joblauncher.templates.data')
-
     @expose('json')
-
     def data(self, **kw):
-
         """This method showcases how you can use the same controller for a data page and a display page"""
-
         return dict(page='data',params=kw)
 
 

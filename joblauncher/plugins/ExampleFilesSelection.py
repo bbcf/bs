@@ -34,5 +34,4 @@ class ExampleFilesSelection(IPlugin, OperationPlugin):
         print file_2
         nf(self, file_1)
         nf(self, file_2)
-
         return 'done %s, %s' % (file_1, file_2)
