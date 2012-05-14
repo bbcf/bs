@@ -54,11 +54,11 @@ class ServiceManager(object):
         serv_group = DBSession.query(Group).filter(Group.id == constants.group_services_id).first()
         for service in self.services:
             contact = self.get(service, 'contact')
-            serv = DBSession.query(User).filter(User.email == constants.service_email(contact)).first()
+            serv = DBSession.query(User).filter(User.email == contact).first()
             if serv is None:
                 serv = User()
-                serv.name = constants.service_name(service)
-                serv.email = constants.service_email(contact)
+                serv.name = service
+                serv.email = contact
                 serv.is_service = True
                 DBSession.add(serv)
                 serv_group.users.append(serv)

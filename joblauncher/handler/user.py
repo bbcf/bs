@@ -33,7 +33,7 @@ def get_service_in_session(request):
         abort(401)
     identity = request.environ['repoze.who.identity']
     email = identity['repoze.who.userid']
-    user = DBSession.query(User).filter(User.email == constants.service_email(email)).first()
+    user = DBSession.query(User).filter(User.email == email).first()
     return user
 
 

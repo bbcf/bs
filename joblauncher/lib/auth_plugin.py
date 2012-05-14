@@ -339,7 +339,7 @@ class CustomIpsPlugin(object):
         service = service_manager.check(constants.SERVICE_IP_PARAMETER, remote_addr)
 
         if service:
-            user = DBSession.query(User).filter(User.name == constants.service_name(service)).first()
+            user = DBSession.query(User).filter(User.name == service).first()
             if user is None: return {}
             identity = {}
             identity['repoze.who.userid'] = user.email
@@ -358,6 +358,7 @@ class CustomIpsPlugin(object):
         '''
         Remember the user. (no remember from command line)
         '''
+        pass
 
     # IChallenger
     def challenge(self, environ, status, app_headers, forget_headers):
@@ -379,13 +380,15 @@ def request_classifier(environ):
     Returns one of the classifiers 'command_line' or 'browser',
     depending on the imperative logic below
     '''
-    request_method = REQUEST_METHOD(environ)
-    if request_method == 'POST':
-        req = Request(environ)
-        if not 'Cookie' in req.headers:
-            environ[constants.REQUEST_TYPE] = constants.REQUEST_TYPE_SERVICE
-            return constants.REQUEST_TYPE_SERVICE
-    environ[constants.REQUEST_TYPE] = constants.REQUEST_TYPE_BROWSER
-    return constants.REQUEST_TYPE_BROWSER
+    return constants.REQUEST_TYPE_SERVICE
+#    request_method = REQUEST_METHOD(environ)
+#    req = Request(environ)
+#    if not 'Cookie' in req.headers:
+#        environ[constants.REQUEST_TYPE] = constants.REQUEST_TYPE_SERVICE
+#        print constants.REQUEST_TYPE_SERVICE
+#        return constants.REQUEST_TYPE_SERVICE
+#    environ[constants.REQUEST_TYPE] = constants.REQUEST_TYPE_BROWSER
+#    print constants.REQUEST_TYPE_BROWSER
+#    return constants.REQUEST_TYPE_BROWSER
 
 zope.interface.directlyProvides(request_classifier, IRequestClassifier)

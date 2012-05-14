@@ -1,6 +1,6 @@
 from . import service_manager
 from joblauncher.lib import constants, io, util
-import os, tempfile, errno
+import os, tempfile, errno, urllib2
 
 
 
@@ -12,7 +12,7 @@ def fetch_files(service, _files, form_parameters):
     specified in the form_parameters.
     This update the form_parameters with the new value
     """
-    service_name = constants.decypher_service_name(service.name)
+    service_name = service.name
     parameters = service_manager.get(service_name)
     file_root = parameters.get(constants.SERVICE_FILE_ROOT_PARAMETER, None)
     url_root = parameters.get(constants.SERVICE_URL_ROOT_PARAMETER, None)
@@ -28,7 +28,10 @@ def fetch_files(service, _files, form_parameters):
                 tmp_file.close()
 
                 if file_root is not None and url_root is not None:
+                    # remove //
+                    value = value.replace('//', '/').replace(':/', '://')
                     new = value.replace(url_root, file_root)
+                    print new
                     io.copy(new, tmp_file.name)
                 else :
                     io.download(value, tmp_file.name)
