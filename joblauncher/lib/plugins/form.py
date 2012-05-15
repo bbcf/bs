@@ -59,6 +59,7 @@ class FilesForm(twf.TableForm):
     show_errors = True             # show red labels when validators failed
     fields = [                     # define the fields you need in your form
         twf.HiddenField('_pp'),                          # field needed to transfert information to the validation system
+        twf.HiddenField('_up'),                          # field needed to transfert user parameters if needed
         twf.SingleSelectField(id='track_1', label_text='File 1 : ',    # simple 'select' field with a custom validator
             help_text = 'Select the first file',
                               validator=twv.NotEmpty()),

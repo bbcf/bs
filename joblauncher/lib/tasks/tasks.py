@@ -3,24 +3,20 @@ from celery.task import task, chord, subtask
 from celery.task.sets import TaskSet
 from . import get_plugin_byId
 from joblauncher.lib import io
-import os, urllib, urllib2
+import os, urllib, urllib2, json
 from celery.task.http import HttpDispatchTask
 
 
 @task()
-def test(x):
-    return x * x
-
-
-@task()
-def plugin_process(_id, service_name, tmp_dir, out_path, callback_url=None, **kw):
+def plugin_process(_id, service_name, tmp_dir, out_path, name, description, callback_url=None, **kw):
     """
     Method which retrieve the plugin by it's id and launch the processing steps (pre/process/post)
     """
     task_id = plugin_process.request.id
 
+    user_parameters = json.loads(kw.get('_up', "{}"))
     if callback_url is not None:
-        callback_service(callback_url, {'form_id' : _id, 'task_id' : task_id, 'status' : 'RUNNING'})
+        callback_service(callback_url, _id, task_id, 'RUNNING', name, description, additional=user_parameters)
 
     try :
         plugin = _plugin_pre_process(_id, service_name, **kw)
@@ -29,17 +25,16 @@ def plugin_process(_id, service_name, tmp_dir, out_path, callback_url=None, **kw
 
 
         if callback_url is not None:
-            callback_service(callback_url, {'form_id' : _id, 'task_id' : task_id, 'status' : 'SUCCESS', 'result' : result})
+            user_parameters.update({'result' : result})
+            callback_service(callback_url, _id, task_id, 'SUCCESS', name, description, additional=user_parameters)
         return result
 
 
 
     except Exception as e:
         if callback_url is not None:
-            callback_service(callback_url, {'form_id' : _id,
-                                            'task_id' : task_id,
-                                            'status' : 'ERROR',
-                                            'error' : e})
+            user_parameters.update({'error' : e})
+            callback_service(callback_url, _id, task_id, 'ERROR', name, description, additional=user_parameters)
         raise e
 
     finally :
@@ -87,9 +82,32 @@ def new_files(service_name, task_id, out_path, _files):
             return new_files(service_name, task_id, out_path, _files)
 
     for _f in _files:
+        print _f
         io.mv(_f, out)
 
 
 
-def callback_service(url, result):
-    req = urllib2.urlopen(url + '?' + urllib.urlencode(result))
+def callback_service(url, form_id, task_id, status, name, desc, additional=None):
+    """
+    Send a response back to the callback url with parameters of the job launched
+    :param form_id : the form identifier
+    :param task_id : the task identifier
+    :param status : the status of the task
+    :param name : the task name
+    :param desc : the task description
+    :param additional : a dict with some additional parameters that can be needed
+    ('error' : when an error occurs, 'result' when a task finish with success)
+    """
+    params = {'fid' : form_id,
+              'tid' : task_id,
+              'st' : status,
+              'tn' : name,
+              'td' : desc}
+    if additional is not None:
+        params.update(additional)
+    try :
+        req = urllib2.urlopen(url, data=urllib.urlencode(params))
+    except Exception as e:
+        import sys, traceback
+        etype, value, tb = sys.exc_info()
+        traceback.print_exception(etype, value, tb)

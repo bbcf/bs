@@ -42,7 +42,7 @@ def parse_parameters(id, fields, **kw):
             if to_treat_as_file_list.has_key(key):
                 _list = json.loads(kw.get(field.id, "[]"))
                 if isinstance(_list, list):
-                    child_args[field.id] = {'options' : [(_list[i][1], _list[i][0]) for i in xrange(len(list(_list)))] }
+                    child_args[field.id] = {'options' : [(_list[i][1], _list[i][0]) for i in xrange(len(list(_list)))]}
                 else :
                     child_args[field.id] = {'options' : dict([(_list[i], _list[i]) for i in xrange(len(list(_list)))])}
                 save[field.id] = _list
@@ -154,15 +154,14 @@ class FormController(BaseController):
             flash(e, 'error')
             raise redirect(url('./index', params={'id' : form_id}, **kw))
 
-        # must remove on prod version
-        #service = constants.decypher_service_name(user.name)
         service = user.name
 
         out_path = services.io.out_path(service)
         callback_url = services.service_manager.get(service, constants.SERVICE_CALLBACK_URL_PARAMETER)
 
         ### PLUGIN PROCESS ###
-        async_res = tasks.plugin_process.delay(form_id, service, tmp_dir, out_path, callback_url, **kw)
+        async_res = tasks.plugin_process.delay(form_id, service, tmp_dir, out_path, plug.plugin_object.title(), plug.plugin_object.description(), callback_url, **kw)
+
         task_id = async_res.task_id
         ### UPDATE DB ###
         handler.database.new_request(kw, task_id, out_path)
