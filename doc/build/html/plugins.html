@@ -1,0 +1,259 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-24167610-15']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+    <title>Plugins</title>
+    
+    <link rel="stylesheet" href="_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/logo.png"/>
+    <link rel="top" title="None" href="index.html" />
+    <link rel="prev" title="How to" href="use_it.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="use_it.html" title="How to"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">joblauncher_v_0.1</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="plugins">
+<span id="id1"></span><h1>Plugins<a class="headerlink" href="#plugins" title="Permalink to this headline">¶</a></h1>
+<p>It uses <a class="reference external" href="http://yapsy.sourceforge.net/">Yapsy</a> plugin system to automatically add new <em>Operations</em> on the interface.</p>
+<div class="section" id="add-your-plugin">
+<h2>Add your plugin<a class="headerlink" href="#add-your-plugin" title="Permalink to this headline">¶</a></h2>
+<p>Make a python class <tt class="xref py py-class docutils literal"><span class="pre">ExampleFilesSelection.py</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">joblauncher.lib.plugins.plugin</span> <span class="kn">import</span> <span class="n">OperationPlugin</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">nf</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Some util functions</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">joblauncher.lib.plugins</span> <span class="kn">import</span> <span class="n">form</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">An example form, that you can also define in this file</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">yapsy.IPlugin</span> <span class="kn">import</span> <span class="n">IPlugin</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The plugin system</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">shutil</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Import here other libraries that you need</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleFilesSelection</span><span class="p">(</span><span class="n">IPlugin</span><span class="p">,</span> <span class="n">OperationPlugin</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the Operation title.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&#39;Merge&#39;</span>
+
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the Operation path. Must be unique among all others operations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s">&#39;Manipulation&#39;</span><span class="p">,</span> <span class="s">&#39;Merge&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define what form will be used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">form</span><span class="o">.</span><span class="n">FilesForm</span>
+
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Document your Operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;&#39;It is just an example.&#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the parameters needed by your Operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;track_1&#39;</span> <span class="p">:</span> <span class="s">&#39;The first file. Required&#39;</span><span class="p">,</span> <span class="s">&#39;track_2&#39;</span> <span class="p">:</span> <span class="s">&#39;The second file. Required&#39;</span><span class="p">,</span> <span class="s">&#39;thr&#39;</span> <span class="p">:</span> <span class="s">&#39;a threshold.&#39;</span><span class="p">}</span>
+
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define here the Operation itself with the parameters gathered form the form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_1</span> <span class="o">=</span> <span class="n">rp</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="s">&#39;track_1&#39;</span><span class="p">)</span>                    <span class="c"># retrieve parameter `track_1`</span>
+        <span class="n">file_2</span> <span class="o">=</span> <span class="n">rp</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="s">&#39;track_2&#39;</span><span class="p">)</span>                    <span class="c"># rp `track_2`</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rp</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="s">&#39;thr&#39;</span><span class="p">))</span>                <span class="c"># rp `thr` and convert it to an int</span>
+
+        <span class="n">root</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">file_1</span><span class="p">)</span>           <span class="c"># simulated process</span>
+        <span class="n">nfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&#39;new_file.bed&#39;</span><span class="p">)</span>    <span class="c"># take the first file and</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">file_1</span><span class="p">,</span> <span class="n">nfile</span><span class="p">)</span>                    <span class="c"># rename it to &#39;new_file.bed&#39;</span>
+
+        <span class="n">nf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nfile</span><span class="p">)</span>                               <span class="c"># add a new file in the job result</span>
+                                                      <span class="c"># nf(plugin, file) will add the file</span>
+                                                      <span class="c"># to the output of the job.</span>
+                                                      <span class="c"># the file can be retrieved by your service after.</span>
+
+        <span class="k">return</span> <span class="s">&#39;example terminated&#39;</span>                   <span class="c"># the Operation return value</span>
+</pre></div>
+</div>
+<p>Make the corresponding <tt class="docutils literal"><span class="pre">yapsy</span></tt> file <tt class="xref py py-class docutils literal"><span class="pre">ExampleFilesSelection.yapsy-plugin</span></tt>:</p>
+<div class="highlight-python"><pre>[Core]
+Name = ExampleFilesSelection
+Module = ExampleFilesSelection
+
+[Documentation]
+Author = Jarosz Yohan
+Version = 0.1
+Website = http://github.com/yjarosz
+Description = Test plugin to select files on a form and fetch them in your service.</pre>
+</div>
+<p>This one is used to describe your plugin and to tell <tt class="docutils literal"><span class="pre">Yapsy</span></tt> which plugin to take.</p>
+<p>Put both file in the <tt class="docutils literal"><span class="pre">plugins</span></tt> directory. The new operation should appears on your server.</p>
+</div>
+<div class="section" id="forms">
+<h2>Forms<a class="headerlink" href="#forms" title="Permalink to this headline">¶</a></h2>
+<p>Forms can be build with <a class="reference external" href="http://toscawidgets.org/">Toscawidgets</a>, <a class="reference external" href="http://www.formencode.org/">FormEncode</a> or <a class="reference external" href="http://sprox.org/">Sprox</a>.
+Here an example with Toscawidget, to follow the example with <tt class="xref py py-class docutils literal"><span class="pre">ExampleFilesSelection</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">tw</span> <span class="kn">import</span> <span class="n">forms</span> <span class="k">as</span> <span class="n">twf</span>
+<span class="kn">from</span> <span class="nn">tw.forms</span> <span class="kn">import</span> <span class="n">validators</span> <span class="k">as</span> <span class="n">twv</span>
+
+<span class="k">class</span> <span class="nc">FilesForm</span><span class="p">(</span><span class="n">twf</span><span class="o">.</span><span class="n">TableForm</span><span class="p">):</span>
+
+    <span class="n">submit_text</span> <span class="o">=</span> <span class="s">&#39;Merge the files&#39;</span>                                    <span class="c"># text of the submit button</span>
+
+    <span class="n">hover_help</span> <span class="o">=</span> <span class="bp">True</span>                                                  <span class="c"># show help_text with mouse onHover</span>
+
+    <span class="n">show_errors</span> <span class="o">=</span> <span class="bp">True</span>                                                 <span class="c"># show red labels when validators failed</span>
+
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>                                                         <span class="c"># define the fields you need in your form</span>
+
+        <span class="n">twf</span><span class="o">.</span><span class="n">HiddenField</span><span class="p">(</span><span class="s">&#39;_pp&#39;</span><span class="p">),</span>                                        <span class="c"># field needed to transfert information to the validation system</span>
+                                                                       <span class="c"># REQUIRED and don&#39;t modify it</span>
+
+        <span class="n">twf</span><span class="o">.</span><span class="n">HiddenField</span><span class="p">(</span><span class="s">&#39;_up&#39;</span><span class="p">),</span>                                        <span class="c"># field needed to transfert user parameters if needed</span>
+                                                                       <span class="c"># REQUIRED you can pass some parameters needed by your application</span>
+                                                                       <span class="c"># in this field</span>
+
+        <span class="n">twf</span><span class="o">.</span><span class="n">SingleSelectField</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s">&#39;track_1&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s">&#39;File 1 : &#39;</span><span class="p">,</span>    <span class="c"># simple &#39;select&#39; field with a simple validator</span>
+            <span class="n">help_text</span> <span class="o">=</span> <span class="s">&#39;Select the first file&#39;</span><span class="p">,</span>                       <span class="c"># you can customize your own</span>
+                              <span class="n">validator</span><span class="o">=</span><span class="n">twv</span><span class="o">.</span><span class="n">NotEmpty</span><span class="p">()),</span>
+
+        <span class="n">twf</span><span class="o">.</span><span class="n">Spacer</span><span class="p">(),</span>                                                  <span class="c"># a spacer between two field</span>
+
+        <span class="n">twf</span><span class="o">.</span><span class="n">SingleSelectField</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s">&#39;track_2&#39;</span><span class="p">,</span> <span class="n">label_text</span><span class="o">=</span><span class="s">&#39;File 2 : &#39;</span><span class="p">,</span>    <span class="c"># simple &#39;select&#39; field with a simple validator</span>
+            <span class="n">help_text</span> <span class="o">=</span> <span class="s">&#39;Select the second file&#39;</span><span class="p">,</span>
+            <span class="n">validator</span><span class="o">=</span><span class="n">twv</span><span class="o">.</span><span class="n">NotEmpty</span><span class="p">()),</span>
+
+        <span class="n">twf</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">label_text</span><span class="o">=</span><span class="s">&#39;Threshold&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">&#39;thr&#39;</span><span class="p">,</span>                <span class="c"># a simple input field (with a simple validator)</span>
+            <span class="n">help_text</span> <span class="o">=</span> <span class="s">&#39;Input the trhreshold here&#39;</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">twv</span><span class="o">.</span><span class="n">NotEmpty</span><span class="p">()),</span>
+           <span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Plugins</a><ul>
+<li><a class="reference internal" href="#add-your-plugin">Add your plugin</a></li>
+<li><a class="reference internal" href="#forms">Forms</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="use_it.html"
+                        title="previous chapter">How to</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/plugins.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul><h3>Other BBCF projects</h3>
+<ul>
+<li><a href="http://bbcftools.vital-it.ch/">BBCFtools</a></li>
+<li><a href="http://htsstation.vital-it.ch/">HTSstation</a></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="use_it.html" title="How to"
+             >previous</a> |</li>
+        <li><a href="index.html">joblauncher_v_0.1</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, BBCF.
+      Last updated on May 15, 2012.
+    <a href="http://www.gnu.org/licenses/gpl-3.0.txt"><p>GPL3 licensed</p></a>
+    </div>
+  </body>
+</html>

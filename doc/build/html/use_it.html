@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-24167610-15']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+    <title>How to</title>
+    
+    <link rel="stylesheet" href="_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/logo.png"/>
+    <link rel="top" title="None" href="index.html" />
+    <link rel="next" title="Plugins" href="plugins.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="plugins.html" title="Plugins"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">joblauncher_v_0.1</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="how-to">
+<h1>How to<a class="headerlink" href="#how-to" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>Several methods are callable to access the application.
+They are all accessible via the <em>form</em> controller. It means that if your application
+is served on <tt class="docutils literal"><span class="pre">http://localhost:8080</span></tt>, all following methods will be accessible at
+<tt class="docutils literal"><span class="pre">http://localhost:8080/form</span></tt></p>
+<p><strong>N.B</strong> : all following methods can be viewed directly in JSON. (Just add <tt class="docutils literal"><span class="pre">.json</span></tt> after the method name)</p>
+</div>
+<div class="section" id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first"><strong>list</strong> : Get a list of methods to use, formatted in a JSON way .</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference external" href="http://localhost:8080/form/list">http://localhost:8080/form/list</a>
+or view it in <cite>JSON</cite> <a class="reference external" href="http://localhost:8080/form/list.json">http://localhost:8080/form/list.json</a></p>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>info</strong> : Get documentation and parameters needed for a specific method. You must give the <em>id</em> of the method as a parameter.</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference external" href="http://localhost:8080/form/info?id=dd2f5c97a48ab83caa5618a3a8898c54205c91b5">http://localhost:8080/form/info?id=dd2f5c97a48ab83caa5618a3a8898c54205c91b5</a> or in <cite>JSON</cite>
+<a class="reference external" href="http://localhost:8080/form/info.json?id=dd2f5c97a48ab83caa5618a3a8898c54205c91b5">http://localhost:8080/form/info.json?id=dd2f5c97a48ab83caa5618a3a8898c54205c91b5</a></p>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>index</strong> : The form to display in your application.</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference external" href="http://localhost:8080/form/index?id=dd2f5c97a48ab83caa5618a3a8898c54205c91b5">http://localhost:8080/form/index?id=dd2f5c97a48ab83caa5618a3a8898c54205c91b5</a></p>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<p>The <tt class="docutils literal"><span class="pre">index</span></tt> method display the form, and you can call it in an <tt class="docutils literal"><span class="pre">iframe</span></tt> in your application.
+The form displayed is the one that you defined in your plugin (see <a class="reference internal" href="plugins.html#plugins"><em>Plugins</em></a>).</p>
+</div>
+<div class="section" id="initialization">
+<h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
+<p>In order to use <em>joblauncher</em> by your service, you must define it in
+<tt class="docutils literal"><span class="pre">service.ini</span></tt> file in joblauncher source folder</p>
+<p>Here an example, add it at the end of the file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Define here services allowed to process request on joblauncher</span>
+<span class="c"># Available parameters are :</span>
+<span class="c"># REQUIRED</span>
+<span class="c">#     - contact : an email of contact</span>
+<span class="c">#     - remote.ip : IP of the service</span>
+<span class="c"># OPTIONAL</span>
+<span class="c">#     - file.root : absolute path to get the file on the filesystem</span>
+<span class="c">#       (joblauncher must be installed on the same server as the service)</span>
+<span class="c">#     - url.root : the part of the url given to fetch the file to replace with file_root</span>
+<span class="c">#     - result.root : absolute path where to write results</span>
+<span class="c">#     - operations : the list of plugins to get for the service (default = all)</span>
+
+<span class="p">[</span><span class="n">MYSERVICE</span><span class="p">]</span>
+<span class="n">contact</span> <span class="o">=</span> <span class="s">&#39;yohan.jarosz@epfl.ch&#39;</span>
+<span class="n">remote</span><span class="o">.</span><span class="n">ip</span> <span class="o">=</span> <span class="s">&quot;127.0.0.1&quot;</span>
+<span class="nb">file</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="s">&quot;/srv/data/files/&quot;</span>
+<span class="n">url</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="s">&quot;http://localhost:8080/myservice&quot;</span>
+<span class="n">result</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="s">&quot;/srv/data/files/job_results/&quot;</span>
+<span class="n">callback</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s">&quot;http://localhost:8080/callback&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="discussion">
+<h2>Discussion<a class="headerlink" href="#discussion" title="Permalink to this headline">¶</a></h2>
+<p>Discussion with <em>joblauncher</em> is all about <tt class="docutils literal"><span class="pre">HTTP``and</span> <span class="pre">``JSON</span></tt> requests/responses.</p>
+<p>Following examples will be given in python but you can always implement it in any languages that provides HTTP handling.</p>
+<p>Following examples will take the example of <tt class="docutils literal"><span class="pre">myservice</span></tt> which is defined in the previous paragraph.</p>
+<p>Following examples will assume that <tt class="docutils literal"><span class="pre">myservice</span></tt> and <tt class="docutils literal"><span class="pre">joblauncher</span></tt> runs on the same server but on different ports :
+myservice on <em>8080</em> and joblauncher on <em>7520</em> for instance.</p>
+<div class="section" id="index">
+<h3>Index<a class="headerlink" href="#index" title="Permalink to this headline">¶</a></h3>
+<p>You are here in a webserver controller method that can be called by your application. Here,
+this method is called with an <em>operation_id</em> (identify the operation) and the <em>user_id</em> (identify the user):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fill_with_tracks</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;dd2f5c97a48ab83caa5618a3a8898c54205c91b5&#39;</span> <span class="p">:</span> <span class="p">[</span><span class="s">&#39;track_1&#39;</span><span class="p">,</span> <span class="s">&#39;track_2&#39;</span><span class="p">]}</span>
+
+
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Some fictive method that serve the joblauncher form.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># take the joblauncher url from configuration file</span>
+    <span class="n">joblauncher_url</span> <span class="o">=</span> <span class="s">&#39;http://localhost:7520/&#39;</span>
+
+    <span class="c"># prepare the request to send with the operation id</span>
+    <span class="c"># This is the only requested parameter to fetch the form</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;id&#39;</span> <span class="p">:</span> <span class="n">operation_id</span><span class="p">}</span>
+
+
+    <span class="c"># add private parameters to the request that you will need after</span>
+    <span class="n">someData</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">get_some_data_from_user_id</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+    <span class="n">req</span><span class="p">[</span><span class="s">&#39;_up&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;user_id&quot;</span> <span class="p">:</span> <span class="n">user_id</span><span class="p">,</span> <span class="s">&quot;data&quot;</span> <span class="p">:</span> <span class="n">someData</span> <span class="p">}</span>
+
+    <span class="c"># add files in the form because I know that this form with this *operation_id* will contains files list</span>
+    <span class="c"># on the parameters listed</span>
+    <span class="c"># [_f.name, f.http_link] will permit to show the file name in the form,</span>
+    <span class="c"># but pass an http link to the file in the methods.</span>
+    <span class="c"># The http link (url.root) can be replaced with the file.root if you defined it in the</span>
+    <span class="c"># service.ini file.</span>
+    <span class="k">if</span> <span class="n">fill_with_tracks</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">operation_id</span><span class="p">):</span>
+        <span class="n">gen_files</span> <span class="o">=</span> <span class="p">[[</span><span class="n">_f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">_f</span><span class="o">.</span><span class="n">http_link</span><span class="p">]</span> <span class="k">for</span> <span class="n">_f</span> <span class="ow">in</span> <span class="n">database</span><span class="o">.</span><span class="n">get_files_from_user_id</span><span class="p">(</span><span class="n">user_id</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">fill_with_tracks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">operation_id</span><span class="p">):</span>
+            <span class="n">req</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">gen_files</span><span class="p">)</span>
+
+    <span class="c"># send the request on joblauncher service</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">joblauncher_url</span><span class="p">,</span> <span class="n">urllib</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">req</span><span class="p">))</span>
+
+    <span class="c"># serve the form as a response in your application</span>
+    <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="callback">
+<h3>Callback<a class="headerlink" href="#callback" title="Permalink to this headline">¶</a></h3>
+<p>Another important method is about <em>callback</em>. If you have defined <tt class="docutils literal"><span class="pre">callback.url</span></tt> in
+the <em>service.ini</em> file. With this example, <em>joblauncher</em> will callback <em>http://localhost:8080/myservice/callback</em>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">tn</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+    <span class="c"># This method is called with some private parameters that you</span>
+    <span class="c"># passed in the &#39;_up&#39; parameters in the request. Here user_id and data</span>
+
+    <span class="n">do_something</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="c"># Other following parameters are defined below</span>
+
+    <span class="n">do_other</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">tn</span><span class="o">.</span> <span class="n">td</span><span class="p">)</span>
+
+    <span class="c"># Other actions depending on the status</span>
+    <span class="k">if</span> <span class="n">st</span> <span class="o">==</span> <span class="s">&#39;RUNNING&#39;</span><span class="p">:</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">set_my_operation</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">tid</span><span class="p">,</span> <span class="n">launched</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">st</span> <span class="o">==</span> <span class="s">&#39;ERROR&#39;</span><span class="p">:</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">set_my_operation</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">tid</span><span class="p">,</span> <span class="n">finished</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">with_error</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">kw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;error&#39;</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">st</span> <span class="o">==</span> <span class="s">&#39;SUCCESS&#39;</span><span class="p">:</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">set_my_operation</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">tid</span><span class="p">,</span> <span class="n">finished</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">with_error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="n">kw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<ul>
+<li><p class="first"><em>fid</em> : the operation identifier (or form identifier)</p>
+</li>
+<li><p class="first"><em>tid</em> : the task identifier that identify the job launched on joblauncher</p>
+</li>
+<li><dl class="first docutils">
+<dt><em>st</em> <span class="classifier-delimiter">:</span> <span class="classifier">the status of the task. Can be</span></dt>
+<dd><p class="first last"><tt class="docutils literal"><span class="pre">RUNNING</span></tt>,
+<tt class="docutils literal"><span class="pre">SUCCESS</span></tt> (you can retrieve the job result with <tt class="docutils literal"><span class="pre">kw.get('result')</span></tt>) or
+<tt class="docutils literal"><span class="pre">ERROR</span></tt> (retrieve the error with <tt class="docutils literal"><span class="pre">kw.get('error')</span></tt>)</p>
+</dd>
+</dl>
+</li>
+<li><p class="first"><em>tn</em> : the operation name (can be used to display something understandable for users)</p>
+</li>
+<li><p class="first"><em>td</em> : the operation description.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">How to</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#methods">Methods</a></li>
+<li><a class="reference internal" href="#initialization">Initialization</a></li>
+<li><a class="reference internal" href="#discussion">Discussion</a><ul>
+<li><a class="reference internal" href="#index">Index</a></li>
+<li><a class="reference internal" href="#callback">Callback</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="plugins.html"
+                        title="next chapter">Plugins</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/use_it.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul><h3>Other BBCF projects</h3>
+<ul>
+<li><a href="http://bbcftools.vital-it.ch/">BBCFtools</a></li>
+<li><a href="http://htsstation.vital-it.ch/">HTSstation</a></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="plugins.html" title="Plugins"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="index.html">joblauncher_v_0.1</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, BBCF.
+      Last updated on May 15, 2012.
+    <a href="http://www.gnu.org/licenses/gpl-3.0.txt"><p>GPL3 licensed</p></a>
+    </div>
+  </body>
+</html>

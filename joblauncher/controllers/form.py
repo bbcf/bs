@@ -173,6 +173,7 @@ class FormController(BaseController):
     def done(self, *args, **kw):
         return '%s' % ( kw)
 
+    @expose('json')
     @expose('joblauncher.templates.form_info')
     def info(self, id):
         plug = plugin.get_plugin_byId(id)
