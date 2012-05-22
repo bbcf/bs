@@ -1,0 +1,48 @@
+# who.ini file which configure authentication in the project
+
+[plugin:ticket]
+# Cookie-based session identification storage
+use = joblauncher.lib.auth_plugin:make_plugin
+secret = '9fg5caff387rfdd38244a9cff43484cf8bc7u915'
+cookie_name = 'auth_ticket'
+serv_url = 'http://localhost:8080'
+
+[plugin:auth]
+use = joblauncher.lib.auth_plugin:make_plugin_auth
+
+[plugin:ips]
+# Command-line-based identification plugin                                                                                                                                                                                         
+use = joblauncher.lib.auth_plugin:make_plugin_ips
+
+
+
+[general]
+request_classifier = joblauncher.lib.auth_plugin:request_classifier
+challenge_decider = repoze.who.classifiers:default_challenge_decider
+remote_user_key = REMOTE_USER
+
+ 
+[identifiers]
+# We can decide who the user is trying to identify as using either
+# a fresh form-post, or the session identifier cookie
+plugins =
+    ips;service
+    ticket;browser
+
+[authenticators]
+plugins =
+    auth
+ 
+[challengers]
+plugins =
+    ips;service
+    ticket;browser
+ 
+
+[mdproviders]
+# Metadata providers are the things that actually look up a user's credentials
+# here we have a plugin that provides "user" information (user) and another,
+# which acts as an adapter to the first, to provide group/permission information.
+plugins =
+    joblauncher.lib.auth:user
+    joblauncher.lib.auth:group
