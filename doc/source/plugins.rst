@@ -109,7 +109,7 @@ Forms
 '''''
 
 Forms can be build with `Toscawidgets <http://toscawidgets.org/>`_, `FormEncode <http://www.formencode.org/>`_ or `Sprox <http://sprox.org/>`_.
-Here an example with Toscawidget, to follow the example with :class:`ExampleFilesSelection`::
+Here an example with Toscawidget : :class:`ExampleFilesSelection.py`::
 
     from tw import forms as twf
     from tw.forms import validators as twv

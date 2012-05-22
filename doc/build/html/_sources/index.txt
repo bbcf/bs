@@ -1,5 +1,5 @@
 =====================================
-Package *'joblauncher'* documentation
+*'joblauncher'* documentation
 =====================================
 
 JobLauncher is a web application which have the purpose to build a common interface for job processing for different applications.
