@@ -14,6 +14,7 @@ testpkgs=['WebTest >= 1.2.3',
                'repoze.who-testutil >= 1.0.1',
                ]
 install_requires=[
+    "zope.interface",
     "TurboGears2 >= 2.1.5",
     "Genshi",
     "zope.sqlalchemy >= 0.4",
@@ -32,6 +33,8 @@ install_requires=[
     "tg.devtools",
     "tw.dojo",
     "tw.dynforms",
+    "yapsy",
+    
     ]
 
 if sys.version_info[:2] == (2,4):
@@ -61,7 +64,7 @@ setup(
                                  'public/img/*',
                                  'public/javascript/js/*',
                                  ]},
-    
+
     message_extractors={'joblauncher': [
             ('**.py', 'python', None),
             ('templates/**.html', 'genshi', None),
