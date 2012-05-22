@@ -34,7 +34,7 @@ install_requires=[
     "tw.dojo",
     "tw.dynforms",
     "yapsy",
-    
+
     ]
 
 if sys.version_info[:2] == (2,4):
