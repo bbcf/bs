@@ -23,6 +23,7 @@ from joblauncher.model import DBSession, User
 from repoze.who.interfaces import IIdentifier, IChallenger, IAuthenticator, IRequestClassifier
 import zope.interface
 
+app_token = 'JL'
 
 
 _NOW_TESTING = None  # unit tests can replace
@@ -37,12 +38,11 @@ def _now():  #pragma NO COVERAGE
     return datetime.datetime.now()
 
 
-def make_plugin(serv_url,
-                secret=None,
+def make_plugin(secret=None,
                 secretfile=None,
                 cookie_name='auth_tkt',
                 secure=False,
-                include_ip=True,
+                include_ip=False,
                 timeout=None,
                 reissue_time=None,
                 userid_checker=None,
@@ -69,7 +69,7 @@ def make_plugin(serv_url,
         reissue_time = int(reissue_time)
     if userid_checker is not None:
         userid_checker = resolveDotted(userid_checker)
-    plugin = CustomCookiePlugin(secret, serv_url,
+    plugin = CustomCookiePlugin(secret,
                                  cookie_name,
                                  _bool(secure),
                                  _bool(include_ip),
@@ -102,11 +102,10 @@ class CustomCookiePlugin(object):
         unicode: ('unicode', lambda x: utf_8_encode(x)[0]),
         }
 
-    def __init__(self, secret, serv_url, cookie_name='auth_tkt',
+    def __init__(self, secret, cookie_name='auth_tkt',
                  secure=False, include_ip=False,
                  timeout=None, reissue_time=None, userid_checker=None):
 
-        self.serv_url = serv_url
         self.secret = secret
         self.cookie_name = cookie_name
         self.include_ip = include_ip
@@ -126,28 +125,52 @@ class CustomCookiePlugin(object):
         '''
         Identify the user
         '''
-
         environ['auth'] = False
         cookies = get_cookies(environ)
         cookie = cookies.get(self.cookie_name)
-
+        remote_addr = environ['REMOTE_ADDR']
+        if remote_addr == '127.0.0.1' :
+            sc = environ.get('paste.cookies')
+            import Cookie
+            for c in sc:
+                if isinstance(c, Cookie.SimpleCookie):
+                    cookie = c.get(self.cookie_name, None)
+        # single login
         if cookie is None or not cookie.value:
-            return None
 
+            service = service_manager.check(constants.SERVICE_IP_PARAMETER, remote_addr)
+            if not service:
+                return None
+
+            user = DBSession.query(User).filter(User.name == service).first()
+            if user is None:
+                return None
+
+            identity = {}
+            identity['repoze.who.userid'] = user.email
+            identity['tokens'] = app_token
+            identity['userdata'] = user.id
+            environ['auth'] = True
+            return identity
+
+        # ident via cookie
         if self.include_ip:
             remote_addr = environ['REMOTE_ADDR']
         else:
             remote_addr = '0.0.0.0'
         try:
-            timestamp, userid, tokens, user_data = auth_tkt.parse_ticket(
+            timestamp, userid, apptoken, user_data = auth_tkt.parse_ticket(
                 self.secret, cookie.value, remote_addr)
-        except auth_tkt.BadTicket:
+        except auth_tkt.BadTicket as e:
             return None
 
         if self.userid_checker and not self.userid_checker(userid):
+            print 'bad uid'
             return None
         if self.timeout and ( (timestamp + self.timeout) < time.time() ):
+            print 'timeout'
             return None
+
         userid_typename = 'userid_type:'
         user_data_info = user_data.split('|')
         for datum in filter(None, user_data_info):
@@ -157,14 +180,10 @@ class CustomCookiePlugin(object):
                 if decoder:
                     userid = decoder(userid)
 
-        environ['REMOTE_USER_TOKENS'] = tokens
-        environ['REMOTE_USER_DATA'] = user_data
-        environ['AUTH_TYPE'] = 'cookie'
 
         identity = {}
-        identity['timestamp'] = timestamp
         identity['repoze.who.userid'] = userid
-        identity['tokens'] = tokens
+        identity['tokens'] = apptoken
         identity['userdata'] = user_data
         environ['auth'] = True
         return identity
@@ -259,8 +278,6 @@ class CustomCookiePlugin(object):
                 secure=self.secure)
             new_cookie_value = ticket.cookie_value()
 
-            
-
             #cur_domain = environ.get('HTTP_HOST', environ.get('SERVER_NAME'))
             #wild_domain = '.' + cur_domain
             if old_cookie_value != new_cookie_value:
@@ -276,22 +293,50 @@ class CustomCookiePlugin(object):
         '''
         The challenger.
         '''
-        cookies = get_cookies(environ)
-        cookie = cookies.get(self.cookie_name)
-    # request = Request(environ)
-        if cookie is None or not cookie.value:
-            # redirect to login_form
-            res = Response()
-            res.status = 302
-            res.location = '/login_needed'
-            addon = None
-            if 'SCRIPT_NAME' in environ:
-                addon = environ['SCRIPT_NAME']
-            if addon is not None:
-                res.location = addon + '/login_needed'
-            else :
-                res.location = 'login_needed'
-            return res
+        print 'CHALLENGE'
+        response = Response()
+        remote_addr = environ['REMOTE_ADDR']
+        service = service_manager.check(constants.SERVICE_IP_PARAMETER, remote_addr)
+        if not service:
+            response.body = 'Service at %s not found' % remote_addr
+            response.status = 403
+            return response
+
+        user = DBSession.query(User).filter(User.name == service).first()
+        if user is None:
+            response.body = 'No Service %s found' % service
+            response.status = 403
+            return response
+
+
+        # take parameters
+        authentication_plugins = environ['repoze.who.plugins']
+        identifier = authentication_plugins['ticket']
+        secret = identifier.secret
+        cookiename = identifier.cookie_name
+
+        # prepare cookie
+        ticket = auth_tkt.AuthTicket(
+            secret, user.email, '0.0.0.0', tokens=app_token,
+            user_data=str(user.id), time=None, cookie_name=cookiename,
+            secure=True)
+        val = ticket.cookie_value()
+
+        # set cookies
+        response.set_cookie(cookiename,
+            value=val,
+            max_age=None,
+            path='/',
+            domain=None,
+            secure=False,
+            httponly=False,
+            comment=None,
+            expires=None,
+            overwrite=False)
+
+        response.status = 200
+        environ['auth'] = True
+        return response
 
 def _bool(value):
     '''
@@ -334,8 +379,8 @@ class CustomIpsPlugin(object):
         '''
         Identify the user
         '''
-
         remote_addr = environ['REMOTE_ADDR']
+
         service = service_manager.check(constants.SERVICE_IP_PARAMETER, remote_addr)
 
         if service:

@@ -53,6 +53,11 @@ class OperationPlugin(object):
         Here you can give a description to your job.
         '''
         raise NotImplementedError('you must override this method (description) in your plugin.')
+    def files(self):
+        '''
+        Here give the parameters that need to be filled with a list of files
+        '''
+        raise NotImplementedError('you must override this method (files) in your plugin.')
 
     def parameters(self):
         '''
@@ -116,24 +121,31 @@ def get_plugin_byId(_id, manager=None):
     return None
 
 
-def get_plugins_path(manager=None):
+def get_plugins_path(manager=None, service=None):
     """
     Get forms paths.
     """
     if manager is None:
         manager = app_globals.plugin_manager
     plugs = manager.getAllPlugins()
-    return _mix_plugin_paths(plugs)
+    return _mix_plugin_paths(plugs, service)
 
 
-def _mix_plugin_paths(plugins):
+def _mix_plugin_paths(plugins, service=None):
     '''
     Mix all plugin paths to make one in order to draw hierarchy buttons on an interface.
     '''
     nodes = []
     for plug in plugins:
         o = plug.plugin_object
-        nodes.append(o)
+        if service is not None:
+            from joblauncher.lib.services import service_manager
+            param = service_manager.get(service.name, 'operations')
+            if o.unique_id() in param:
+                nodes.append(o)
+        else :
+            nodes.append(o)
+
     return _pathify(nodes)
 
 
@@ -142,6 +154,7 @@ class Node(object):
         self.childs = []
         self.key = key
         self.id = None
+        self.fl = None
 
     def add(self, child):
         self.childs.append(child)
@@ -167,7 +180,7 @@ def encode_tree(obj):
     return obj.__dict__
 
 
-def _mix(node, path, index, uid=None):
+def _mix(node, path, index, uid=None, files_list=None):
     '''
     Mix path with the node
     '''
@@ -178,9 +191,10 @@ def _mix(node, path, index, uid=None):
         else :
             new = p
             node.add(p)
-        _mix(new, path, index + 1, uid)
+        _mix(new, path, index + 1, uid, files_list)
     else :
         node.id = uid
+        node.fl = files_list
 
 def _pathify(nodes):
     '''
@@ -188,5 +202,5 @@ def _pathify(nodes):
     '''
     root = Node(root_key)
     for n in nodes:
-        _mix(root, n.path(), 0, n.unique_id())
+        _mix(root, n.path(), 0, n.unique_id(), n.files())
     return root

@@ -47,6 +47,12 @@ class ExampleFilesSelection(IPlugin, OperationPlugin):
         """
         return {'track_1' : 'The first file. Required', 'track_2' : 'The second file. Required', 'thr' : 'a threshold.'}
 
+    def files(self):
+        """
+        Define which parameters will receive a list of files as pre-input.
+        """
+        return ['track_1', 'track_2']
+
 
     def process(self, **kw):
         """

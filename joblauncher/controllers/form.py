@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tg import request, expose, url, flash
+from tg import request, expose, url, flash, response, require
 from tg.controllers import redirect
 from joblauncher.lib.base import BaseController
 from joblauncher.lib import constants, checker
@@ -14,10 +14,15 @@ from joblauncher.lib.tasks import tasks
 from joblauncher.lib import services, io
 from joblauncher import lib
 import tg
+from paste.request import get_cookies
 
 __all__ = ['FormController']
 
+from paste.auth import auth_tkt
 
+app_token = 'JL'
+cookiename = 'jlauth_ticket'
+secret = '9fg5caff387rfdd38244a9cff43484cf8bc7u915'
 
 
 to_treat_as_file_list = {'SingleSelectField' : False, 'MultipleSelectField' : True}
@@ -25,7 +30,7 @@ to_treat_as_file_list = {'SingleSelectField' : False, 'MultipleSelectField' : Tr
 Dict to discriminate file list and know if they can be multiple or single.
 """
 
-def parse_parameters(id, fields, **kw):
+def parse_parameters(id, fields, cookval, **kw):
     """
     Reformat parameters coming to get the form well displayed.
     value are the "normal" parameters and
@@ -50,12 +55,12 @@ def parse_parameters(id, fields, **kw):
                 value[field.id]=kw.get(field.id, None)
     pp['id'] = id
     pp['save_list'] = save
+    pp['cv'] =  cookval
     return value, child_args, pp
 
 class FormController(BaseController):
-    allow_only = has_permission(constants.permissions_read_name)
 
-
+    @require(has_permission(constants.permissions_read_name))
     @expose('json')
     @expose('joblauncher.templates.form_list')
     def list(self, *args, **kw):
@@ -65,9 +70,11 @@ class FormController(BaseController):
         operations_path = 'operations_path = %s' % json.dumps(plugin.get_plugins_path(), default=plugin.encode_tree)
         return {'page' : 'form', 'paths' : operations_path}
 
+
     @expose('json')
     def methods(self, **kw):
-        return {'paths' : json.dumps(plugin.get_plugins_path(), default=plugin.encode_tree)}
+        user = handler.user.get_user_in_session(request)
+        return {'paths' : json.dumps(plugin.get_plugins_path(service=user), default=plugin.encode_tree)}
 
     @expose()
     def error(self, *args, **kw):
@@ -81,6 +88,18 @@ class FormController(BaseController):
         Method to get the form
         """
 
+        # set the cookie of the identified user on localhost
+        user = handler.user.get_user_in_session(request)
+        ticket = auth_tkt.AuthTicket(
+            secret, user.email, '0.0.0.0', tokens=app_token,
+            user_data=str(user.id), time=None, cookie_name=cookiename,
+            secure=True)
+        val = ticket.cookie_value()
+
+
+
+
+        # get the plugin
         plug = plugin.get_plugin_byId(id)
         if plug is None:
             raise redirect(url('./error', {'bad form id' : id}))
@@ -92,7 +111,7 @@ class FormController(BaseController):
         obj = plug.plugin_object
 
         form =  obj.output()
-        value, child_args, _pp = parse_parameters(id, form.fields, **kw)
+        value, child_args, _pp = parse_parameters(id, form.fields, val, **kw)
         tmpl_context.form = form(action= tg.config.get('main.proxy') + url('/form/launch'))
         value['_pp'] = json.dumps(_pp)
         return {'page' : 'form', 'title' : obj.title(), 'value' : value, 'ca' : child_args}
@@ -117,6 +136,19 @@ class FormController(BaseController):
         Launch the tasks
         """
         pp = json.loads(_pp)
+        cookval = pp.get('cv')
+        # set cookies
+        response.set_cookie(cookiename,
+            value=cookval,
+            max_age=None,
+            path='/',
+            domain='127.0.0.1',
+            secure=False,
+            httponly=False,
+            comment=None,
+            expires=None,
+            overwrite=False)
+
         form_id = pp.get('id', False)
         if not form_id:
             raise redirect(url('./error', {"Form id not found" : 'fatal'}))

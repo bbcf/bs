@@ -17,12 +17,12 @@ class LongJob(IPlugin, OperationPlugin):
         return form.ThresholdForm
 
     def description(self):
-        return '''
-        Apply a threshold on the track selected. Job is as long as the threshold is hight.
-        '''
+        return '''Apply a threshold on the track selected. Job is as long as the threshold is hight.'''
     def parameters(self):
         return {'thr' : 'the threshold to put. Required'}
 
+    def files(self):
+        return []
 
     def process(self, **kw):
         import time

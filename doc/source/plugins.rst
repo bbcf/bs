@@ -61,6 +61,11 @@ Make a python class :class:`ExampleFilesSelection.py`::
                """
                return {'track_1' : 'The first file. Required', 'track_2' : 'The second file. Required', 'thr' : 'a threshold.'}
 
+           def files(self):
+               '''
+               Here give the parameters that need to be filled with a list of files
+               '''
+               return ['track_1', 'track_2']
 
            def process(self, **kw):
                """

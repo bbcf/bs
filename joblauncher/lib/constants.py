@@ -20,6 +20,7 @@ REQUEST_TYPE_SERVICE = 'service'
 REQUEST_TYPE_BROWSER = 'browser'
 
 SERVICE_IP_PARAMETER = 'remote.ip'
+SERVICE_HTTP_REFERER = 'http.referer'
 SERVICE_FILE_ROOT_PARAMETER = 'file.root'
 SERVICE_URL_ROOT_PARAMETER = 'url.root'
 SERVICE_RESULT_ROOT_PARAMETER = 'result.root'
@@ -33,6 +34,8 @@ def plugin_directory():
 def services_directory():
     return os.path.normpath(os.path.join(resource_filename('joblauncher', os.path.pardir), 'services.ini'))
 
+def services_config_file():
+    return os.path.normpath(os.path.join(resource_filename('joblauncher', os.path.pardir), 'services.cfg'))
 
 
 def service_name(service):
