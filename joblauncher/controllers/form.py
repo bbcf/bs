@@ -15,22 +15,17 @@ from joblauncher.lib import services, io
 from joblauncher import lib
 import tg
 from paste.request import get_cookies
-
 __all__ = ['FormController']
+
+to_treat_as_file_list = {'SingleSelectField' : False, 'MultipleSelectField' : True}
 
 from paste.auth import auth_tkt
 
-app_token = 'JL'
-cookiename = 'jlauth_ticket'
-secret = '9fg5caff387rfdd38244a9cff43484cf8bc7u915'
-
-
-to_treat_as_file_list = {'SingleSelectField' : False, 'MultipleSelectField' : True}
 """
 Dict to discriminate file list and know if they can be multiple or single.
 """
 
-def parse_parameters(id, fields, cookval, **kw):
+def parse_parameters(id, fields, **kw):
     """
     Reformat parameters coming to get the form well displayed.
     value are the "normal" parameters and
@@ -55,7 +50,6 @@ def parse_parameters(id, fields, cookval, **kw):
                 value[field.id]=kw.get(field.id, None)
     pp['id'] = id
     pp['save_list'] = save
-    pp['cv'] =  cookval
     return value, child_args, pp
 
 class FormController(BaseController):
@@ -88,17 +82,6 @@ class FormController(BaseController):
         Method to get the form
         """
 
-        # set the cookie of the identified user on localhost
-        user = handler.user.get_user_in_session(request)
-        ticket = auth_tkt.AuthTicket(
-            secret, user.email, '0.0.0.0', tokens=app_token,
-            user_data=str(user.id), time=None, cookie_name=cookiename,
-            secure=True)
-        val = ticket.cookie_value()
-
-
-
-
         # get the plugin
         plug = plugin.get_plugin_byId(id)
         if plug is None:
@@ -111,7 +94,7 @@ class FormController(BaseController):
         obj = plug.plugin_object
 
         form =  obj.output()
-        value, child_args, _pp = parse_parameters(id, form.fields, val, **kw)
+        value, child_args, _pp = parse_parameters(id, form.fields, **kw)
         tmpl_context.form = form(action= tg.config.get('main.proxy') + url('/form/launch'))
         value['_pp'] = json.dumps(_pp)
         return {'page' : 'form', 'title' : obj.title(), 'value' : value, 'ca' : child_args}
@@ -136,18 +119,6 @@ class FormController(BaseController):
         Launch the tasks
         """
         pp = json.loads(_pp)
-        cookval = pp.get('cv')
-        # set cookies
-        response.set_cookie(cookiename,
-            value=cookval,
-            max_age=None,
-            path='/',
-            domain='127.0.0.1',
-            secure=False,
-            httponly=False,
-            comment=None,
-            expires=None,
-            overwrite=False)
 
         form_id = pp.get('id', False)
         if not form_id:

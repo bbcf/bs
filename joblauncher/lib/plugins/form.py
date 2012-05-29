@@ -65,6 +65,9 @@ class FilesForm(twf.TableForm):
         twf.HiddenField('_pp'),                                        # field needed to transfert information to the validation system
                                                                        # REQUIRED and don't modify it
 
+        twf.HiddenField('key'),                                        # field needed to identify the service
+                                                                       # REQUIRED and don't modify it
+
         twf.HiddenField('_up'),                                        # field needed to transfert user parameters if needed
                                                                        # REQUIRED you can pass some parameters needed by your application
                                                                        # in this field
