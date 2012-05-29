@@ -7,7 +7,6 @@
 #*#
 /celeryconfig.py
 *.log.*
-/who.ini
 /production.ini
 /pygdv/public/data/*
 /*ctl

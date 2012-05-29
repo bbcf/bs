@@ -192,4 +192,3 @@ the *service.ini* file. With this example, *joblauncher* will callback *http://l
          ``ERROR`` (retrieve the error with ``kw.get('error')``)
 - *tn* : the operation name (can be used to display something understandable for users)
 - *td* : the operation description.
-
