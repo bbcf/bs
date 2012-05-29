@@ -90,7 +90,7 @@ def new_files(service_name, task_id, out_path, _files):
         io.mv(_f[0], out)
         fname = os.path.split(_f[0])[1]
         _f[0] = os.path.join(out, fname)
-
+    return True
 
 
 def callback_service(url, form_id, task_id, status, name, desc, files=None, additional=None):

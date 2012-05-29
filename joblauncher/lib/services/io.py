@@ -31,11 +31,8 @@ def fetch_files(service, _files, form_parameters):
                     # remove //
                     value = value.replace('//', '/').replace(':/', '://')
                     new = value.replace(url_root, file_root)
-                    print '-------- same fsys  ----------'
-                    print new
                     io.copy(new, tmp_file.name)
                 else :
-                    print '------- download file --------'
                     io.download(value, tmp_file.name)
                 form_parameters[form_parameter] = tmp_file.name
     except IOError as e:
