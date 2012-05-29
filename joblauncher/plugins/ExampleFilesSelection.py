@@ -66,8 +66,10 @@ class ExampleFilesSelection(IPlugin, OperationPlugin):
         nfile = os.path.join(root, 'new_file.bed')    # take the first file and
         shutil.move(file_1, nfile)                    # rename it to 'new_file.bed'
 
-        nf(self, nfile)                               # add a new file in the job result
+        nf(self, nfile, ftype='track')                # add a new file in the job result
                                                       # nf(plugin, file) will add the file
+                                                      # you can specify the type of the file with the `ftype`
+                                                      # ftype parameter ('pdf', 'track', 'xls', ... )
                                                       # to the output of the job.
                                                       # the file can be retrieved by your service after.
 

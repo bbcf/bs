@@ -85,12 +85,12 @@ class OperationPlugin(object):
 def retrieve_parameter(params, param, default=None):
     return params.get(param, default)
 
-def new_file(plugin, file):
-    plugin.files.append(file)
+def new_file(plugin, file, ftype=None):
+    plugin.files.append([file, ftype])
 
 
-def nf(plugin, filename):
-    return new_file(plugin, filename)
+def nf(plugin, filename, ftype=None):
+    return new_file(plugin, filename, ftype)
 
 def rp(params, param, default=None):
     return retrieve_parameter(params, param, default)

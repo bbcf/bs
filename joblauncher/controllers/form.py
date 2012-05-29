@@ -114,7 +114,7 @@ class FormController(BaseController):
         return self.launch(*args, **kw)
 
     @expose()
-    def launch(self, _pp, **kw):
+    def launch(self, _pp, key, **kw):
         """
         Launch the tasks
         """
@@ -131,6 +131,7 @@ class FormController(BaseController):
         ### VALIDATE ###
         try:
             kw['_pp']=_pp
+            kw['key']=key
             form.validate(kw, use_request_local=True)
         except Invalid as e:
             import traceback, sys
@@ -142,7 +143,7 @@ class FormController(BaseController):
 
             if kw.has_key('_pp'): del kw['_pp']
             flash(e, 'error')
-            raise redirect(url('./index', params={'id' : form_id}, **kw))
+            raise redirect(url('./index', params={'id' : form_id, 'key' : key}, **kw))
 
         user = handler.user.get_service_in_session(request)
 
@@ -155,7 +156,7 @@ class FormController(BaseController):
                 kw[k] = json.dumps(v)
             if kw.has_key('_pp'): del kw['_pp']
             flash(e, 'error')
-            raise redirect(url('./index', params={'id' : form_id}, **kw))
+            raise redirect(url('./index', params={'id' : form_id, 'key' : key}, **kw))
 
         service = user.name
 

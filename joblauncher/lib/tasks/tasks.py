@@ -26,13 +26,17 @@ def plugin_process(_id, service_name, tmp_dir, out_path, name, description, call
 
         if callback_url is not None:
             user_parameters.update({'result' : result})
-            callback_service(callback_url, _id, task_id, 'SUCCESS', name, description, additional=user_parameters)
+            callback_service(callback_url, _id, task_id, 'SUCCESS', name, description, files=plugin.files, additional=user_parameters)
         return result
 
 
 
     except Exception as e:
         if callback_url is not None:
+            import sys, traceback
+            etype, value, tb = sys.exc_info()
+            traceback.print_exception(etype, value, tb)
+
             user_parameters.update({'error' : e})
             callback_service(callback_url, _id, task_id, 'ERROR', name, description, additional=user_parameters)
         raise e
@@ -69,6 +73,7 @@ def _plugin_post_process(service_name, plugin, tmp_dir, out_path):
 
 
 
+
 def new_files(service_name, task_id, out_path, _files):
     """
     Write the files in the service directory
@@ -82,12 +87,13 @@ def new_files(service_name, task_id, out_path, _files):
             return new_files(service_name, task_id, out_path, _files)
 
     for _f in _files:
-        print _f
-        io.mv(_f, out)
+        io.mv(_f[0], out)
+        fname = os.path.split(_f[0])[1]
+        _f[0] = os.path.join(out, fname)
 
 
 
-def callback_service(url, form_id, task_id, status, name, desc, additional=None):
+def callback_service(url, form_id, task_id, status, name, desc, files=None, additional=None):
     """
     Send a response back to the callback url with parameters of the job launched
     :param form_id : the form identifier
@@ -95,6 +101,7 @@ def callback_service(url, form_id, task_id, status, name, desc, additional=None)
     :param status : the status of the task
     :param name : the task name
     :param desc : the task description
+    :param files : the output files added by the operation
     :param additional : a dict with some additional parameters that can be needed
     ('error' : when an error occurs, 'result' when a task finish with success)
     """
@@ -103,6 +110,8 @@ def callback_service(url, form_id, task_id, status, name, desc, additional=None)
               'st' : status,
               'tn' : name,
               'td' : desc}
+    if files is not None:
+        params.update({'fo' : json.dumps(files)})
     if additional is not None:
         params.update(additional)
     try :

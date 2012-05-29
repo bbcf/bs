@@ -48,9 +48,11 @@ class SharedKeyPlugin(object):
         '''
         Identify the user
         '''
+
         request = Request(environ)
-        if 'key' in request.str_POST:
-            k =  request.str_POST.get('key')
+
+        if 'key' in request.str_POST or 'key' in request.str_GET:
+            k =  request.str_POST.get('key', request.str_GET.get('key'))
             service = service_manager.check(constants.SERVICE_SHARED_KEY, k)
             if not service:
                 return None
@@ -64,7 +66,6 @@ class SharedKeyPlugin(object):
             identity['userdata'] = user.id
             environ['auth'] = True
             return identity
-
         return None
 
     # IIdentifier
