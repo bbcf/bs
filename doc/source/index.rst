@@ -29,7 +29,7 @@ Implementation of this protocol is supplied with `RabbitMQ <http://www.rabbitmq.
 Table of contents
 =================
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 3
 
     Installation <installation>
     How To <use_it>

@@ -49,7 +49,7 @@ Here an example, add it at the end of the file::
     # Available parameters are :
     # REQUIRED
     #     - contact : an email of contact
-    #     - remote.ip : IP of the service
+    #     - shared_key : a key which identify the service
     # OPTIONAL
     #     - file.root : absolute path to get the file on the filesystem
     # 	    (joblauncher must be installed on the same server as the service)
@@ -58,12 +58,12 @@ Here an example, add it at the end of the file::
     #     - operations : the list of plugins to get for the service (default = all)
 
     [MYSERVICE]
-    contact = 'yohan.jarosz@epfl.ch'
-    remote.ip = "127.0.0.1"
-    file.root = "/srv/data/files/"
-    url.root = "http://localhost:8080/myservice"
-    result.root = "/srv/data/files/job_results/"
-    callback.url = "http://localhost:8080/callback"
+    contact = yohan.jarosz@epfl.ch
+    shared_key = asharedkeydifficulkttoguess
+    file.root = /srv/data/files/
+    url.root = http://localhost:8080/myservice
+    result.root = /srv/data/files/job_results/
+    callback.url = http://localhost:8080/callback
     operations = ['operationid1', 'operationid2', ...]
 
 In order to help you define what operations identifiers to put in the `operations` parameter, *joblauncher* (on restart)
@@ -129,9 +129,12 @@ this method is called with an *operation_id* (identify the operation) and the *u
         # take the joblauncher url from configuration file
         joblauncher_url = 'http://localhost:7520/'
 
+        # take the shared_key from confuguration file
+        shared_key = 'asharedkeydifficulttoguess'
+
         # prepare the request to send with the operation id
-        # This is the only requested parameter to fetch the form
-        req = {'id' : operation_id}
+        # and the shared key to identify your service
+        req = {'id' : operation_id, 'key' : shared_key}
 
 
         # add private parameters to the request that you will need after
