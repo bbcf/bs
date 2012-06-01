@@ -67,7 +67,7 @@ class Smoothing(IPlugin, OperationPlugin):
         wsize = int(float(rp(kw, 'wsize', default=11)))
 
         vtrack = window_smoothing(intrack, wsize)
-        out_path = tmp_path(suffix='.sql')
+        out_path = tmp_path(prefix='%s_%s' % (self.title()), suffix='.sql')
         vtrack.export(out_path)
 
         nf(self, out_path, ftype='track')
