@@ -1,5 +1,5 @@
 from tg import app_globals
-import hashlib
+import hashlib, tempfile
 
 class OperationPlugin(object):
 
@@ -83,7 +83,9 @@ class OperationPlugin(object):
 
 
 def retrieve_parameter(params, param, default=None):
-    return params.get(param, default)
+    p = params.get(param, default)
+    if p == '' : return default
+    return p
 
 def new_file(plugin, file, ftype=None):
     plugin.files.append([file, ftype])
@@ -96,8 +98,10 @@ def rp(params, param, default=None):
     return retrieve_parameter(params, param, default)
 
 
-
-
+def tmp_path(prefix='', suffix=''):
+    _f = tempfile.NamedTemporaryFile(prefix=prefix, suffix=suffix, delete=True)
+    _f.close()
+    return _f.name
 
 
 
