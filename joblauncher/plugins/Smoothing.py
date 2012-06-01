@@ -94,6 +94,6 @@ class SmoothingForm(twf.TableForm):
         help_text = 'Select the file to apply smoothing on',                          # you can customize your own
         validator=twv.NotEmpty()),
         twf.Spacer(),                                                  # a spacer between two field
-        twf.InputField(label_text='Widow size', id='wsize',                # a simple input field (with a simple validator)
+        twf.InputField(label_text='Window size', id='wsize',                # a simple input field (with a simple validator)
         help_text = 'Select the window size'),
        ]
