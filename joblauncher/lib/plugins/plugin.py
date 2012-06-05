@@ -132,6 +132,7 @@ def get_plugins_path(manager=None, service=None):
     if manager is None:
         manager = app_globals.plugin_manager
     plugs = manager.getAllPlugins()
+    print plugs
     return _mix_plugin_paths(plugs, service)
 
 

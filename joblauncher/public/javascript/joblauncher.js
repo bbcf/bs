@@ -58,8 +58,11 @@ function menu_add_child(parent, node){
 * Event launched after user clicked on a button to call an operation
 * @param node : the node he clicked on
 */
+
 function button_event(node){
-    window.location = '/form/info?id=' + node.id;
+    var path = window.location.pathname;
+    path = path.replace("/form/list", "/form/info");
+    window.location = path + '?id=' + node.id;
 };
 
 require(["dojo/parser", "dijit/layout/BorderContainer", "dijit/Menu", "dijit/MenuItem", "dijit/PopupMenuItem", "dijit/layout/ContentPane"]);

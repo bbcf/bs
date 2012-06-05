@@ -50,7 +50,7 @@ class SharedKeyPlugin(object):
         '''
 
         request = Request(environ)
-
+        # SERVICE DEFINED
         if 'key' in request.str_POST or 'key' in request.str_GET:
             k =  request.str_POST.get('key', request.str_GET.get('key'))
             service = service_manager.check(constants.SERVICE_SHARED_KEY, k)
@@ -65,6 +65,18 @@ class SharedKeyPlugin(object):
             identity['tokens'] = app_token
             identity['userdata'] = user.id
             environ['auth'] = True
+            return identity
+        else :
+            # SINGLE USER
+            remote = environ['REMOTE_ADDR']
+            identity = {}
+            identity['repoze.who.userid'] = remote
+            identity['tokens'] = app_token
+            identity['userdata'] = remote
+            environ['auth'] = True
+            user = DBSession.query(User).filter(User.name == remote).first()
+            if user is None:
+                handler.user.create_user(remote, remote)
             return identity
         return None
 
@@ -85,12 +97,7 @@ class SharedKeyPlugin(object):
         '''
         The challenger.
         '''
-        res = Response()
-        res.headerlist = [('Content-type', 'application/json')]
-        res.charset = 'utf8'
-        res.unicode_body = u"{error:'wrong credentials'}"
-        res.status = 403
-        return res
+        pass
 
     def authenticate(self, environ, identity):
         '''

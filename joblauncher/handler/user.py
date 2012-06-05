@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """user handler"""
-from joblauncher.model.auth import User
+from joblauncher.model.auth import User, Group
 from joblauncher.model import DBSession
 from tg import abort
 from sqlalchemy import and_
 from joblauncher.lib import constants
+import transaction
 
 
 def get_user_in_session(request):
@@ -39,3 +40,15 @@ def get_service_in_session(request):
 
 
 
+def create_user(name, email):
+    print 'create user'
+    serv = User()
+    serv_group = DBSession.query(Group).filter(Group.id == constants.group_services_id).first()
+    serv.name = name
+    serv.email = email
+    serv.is_service = False
+    DBSession.add(serv)
+    serv_group.users.append(serv)
+    DBSession.add(serv_group)
+    DBSession.flush()
+    transaction.commit()

@@ -6,21 +6,34 @@ from tg import tmpl_context
 
 
 
-class ThresholdForm(twf.TableForm):
+import tw2.core
+import tw2.forms
+
+class BaseForm(tw2.forms.TableForm):
+    pp = tw2.forms.HiddenField()
+    key = tw2.forms.HiddenField()
+    up = tw2.forms.HiddenField()
+
+
+class TestForm(BaseForm):
+    submit_text = 'Submit job'
+    hover_help = True
+    show_errors = True
+    one = tw2.forms.TextField(label='the parameter one : ', help_text='Some description.', hover_help=True)
+    two = tw2.forms.SingleSelectField()
+    three = tw2.forms.CheckBox()
+
+
+
+class TT(twf.TableForm):
 
     submit_text = 'Submit job'     # text of the submit button
     hover_help = True              # show help_text with mouse onHover
     show_errors = True             # show red labels when validators failed
     fields = [                     # define the fields you need in your form
-                                   twf.HiddenField('_pp'),                          # field needed to transfert information to the validation system
 
-                                   twf.HiddenField('key'),                                        # field needed to identify the service
-                                                                                                  # REQUIRED and don't modify it
-
-                                   twf.Spacer(),                                                # a spacer between two field
-
-                                   twf.TextField(label_text='Threshold', id='thr',              # a simple input field (with a simple validator)
-                                       help_text = 'Input the trhreshold here', validator=twv.NotEmpty()),
+            twf.SingleSelectField(label_text='Threshold', id='thr', options=['one', 'two'],     # a simple input field (with a simple validator)
+            help_text = 'Input the threshold here', validator=twv.NotEmpty()),
                                    ]
 
 

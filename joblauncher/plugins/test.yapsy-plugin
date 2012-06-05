@@ -1,6 +1,6 @@
 [Core]
-Name = LongJob
-Module = LongJob
+Name = Test
+Module = Test
 
 [Documentation]
 Author = Jarosz Yohan

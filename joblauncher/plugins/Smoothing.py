@@ -79,7 +79,7 @@ from tw.forms import validators as twv
 
 class SmoothingForm(twf.TableForm):
 
-    submit_text = 'Smooth'                                    # text of the submit button
+    submit_text = 'Smooth'                                             # text of the submit button
     hover_help = True                                                  # show help_text with mouse onHover
     show_errors = True                                                 # show red labels when validators failed
     fields = [                                                         # define the fields you need in your form

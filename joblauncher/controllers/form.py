@@ -25,7 +25,7 @@ from paste.auth import auth_tkt
 Dict to discriminate file list and know if they can be multiple or single.
 """
 
-def parse_parameters(id, fields, **kw):
+def parse_parameters(id, fields, files, **kw):
     """
     Reformat parameters coming to get the form well displayed.
     value are the "normal" parameters and
@@ -37,24 +37,26 @@ def parse_parameters(id, fields, **kw):
     pp = {}
     save = {}
     for field in fields:
-        if field.id is not None:
-            key = field.__class__.__name__
-            if to_treat_as_file_list.has_key(key):
-                _list = json.loads(kw.get(field.id, "[]"))
-                if isinstance(_list, list):
-                    child_args[field.id] = {'options' : [(_list[i][1], _list[i][0]) for i in xrange(len(list(_list)))]}
+        if field.id in files:
+            print field
+            _list = json.loads(kw.get(field.id, "[]"))
+            if len(_list)>0:
+                if isinstance(_list[0], list):
+                    print [(_list[i], _list[i]) for i in xrange(len(list(_list)))]
+                    field.options = [(_list[i][0], _list[i][1]) for i in xrange(len(list(_list)))]
                 else :
-                    child_args[field.id] = {'options' : dict([(_list[i], _list[i]) for i in xrange(len(list(_list)))])}
-                save[field.id] = _list
+                    print dict([(_list[i], _list[i]) for i in xrange(len(list(_list)))])
+                    field.options = dict([(_list[i], _list[i]) for i in xrange(len(list(_list)))])
             else :
-                value[field.id]=kw.get(field.id, None)
+                field.options=[]
+            save[field.id] = _list
+
     pp['id'] = id
     pp['save_list'] = save
     return value, child_args, pp
 
 class FormController(BaseController):
 
-    @require(has_permission(constants.permissions_read_name))
     @expose('json')
     @expose('joblauncher.templates.form_list')
     def list(self, *args, **kw):
@@ -76,6 +78,7 @@ class FormController(BaseController):
 
 
 
+
     @expose('joblauncher.templates.plugin_form')
     def index(self, id, *args, **kw):
         """
@@ -87,17 +90,28 @@ class FormController(BaseController):
         if plug is None:
             raise redirect(url('./error', {'bad form id' : id}))
 
-        user = handler.user.get_user_in_session(request)
-        if not checker.authorized():
-            raise redirect(url('./error', {'not authorized' : id}))
-
         obj = plug.plugin_object
-
         form =  obj.output()
-        value, child_args, _pp = parse_parameters(id, form.fields, **kw)
-        tmpl_context.form = form(action= tg.config.get('main.proxy') + url('/form/launch'))
+
+        user = handler.user.get_user_in_session(request)
+        if not user.is_service:
+            print form
+
+
+
+        value, child_args, _pp = parse_parameters(id, form.child.children, obj.files(), **kw)
+        main_proxy = tg.config.get('main.proxy')
+        w = form(action=main_proxy + url('/form/launch'))
+        print '------------------'
+        widg = w.req()
+
         value['_pp'] = json.dumps(_pp)
-        return {'page' : 'form', 'title' : obj.title(), 'value' : value, 'ca' : child_args}
+        print 'VALUE'
+        print value
+        print 'CHILD ARGS'
+        print child_args
+        return {'page' : 'form', 'title' : obj.title(), 'value' : value, 'ca' : child_args, 'main_proxy' : main_proxy, 'widget' : widg}
+
 
     @expose()
     def fire(self, id, *args, **kw):
@@ -183,11 +197,6 @@ class FormController(BaseController):
         plug = plugin.get_plugin_byId(id)
         if plug is None:
             raise redirect(url('./error', {'bad form id' : id}))
-
-        user = handler.user.get_user_in_session(request)
-        if not checker.authorized():
-            raise redirect(url('./error', {'not authorized' : id}))
-
         o = plug.plugin_object
         info = o.description()
         title = o.title()
