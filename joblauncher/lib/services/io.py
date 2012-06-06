@@ -14,6 +14,7 @@ def fetch_files(service, _files, form_parameters):
     """
     service_name = service.name
     parameters = service_manager.get(service_name)
+
     file_root = parameters.get(constants.SERVICE_FILE_ROOT_PARAMETER, None)
     url_root = parameters.get(constants.SERVICE_URL_ROOT_PARAMETER, None)
 
@@ -36,6 +37,25 @@ def fetch_files(service, _files, form_parameters):
                     io.download(value, tmp_file.name)
                 form_parameters[form_parameter] = tmp_file.name
     except IOError as e:
+        io.rm(tmp_dir)
+        raise e
+    return tmp_dir
+
+def fetch_file_field(user, _files, form_parameters):
+    tmp_dir = temporary_directory(user.name)
+    try :
+        for form_parameter in _files:
+            if form_parameters.has_key(form_parameter):
+                value = form_parameters.get(form_parameter)
+                filename = value['filename']
+                file_value = value['value']
+                extension = ''
+                tmp_file = tempfile.NamedTemporaryFile(suffix=extension, prefix=filename, dir=tmp_dir, delete=False)
+                tmp_file.write(file_value)
+                tmp_file.close()
+
+    except IOError as e:
+        print tmp_dir
         io.rm(tmp_dir)
         raise e
     return tmp_dir

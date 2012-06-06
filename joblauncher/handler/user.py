@@ -29,7 +29,6 @@ def get_service_in_session(request):
     @param request: the web request
     @type request: a WebOb
     '''
-
     if not 'repoze.who.identity' in request.environ :
         abort(401)
     identity = request.environ['repoze.who.identity']

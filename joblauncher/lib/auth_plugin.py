@@ -54,31 +54,28 @@ class SharedKeyPlugin(object):
         if 'key' in request.str_POST or 'key' in request.str_GET:
             k =  request.str_POST.get('key', request.str_GET.get('key'))
             service = service_manager.check(constants.SERVICE_SHARED_KEY, k)
-            if not service:
-                return None
-            user = DBSession.query(User).filter(User.name == service).first()
-            if user is None:
-                return None
+            if service is not None:
+                user = DBSession.query(User).filter(User.name == service).first()
+                if user is not None:
+                    identity = {}
+                    identity['repoze.who.userid'] = user.email
+                    identity['tokens'] = app_token
+                    identity['userdata'] = user.id
+                    environ['auth'] = True
+                    return identity
 
-            identity = {}
-            identity['repoze.who.userid'] = user.email
-            identity['tokens'] = app_token
-            identity['userdata'] = user.id
-            environ['auth'] = True
-            return identity
-        else :
-            # SINGLE USER
-            remote = environ['REMOTE_ADDR']
-            identity = {}
-            identity['repoze.who.userid'] = remote
-            identity['tokens'] = app_token
-            identity['userdata'] = remote
-            environ['auth'] = True
-            user = DBSession.query(User).filter(User.name == remote).first()
-            if user is None:
-                handler.user.create_user(remote, remote)
-            return identity
-        return None
+        # SINGLE USER
+        remote = environ['REMOTE_ADDR']
+        identity = {}
+        identity['repoze.who.userid'] = remote
+        identity['tokens'] = app_token
+        identity['userdata'] = remote
+        environ['auth'] = True
+        user = DBSession.query(User).filter(User.name == remote).first()
+        if user is None:
+            handler.user.create_user(remote, remote)
+        return identity
+
 
     # IIdentifier
     def forget(self, environ, identity):
