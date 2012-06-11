@@ -40,7 +40,6 @@ def get_service_in_session(request):
 
 
 def create_user(name, email):
-    print 'create user'
     serv = User()
     serv_group = DBSession.query(Group).filter(Group.id == constants.group_services_id).first()
     serv.name = name
@@ -51,3 +50,10 @@ def create_user(name, email):
     DBSession.add(serv_group)
     DBSession.flush()
     transaction.commit()
+    # create directory
+    from joblauncher.lib.services import service_manager
+    import os
+    try :
+        os.mkdir(os.path.join(service_manager.in_path, name))
+    except OSError:
+        pass

@@ -1,0 +1,9 @@
+[Core]
+Name = FileConvert
+Module = FileConvert
+
+[Documentation]
+Author = Jarosz Yohan
+Version = 0.1
+Website = http://github.com/yjarosz
+Description = A plugin to convert files

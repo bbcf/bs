@@ -1,69 +1,60 @@
 from tg import app_globals
-import hashlib, tempfile
+import hashlib, tempfile, os
+from joblauncher.lib import util
 
 class OperationPlugin(object):
 
     uid = None
-
-    """
-    Inherit form this class to build your plugin.
-    """
-    def path(self):
-        """
-        Here define the path of your plugin : the succession of buttons which leads to the form apparition.
-        Must return a list. The root is %s.
-        ex : return ['Statistics', 'Base Coverage']
-        This list will result in three buttons (with %s as first), then 'Statistics' and 'Base Coverage'
-        the last that will make appears the form onClick.
-        """ % (root_key, root_key)
-
-        raise NotImplementedError('you must override this method (path) in your plugin.')
-
-
     def title(self):
-        '''
-        Here you set the title of your form.
-        ex : return 'My super title'
-        '''
-
+        """
+        A name for the Operation.
+        """
         raise NotImplementedError('you must override this method (title) in your plugin.')
 
-    def output(self):
-        '''
-        Here you must define the form to output when the user click on the last button you defined in the path property.
-        The form are build using ToscaWidget0.9.
-        ex :
-        from pygdv.widgets.plugins import form
-        return form.Example
-        '''
+    def description(self):
+        """
+        A quick description about your operation.
+        """
+        raise NotImplementedError('you must override this method (description) in your plugin.')
 
+
+    def path(self):
+        """
+        An unique path among all plugins.
+        """
+        raise NotImplementedError('you must override this method (path) in your plugin.')
+
+    def output(self):
+        """
+        An output form (Toscawidget, Sprox).
+        """
         raise NotImplementedError('you must override this method (output) in your plugin.')
 
-    def process(self, **kw):
-        '''
-        Here you must define your function that will process the form parameters.
-        ex : a simple method that add two parameters :
-        return kw.get('param1', 0) + kw.get('param2', 0)
-        '''
-
-        raise NotImplementedError('you must override this method (process) in your plugin.')
-
-    def description(self):
-        '''
-        Here you can give a description to your job.
-        '''
-        raise NotImplementedError('you must override this method (description) in your plugin.')
-    def files(self):
-        '''
-        Here give the parameters that need to be filled with a list of files
-        '''
-        raise NotImplementedError('you must override this method (files) in your plugin.')
-
     def parameters(self):
-        '''
-        Here you can give the parameters needed for your job to run.
-        '''
+        """
+        Operation parameters. A dict with the input(s) and output(s).
+        """
         raise NotImplementedError('you must override this method (parameters) in your plugin.')
+
+    def files(self):
+        """
+        The list of "in" parameters that are files.
+        """
+        return []
+
+    def meta(self):
+        """
+        A dict with additional information. Put here everything you want.
+        """
+        return {}
+
+
+
+    def process(self, **kw):
+        """
+        Here you must define your function that will process the form parameters.
+        """
+        raise NotImplementedError('you must override this method (process) in your plugin.')
 
     def unique_id(self):
         '''
@@ -82,19 +73,29 @@ class OperationPlugin(object):
         self.files = []
 
 
+
+# Some useful functions
+
 def retrieve_parameter(params, param, default=None):
+    """
+    Retrieve the parameter form the form
+    """
     p = params.get(param, default)
     if p == '' : return default
     return p
 
-def new_file(plugin, file, ftype=None):
-    plugin.files.append([file, ftype])
+def new_file(plugin, file_path, out_param):
+    ftype = plugin.parameters().get('out').get(out_param)
+    plugin.files.append([file_path, ftype])
 
 
-def nf(plugin, filename, ftype=None):
-    return new_file(plugin, filename, ftype)
+def nf(plugin, filename, out_param):
+    return new_file(plugin, filename, out_param)
 
 def rp(params, param, default=None):
+    """
+    Retrieve the parameter form the form
+    """
     return retrieve_parameter(params, param, default)
 
 
@@ -104,7 +105,8 @@ def tmp_path(prefix='', suffix=''):
     return _f.name
 
 
-
+def temporary_path(fname=None, ext=None):
+   return util.temporary_path(fname, ext)
 
 
 
@@ -209,3 +211,23 @@ def _pathify(nodes):
     for n in nodes:
         _mix(root, n.path(), 0, n.unique_id(), n.files())
     return root
+
+
+
+
+
+
+from tw import forms as twf
+from tw.forms import validators as twv
+
+
+
+
+import tw2.core
+import tw2.forms
+
+class BaseForm(tw2.forms.TableForm):
+    pp = tw2.forms.HiddenField()
+    key = tw2.forms.HiddenField()
+    up = tw2.forms.HiddenField()
+

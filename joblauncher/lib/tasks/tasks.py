@@ -32,11 +32,10 @@ def plugin_process(_id, service_name, tmp_dir, out_path, name, description, call
 
 
     except Exception as e:
+        import sys, traceback
+        etype, value, tb = sys.exc_info()
+        traceback.print_exception(etype, value, tb)
         if callback_url is not None:
-            import sys, traceback
-            etype, value, tb = sys.exc_info()
-            traceback.print_exception(etype, value, tb)
-
             user_parameters.update({'error' : e})
             callback_service(callback_url, _id, task_id, 'ERROR', name, description, additional=user_parameters)
         raise e
@@ -85,7 +84,6 @@ def new_files(service_name, task_id, out_path, _files):
         if e.errno == errno.EEXIST:
             io.rm(out)
             return new_files(service_name, task_id, out_path, _files)
-
     for _f in _files:
         io.mv(_f[0], out)
         fname = os.path.split(_f[0])[1]

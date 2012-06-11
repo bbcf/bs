@@ -23,19 +23,16 @@ def fetch_files(service, _files, form_parameters):
         for form_parameter in _files.keys():
             if form_parameters.has_key(form_parameter):
                 value = form_parameters.get(form_parameter)
-                #TODO verify if the extension is not specified in the _files
-                extension = ''
-                tmp_file = tempfile.NamedTemporaryFile(suffix=extension, dir=tmp_dir, delete=False)
-                tmp_file.close()
+                tmp_file = util.temporary_path(value, dir=tmp_dir)
 
                 if file_root is not None and url_root is not None:
                     # remove //
                     value = value.replace('//', '/').replace(':/', '://')
                     new = value.replace(url_root, file_root)
-                    io.copy(new, tmp_file.name)
+                    io.copy(new, tmp_file)
                 else :
-                    io.download(value, tmp_file.name)
-                form_parameters[form_parameter] = tmp_file.name
+                    io.download(value, tmp_file)
+                form_parameters[form_parameter] = tmp_file
     except IOError as e:
         io.rm(tmp_dir)
         raise e
@@ -47,15 +44,13 @@ def fetch_file_field(user, _files, form_parameters):
         for form_parameter in _files:
             if form_parameters.has_key(form_parameter):
                 value = form_parameters.get(form_parameter)
-                filename = value['filename']
-                file_value = value['value']
-                extension = ''
-                tmp_file = tempfile.NamedTemporaryFile(suffix=extension, prefix=filename, dir=tmp_dir, delete=False)
-                tmp_file.write(file_value)
-                tmp_file.close()
-
+                filename = value.filename
+                file_value = value.value
+                tmp_file = util.temporary_path(filename, dir=tmp_dir)
+                with open (tmp_file, 'w') as _f:
+                    _f.write(file_value)
+                form_parameters[form_parameter] = tmp_file
     except IOError as e:
-        print tmp_dir
         io.rm(tmp_dir)
         raise e
     return tmp_dir
@@ -101,5 +96,5 @@ def temporary_directory(service_name):
         if e.errno == errno.EEXIST:
             return temporary_directory(service_name)
         else: #this error must be raised to tell that something wrong with mkdir
-            raise OSError
+            raise OSError(e)
     return tmp_dir

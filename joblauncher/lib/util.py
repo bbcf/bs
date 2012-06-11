@@ -1,5 +1,4 @@
-from joblauncher.model import DBSession, User
-import string, random
+import string, random, tempfile, os
 
 def to_datagrid(grid_type, grid_data, grid_title, grid_display):
     '''
@@ -25,3 +24,19 @@ def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in xrange(size))
 
 
+def temporary_path(fname=None, ext=None, dir=None):
+    """
+    Get you a temporary path for writing files
+    """
+    if ext is not None:
+        ext = '.' + ext
+    else :
+        ext = ''
+
+    if fname is None:
+        _f = tempfile.NamedTemporaryFile(suffix=ext, delete=True)
+        _f.close()
+        return _f.name
+
+    tmp_dir = tempfile.mkdtemp(dir=None)
+    return os.path.join(tmp_dir, fname + ext)

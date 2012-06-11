@@ -61,7 +61,7 @@ function menu_add_child(parent, node){
 
 function button_event(node){
     var path = window.location.pathname;
-    path = path.replace("/form/list", "/form/info");
+    path = path.replace("/form/list", "/form/index");
     window.location = path + '?id=' + node.id;
 };
 

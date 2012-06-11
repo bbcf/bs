@@ -63,6 +63,8 @@ class Request(DeclarativeBase):
 
     date_done = synonym('_date_done', descriptor=property(_get_date, _set_date))
 
+    def __str__(self):
+        return "<Request %s %s %s>" % (self.id, self.date_done, self.result)
 
 class Result(DeclarativeBase):
     __tablename__ = "%sresult" % prefix
@@ -71,3 +73,10 @@ class Result(DeclarativeBase):
     path = Column(VARCHAR(255), nullable=True)
     task_id = Column(Integer, ForeignKey('celery_taskmeta.task_id', ondelete="CASCADE"), nullable=False)
     task = relationship("Task", backref="request_result")
+
+
+
+    def __str__(self):
+        return "<Result %s %s %s %s>" % (self.id, self.path, self.task_id, self.task.traceback)
+
+

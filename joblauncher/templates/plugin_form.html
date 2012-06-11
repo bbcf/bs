@@ -12,10 +12,18 @@
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/style.css')}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/admin.css')}" />
 </head>
+<style>
+    .error {
+    color:red;
+    }
 
+</style>
 <body>
   
   <h1><div py:replace="title">Title</div></h1>
+  <p>
+    <div py:replace="info"></div>
+  </p>
   <div py:replace="widget.display()">Input Form</div>
   
  
