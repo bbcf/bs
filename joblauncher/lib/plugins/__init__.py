@@ -10,7 +10,7 @@ def init_plugins():
     Init the plugin manager
     '''
     do_update = tg.config.get('plugins.update')
-    if do_update.lower() in ['1', 'true', 't']:
+    if do_update and do_update.lower() in ['1', 'true', 't']:
         update()
 
     plug_dir = constants.plugin_directory()
