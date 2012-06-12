@@ -10,82 +10,89 @@ It uses `Yapsy <http://yapsy.sourceforge.net/>`_ plugin system to automatically 
 Add your plugin
 '''''''''''''''
 
-Make a python class :class:`ExampleFilesSelection.py`::
+Make a python class :class:`Test.py`::
 
-       from joblauncher.lib.plugins.plugin import OperationPlugin, rp, nf
-       """
-       Some util functions
-       """
-       from joblauncher.lib.plugins import form
-       """
-       An example form, that you can also define in this file
-       """
-       from yapsy.IPlugin import IPlugin
-       """
-       The plugin system
-       """
-       import os, shutil
-       """
-       Import here other libraries that you need
-       """
+    from joblauncher.lib.plugins.plugin import OperationPlugin, rp, nf, BaseForm, temporary_path
+    from yapsy.IPlugin import IPlugin
+    import tw2.forms as twf
+    import tw2.core as twc
+    import os
+
+    class Test(IPlugin, OperationPlugin):
+
+        def title(self):
+            """
+            A name for the Operation.
+            """
+            return 'Test'
+
+        def description(self):
+            """
+            A quick description about your operation.
+            """
+            return '''A test plugin'''
 
 
-       class ExampleFilesSelection(IPlugin, OperationPlugin):
+        def path(self):
+            """
+            An unique path among all plugins.
+            """
+            return ['Tests', 'test form']
 
-           def title(self):
-               """
-               Define the Operation title.
-               """
-               return 'Merge'
+        def output(self):
+            """
+            An output form (Toscawidget, Sprox).
+            """
+            return TestForm
 
-           def path(self):
-               """
-               Define the Operation path. Must be unique among all others operations.
-               """
-               return ['Manipulation', 'Merge']
+        def parameters(self):
+            """
+            Operation parameters. A dict with the input(s) and output(s).
+            """
+            return {'in' : ['one', 'two', 'three'],
+                    'out' : {'result' : 'random'}
+            }
 
-           def output(self):
-               """
-               Define what form will be used.
-               """
-               return form.FilesForm
+        def files(self):
+            """
+            The list of "in" parameters that are files.
+            """
+            return ['two']
 
-           def description(self):
-               """
-               Document your Operation.
-               """
-               return '''It is just an example.'''
-           def parameters(self):
-               """
-               Define the parameters needed by your Operation.
-               """
-               return {'track_1' : 'The first file. Required', 'track_2' : 'The second file. Required', 'thr' : 'a threshold.'}
+        def meta(self):
+            """
+            A dict with additional information. Put here everything you want.
+            """
+            return {'version' : "1.0.0",
+                    'author' : "BBCF",
+                    'contact' : "webmaster-bbcf@epfl.ch"}
 
-           def files(self):
-               '''
-               Here give the parameters that need to be filled with a list of files
-               '''
-               return ['track_1', 'track_2']
+        def process(self, **kw):
+            """
+            Define here the process of your operation, with the parameters gathered from the form.
+            """
+            import time
+            time.sleep(5)
+            tmp = temporary_path(fname='my output', ext='fasta')
+            # process the file. Here I just touch one file "fasta"
+            with file(tmp, 'a'):
+                os.utime(tmp, None)
+            # add the file to the output (param must match)
+            nf(self, tmp, 'two')
 
-           def process(self, **kw):
-               """
-               Define here the Operation itself with the parameters gathered form the form.
-               """
-               file_1 = rp(kw, 'track_1')                    # retrieve parameter `track_1`
-               file_2 = rp(kw, 'track_2')                    # rp `track_2`
-               threshold = int(rp(kw, 'thr'))                # rp `thr` and convert it to an int
+            print 'end test process'
+            return 1
 
-               root, fname = os.path.split(file_1)           # simulated process
-               nfile = os.path.join(root, 'new_file.bed')    # take the first file and
-               shutil.move(file_1, nfile)                    # rename it to 'new_file.bed'
 
-               nf(self, nfile)                               # add a new file in the job result
-                                                             # nf(plugin, file) will add the file
-                                                             # to the output of the job.
-                                                             # the file can be retrieved by your service after.
 
-               return 'example terminated'                   # the Operation return value
-
+    class TestForm(BaseForm):
+        hover_help = True
+        show_errors = True
+        one = twf.TextField(label='the parameter one : ', help_text='Some description.', hover_help=True,
+            validator=twc.validator(required=True))
+        two = twf.SingleSelectField(twf.FileValidator(required=True))
+        three = twf.CheckBox()
+        submit = twf.SubmitButton(id="submit", value="Submit test job")
 
 
 
@@ -94,14 +101,15 @@ Make a python class :class:`ExampleFilesSelection.py`::
 Make the corresponding ``yapsy`` file :class:`ExampleFilesSelection.yapsy-plugin`::
 
     [Core]
-    Name = ExampleFilesSelection
-    Module = ExampleFilesSelection
+    Name = Test
+    Module = Test
 
     [Documentation]
     Author = Jarosz Yohan
-    Version = 0.1
+    Version = 1.0.0
     Website = http://github.com/yjarosz
-    Description = Test plugin to select files on a form and fetch them in your service.
+    Description = Test plugin to put a threshold on a track
+
 
 This one is used to describe your plugin and to tell ``Yapsy`` which plugin to take.
 

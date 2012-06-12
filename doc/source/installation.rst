@@ -19,7 +19,7 @@ Once you have the source code, run::
 Configuration
 '''''''''''''
 
-You have to edit some file to configure joblaucher on your server(s)
+You have to edit some file to configure joblauncher on your server(s)
 
 - **development.ini** : define the main application (you should rename this file).
 - **celeryconfig.py** : define the configuration of the worker.

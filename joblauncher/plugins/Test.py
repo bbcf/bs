@@ -1,8 +1,7 @@
 from joblauncher.lib.plugins.plugin import OperationPlugin, rp, nf, BaseForm, temporary_path
-from joblauncher.lib.plugins import form
 from yapsy.IPlugin import IPlugin
-import tw2.forms
-from tw.forms import validators as twv
+import tw2.forms as twf
+import tw2.core as twc
 import os
 
 class Test(IPlugin, OperationPlugin):
@@ -55,7 +54,9 @@ class Test(IPlugin, OperationPlugin):
                 'contact' : "webmaster-bbcf@epfl.ch"}
 
     def process(self, **kw):
-        print 'process test with parameters : %s' % kw
+        """
+        Define here the process of your operation, with the parameters gathered from the form.
+        """
         import time
         time.sleep(5)
         tmp = temporary_path(fname='my output', ext='fasta')
@@ -68,12 +69,13 @@ class Test(IPlugin, OperationPlugin):
         print 'end test process'
         return 1
 
-import tw2.core
+
 
 class TestForm(BaseForm):
     hover_help = True
     show_errors = True
-    one = tw2.forms.TextField(label='the parameter one : ', help_text='Some description.', hover_help=True, validator=twv.NotEmpty)
-    two = tw2.forms.SingleSelectField()
-    three = tw2.forms.CheckBox()
-    submit = tw2.forms.SubmitButton(id="submit", value="Submit test job")
+    one = twf.TextField(label='the parameter one : ', help_text='Some description.', hover_help=True,
+        validator=twc.validator(required=True))
+    two = twf.SingleSelectField(twf.FileValidator(required=True))
+    three = twf.CheckBox()
+    submit = twf.SubmitButton(id="submit", value="Submit test job")

@@ -64,11 +64,13 @@ class FileConvert(IPlugin, OperationPlugin):
 
 
 import tw2.forms as twf
+import tw2.core as twc
 
 class ConvertForm(BaseForm):
     hover_help = True
     show_errors = True
-    infile = twf.SingleSelectField(label='File', help_text='Select the file.', hover_help=True)
-    to = twf.SingleSelectField(label='Output format', help_text='Select the output format of your file.', options=['wig', 'bed', 'sql', 'gff', 'sga'], hover_help=True)
+    infile = twf.SingleSelectField(label='File', help_text='Select the file.', hover_help=True, validator=twf.FileValidator(required=True))
+    to = twf.SingleSelectField(label='Output format', help_text='Select the output format of your file.',
+        options=['wig', 'bed', 'sql', 'gff', 'sga'], validator=twc.Validator(required=True), hover_help=True)
     submit = twf.SubmitButton(id="submit", value="Convert")
 
