@@ -4,6 +4,8 @@
 
 JobLauncher is a web application which have the purpose to build a common interface for job processing for different applications.
 
+If you want to add new operations on the interface, you should go `here <http://bbcf.epfl.ch/plugins/>`_.
+
 ========
 Features
 ========
@@ -33,7 +35,6 @@ Table of contents
 
     Installation <installation>
     How To <use_it>
-    Plugins <plugins>
 
 
 Indices and tables

@@ -1,9 +1,0 @@
-[Core]
-Name = Smoothing
-Module = Smoothing
-
-[Documentation]
-Author = Jarosz Yohan
-Version = 0.1
-Website = http://github.com/yjarosz
-Description = Smooth a track
