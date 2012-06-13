@@ -1,5 +1,6 @@
 import string, random, tempfile, os
 
+
 def to_datagrid(grid_type, grid_data, grid_title, grid_display):
     '''
     Special method which format the parameters to fit
@@ -34,9 +35,9 @@ def temporary_path(fname=None, ext=None, dir=None):
         ext = ''
 
     if fname is None:
-        _f = tempfile.NamedTemporaryFile(suffix=ext, delete=True)
+        _f = tempfile.NamedTemporaryFile(suffix=ext, dir=dir, delete=True)
         _f.close()
         return _f.name
 
-    tmp_dir = tempfile.mkdtemp(dir=None)
+    tmp_dir = tempfile.mkdtemp(dir=dir)
     return os.path.join(tmp_dir, fname + ext)

@@ -7,6 +7,8 @@ import os, urllib, urllib2, json, errno
 from celery.task.http import HttpDispatchTask
 
 
+
+
 @task()
 def plugin_process(_id, service_name, tmp_dir, out_path, name, description, callback_url=None, **kw):
     """

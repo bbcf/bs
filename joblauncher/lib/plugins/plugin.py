@@ -99,14 +99,10 @@ def rp(params, param, default=None):
     return retrieve_parameter(params, param, default)
 
 
-def tmp_path(prefix='', suffix=''):
-    _f = tempfile.NamedTemporaryFile(prefix=prefix, suffix=suffix, delete=True)
-    _f.close()
-    return _f.name
 
 
 def temporary_path(fname=None, ext=None):
-   return util.temporary_path(fname, ext)
+   return util.temporary_path(fname=fname, ext=ext, dir=os.getcwd())
 
 
 
