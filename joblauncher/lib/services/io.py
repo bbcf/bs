@@ -46,7 +46,7 @@ def fetch_file_field(user, _files, form_parameters):
                 value = form_parameters.get(form_parameter)
                 filename = value.filename
                 file_value = value.value
-                tmp_file = util.temporary_path(filename, dir=tmp_dir)
+                tmp_file = util.temporary_path(fname=filename, dir=tmp_dir)
                 with open (tmp_file, 'w') as _f:
                     _f.write(file_value)
                 form_parameters[form_parameter] = tmp_file
@@ -88,4 +88,4 @@ def temporary_directory():
     """
     Build a temporary directory in the service directory
     """
-    return util.temporary_path(dir=service_manager.in_path)
+    return util.temporary_dir(dir=service_manager.in_path)

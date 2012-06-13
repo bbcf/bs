@@ -41,3 +41,6 @@ def temporary_path(fname=None, ext=None, dir=None):
 
     tmp_dir = tempfile.mkdtemp(dir=dir)
     return os.path.join(tmp_dir, fname + ext)
+
+def temporary_dir(dir=None):
+    return  tempfile.mkdtemp(dir=dir)
