@@ -18,7 +18,7 @@ def fetch_files(service, _files, form_parameters):
     file_root = parameters.get(constants.SERVICE_FILE_ROOT_PARAMETER, None)
     url_root = parameters.get(constants.SERVICE_URL_ROOT_PARAMETER, None)
 
-    tmp_dir = temporary_directory(service_name)
+    tmp_dir = temporary_directory()
     try :
         for form_parameter in _files.keys():
             if form_parameters.has_key(form_parameter):
@@ -39,7 +39,7 @@ def fetch_files(service, _files, form_parameters):
     return tmp_dir
 
 def fetch_file_field(user, _files, form_parameters):
-    tmp_dir = temporary_directory(user.name)
+    tmp_dir = ()
     try :
         for form_parameter in _files:
             if form_parameters.has_key(form_parameter):
@@ -84,12 +84,8 @@ def temporary_path(service_name, extension=None, filename='in'):
         return '%s.%s' % (unique_path, extension)
     return tmp_dir, unique_path
 
-def temporary_directory(service_name=None):
+def temporary_directory():
     """
     Build a temporary directory in the service directory
     """
-    if service_name is None :
-        tmp_dir = util.temporary_path(dir=service_manager.in_path)
-    else :
-        tmp_dir = util.temporary_path(dir=os.path.join(service_manager.in_path, service_name))
-    return tmp_dir
+    return util.temporary_path(dir=service_manager.in_path)
