@@ -39,7 +39,7 @@ def fetch_files(service, _files, form_parameters):
     return tmp_dir
 
 def fetch_file_field(user, _files, form_parameters):
-    tmp_dir = ()
+    tmp_dir = temporary_directory()
     try :
         for form_parameter in _files:
             if form_parameters.has_key(form_parameter):
