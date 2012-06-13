@@ -84,17 +84,12 @@ def temporary_path(service_name, extension=None, filename='in'):
         return '%s.%s' % (unique_path, extension)
     return tmp_dir, unique_path
 
-def temporary_directory(service_name):
+def temporary_directory(service_name=None):
     """
     Build a temporary directory in the service directory
     """
-    unique = util.id_generator()
-    tmp_dir = os.path.join(service_manager.in_path, service_name, unique)
-    try:
-        os.mkdir(tmp_dir)
-    except OSError, e:
-        if e.errno == errno.EEXIST:
-            return temporary_directory(service_name)
-        else: #this error must be raised to tell that something wrong with mkdir
-            raise OSError(e)
+    if service_name is None :
+        tmp_dir = util.temporary_path(dir=service_manager.in_path)
+    else :
+        tmp_dir = util.temporary_path(dir=os.path.join(service_manager.in_path, service_name))
     return tmp_dir

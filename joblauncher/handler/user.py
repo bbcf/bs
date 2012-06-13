@@ -50,10 +50,3 @@ def create_user(name, email):
     DBSession.add(serv_group)
     DBSession.flush()
     transaction.commit()
-    # create directory
-    from joblauncher.lib.services import service_manager
-    import os
-    try :
-        os.mkdir(os.path.join(service_manager.in_path, name))
-    except OSError:
-        pass
