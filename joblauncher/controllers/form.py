@@ -46,6 +46,7 @@ def parse_parameters(user, id, form, files, **kw):
                 # put a fileField instead of the selectField
                 tmp = tw2.forms.FileField(validator=field.validator)
                 tmp.id = field.id
+                tmp.label = field.label
                 form.child.children[index] = tmp
             else :
                 _list = json.loads(kw.get(field.id, "[]"))
@@ -120,6 +121,7 @@ class FormController(BaseController):
 
 
             main_proxy = tg.config.get('main.proxy')
+
             widget = form(action= main_proxy + url('/form/index', {'id' : id})).req()
             widget.value = value
             return {'page' : 'form', 'info' : info, 'title' : obj.title(), 'widget' : widget}
@@ -160,9 +162,6 @@ class FormController(BaseController):
             try:
                 form.validate(kw)
             except (tw2.core.ValidationError ,Invalid) as e:
-                import traceback, sys
-                etype, value, tb = sys.exc_info()
-                traceback.print_exception(etype, value, tb)
                 main_proxy = tg.config.get('main.proxy')
                 e.widget.action = main_proxy + url('/form/index', {'id' : id})
                 return {'page' : 'form', 'info' : info, 'title' :  plug.plugin_object.title(), 'widget' : e.widget}
