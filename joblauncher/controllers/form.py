@@ -20,8 +20,9 @@ from paste.request import get_cookies
 __all__ = ['FormController']
 import tw2.forms
 import tw2.core
+import tw2.dynforms
 from webob import Request
-to_treat_as_file_list = {'SingleSelectField' : False, 'MultipleSelectField' : True}
+
 
 from paste.auth import auth_tkt
 

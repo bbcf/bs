@@ -65,16 +65,17 @@ class SharedKeyPlugin(object):
                     return identity
 
         # SINGLE USER
-        remote = environ['REMOTE_ADDR']
-        identity = {}
-        identity['repoze.who.userid'] = remote
-        identity['tokens'] = app_token
-        identity['userdata'] = remote
-        environ['auth'] = True
-        user = DBSession.query(User).filter(User.name == remote).first()
-        if user is None:
-            handler.user.create_user(remote, remote)
-        return identity
+        if 'REMOTE_ADDR' in environ:
+            remote = environ['REMOTE_ADDR']
+            identity = {}
+            identity['repoze.who.userid'] = remote
+            identity['tokens'] = app_token
+            identity['userdata'] = remote
+            environ['auth'] = True
+            user = DBSession.query(User).filter(User.name == remote).first()
+            if user is None:
+                handler.user.create_user(remote, remote)
+            return identity
 
 
     # IIdentifier

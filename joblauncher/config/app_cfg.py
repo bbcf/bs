@@ -31,12 +31,12 @@ base_config.use_sqlalchemy = True
 base_config.model = model
 base_config.DBSession = model.DBSession
 base_config.use_transaction_manager=True
-base_config.use_toscawidgets=True
+#base_config.use_toscawidgets=True
 base_config.use_toscawidgets2=True
+
 # HOOKS
 def on_startup():
     import datetime
-
     print ' --- starting joblauncher application --- '+str(datetime.datetime.now())
 
 
