@@ -38,7 +38,7 @@ def temporary_path(fname=None, ext=None, dir=None):
         _f = tempfile.NamedTemporaryFile(suffix=ext, dir=dir, delete=True)
         _f.close()
         return _f.name
-
+    if fname == '': return ''
     tmp_dir = tempfile.mkdtemp(dir=dir)
     return os.path.join(tmp_dir, fname + ext)
 
