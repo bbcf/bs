@@ -44,6 +44,7 @@ def fetch_file_field(user, _files, form_parameters):
         for form_parameter in _files:
             if form_parameters.has_key(form_parameter):
                 value = form_parameters.get(form_parameter)
+                if not(value): continue
                 filename = value.filename
                 file_value = value.value
                 tmp_file = util.temporary_path(fname=filename, dir=tmp_dir)
