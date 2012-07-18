@@ -23,7 +23,6 @@ import tw2.core
 import tw2.dynforms
 from webob import Request
 
-
 from paste.auth import auth_tkt
 
 """
@@ -44,8 +43,12 @@ def parse_parameters(user, id, form, files, **kw):
         index += 1
         if field.id in files:
             if not user.is_service:
+
+                if field.id == 'two':
+                    tmp = plugin.MultipleFileUpload()
+                else :
                 # put a fileField instead of the selectField
-                tmp = tw2.forms.FileField(validator=field.validator)
+                   tmp = tw2.forms.FileField(validator=field.validator)
                 tmp.id = field.id
                 tmp.label = field.label
                 form.child.children[index] = tmp

@@ -221,9 +221,13 @@ from tw.forms import validators as twv
 
 import tw2.core
 import tw2.forms
+import tw2.dynforms as twd
 
 class BaseForm(tw2.forms.TableForm):
     pp = tw2.forms.HiddenField()
     key = tw2.forms.HiddenField()
     up = tw2.forms.HiddenField()
 
+class MultipleFileUpload(twd.GrowingGridLayout):
+    file = tw2.forms.FileField()
+    more = tw2.forms.CheckBox()
