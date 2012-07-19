@@ -1,5 +1,5 @@
 from pkg_resources import resource_filename
-import os
+import os, tg
 
 tmp_user_name = 'tmp_user'
 
@@ -48,3 +48,10 @@ def decypher_service_name(service):
 
 def service_email(service):
     return 'service_%s' % service
+
+
+def temporary_directory():
+    if 'temporary.directory' in tg.config:
+        return tg.config.get('temporary.directory')
+    else :
+        return os.path.join(resource_filename('joblauncher', 'tmp'))

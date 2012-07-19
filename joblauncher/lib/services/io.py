@@ -38,19 +38,45 @@ def fetch_files(service, _files, form_parameters):
         raise e
     return tmp_dir
 
+def _format_submission_parameters(files, params):
+    t = files.get('simple', [])
+    t += files.get('multiple', [])
+    for m in files.get('multiple', []):
+        mlist = []
+        todel = []
+        for k, v in params.iteritems():
+            if k.startswith(m) and len(k.split(':')) == 3:
+                p, n, f = k.split(':')
+                if p == m and f == 'file':
+                    if v != '':
+                        mlist.append(v)
+                    todel.append(k)
+        for d in todel: del params[d]
+        params[m] = mlist
+    return t
+
+def _take_file(value):
+    if value != '':
+        filename = value.filename
+        file_value = value.value
+        with util.tmpfile(prefix=filename) as tmp_file:
+            tmp_file.write(file_value)
+        return tmp_file.name
+
+
 def fetch_file_field(user, _files, form_parameters):
     tmp_dir = temporary_directory()
     try :
+        if not isinstance(_files, (list, tuple)):
+            _files = _format_submission_parameters(_files, form_parameters)
         for form_parameter in _files:
             if form_parameters.has_key(form_parameter):
                 value = form_parameters.get(form_parameter)
-                if value == '': continue
-                filename = value.filename
-                file_value = value.value
-                tmp_file = util.temporary_path(fname=filename, dir=tmp_dir)
-                with open (tmp_file, 'w') as _f:
-                    _f.write(file_value)
-                form_parameters[form_parameter] = tmp_file
+                if isinstance(value, (list, tuple)):
+                    tmp_files = [_take_file(v) for v in value]
+                else :
+                    tmp_files = _take_file(value)
+                form_parameters[form_parameter] = tmp_files
     except IOError as e:
         io.rm(tmp_dir)
         raise e
@@ -89,4 +115,4 @@ def temporary_directory():
     """
     Build a temporary directory in the service directory
     """
-    return util.temporary_dir(dir=service_manager.in_path)
+    return util.tmpdir(d=service_manager.in_path)

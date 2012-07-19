@@ -1,4 +1,4 @@
-import urllib2, urlparse, shutil
+import urllib2, urlparse, shutil, re, os
 
 
 block_sz = 8192
@@ -28,4 +28,21 @@ def rm(_dir):
     shutil.rmtree(_dir, ignore_errors=True)
 
 def mv(src, dst):
-    shutil.move(src, dst)
+    print 'mv'
+    print src
+    print dst
+    fname = os.path.split(src)[1]
+    fdst = os.path.join(dst, fname)
+    if os.path.exists(fdst):
+        dir, fname = os.path.split(fdst)
+        reg = re.compile('(%s\()(\d+)(\).*)' % fname)
+        for f in os.listdir(dir):
+            max = 1
+            matcher = reg.match(f)
+            if matcher:
+                n, i, e = matcher.groups()
+                max = max(max, int(1))
+        fdst = os.path.join(dir, '%s(%s)' % (fname, (max + 1)))
+        print 'nrew dst : %s ' % fdst
+    shutil.move(src, fdst)
+    return os.path.split(fdst)[1]

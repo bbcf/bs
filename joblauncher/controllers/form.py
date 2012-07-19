@@ -38,46 +38,78 @@ def parse_parameters(user, id, form, files, **kw):
     """
     # fill list param
     fields = form.child.children
-    index = -1
-    for field in fields:
-        index += 1
-        if field.id in files:
-            if not user.is_service:
+    if isinstance(files, (list, tuple)):
+        simples = files
+        multiples = []
+    else :
+        simples = files.get('simple', [])
+        multiples = files.get('multiple', [])
 
-                if field.id == 'two':
-                    tmp = plugin.MultipleFileUpload()
-                else :
-                # put a fileField instead of the selectField
-                   tmp = tw2.forms.FileField(validator=field.validator)
-                tmp.id = field.id
-                tmp.label = field.label
-                form.child.children[index] = tmp
-            else :
-                _list = json.loads(kw.get(field.id, "[]"))
-                if len(_list)>0:
-                    if isinstance(_list[0], list):
-                        field.options = [(_list[i][0], _list[i][1]) for i in xrange(len(list(_list)))]
-                    else :
-                        field.options = dict([(_list[i], _list[i]) for i in xrange(len(list(_list)))])
-                else :
-                    field.options=[]
+    for index, field in enumerate(fields):
+        fid = field.id
+        if fid in simples:
+            _process_file_field(user, form, field, kw, tw2.forms.FileField, index, True)
+        elif fid in multiples:
+            _process_file_field(user, form, field, kw, plugin.MultipleFileUpload, index, False)
 
-    value = {}
-    for k, v in kw.iteritems():
-        value[k]=v
 
-    # edit private parameters
-    if kw.has_key('key'):
-        value['key']=kw.get('key')
-    if kw.has_key('up'):
-        value['up']=kw.get('up')
+#    value = {}
+#    for k, v in kw.iteritems():
+#        value[k]=v
+#
+#    # edit private parameters
+#    if kw.has_key('key'):
+#        value['key']=kw.get('key')
+#    if kw.has_key('up'):
+#        value['up']=kw.get('up')
 
     pp = {}
     pp['id']=id
-    value['pp']=json.dumps(pp)
+    kw['pp']=json.dumps(pp)
 
 
-    return value
+    return kw
+
+def _fill_fields(field, field_id, params):
+    _list = json.loads(params.get(field_id, "[]"))
+    if len(_list)>0:
+        if isinstance(_list[0], (list, tuple)):
+            field.options = [(_list[i][0], _list[i][1]) for i in xrange(len(list(_list)))]
+        else :
+            field.options = dict([(_list[i], _list[i]) for i in xrange(len(list(_list)))])
+    else :
+        field.options=[]
+
+
+
+
+def _process_file_field(user, form, field, params, cls, index, take_validator):
+    if user.is_service: # fill fields
+        _fill_fields(field, field.id, params)
+    else : # replace field for direct user input
+        if take_validator: tmp = cls(validator=field.validator)
+        else :             tmp = cls()
+        tmp.id = field.id
+        tmp.label = field.label
+        form.child.children[index] = tmp
+
+def _format_submission_parameters(files, params):
+    pass
+
+def _format_submission_parameters2(files, params):
+    if files.has_key('multiple'):
+        for m in files.get('multiple'):
+            mlist = []
+            todel = []
+            for k, v in params.iteritems():
+                if k.startswith(m) and len(k.split(':')) == 3:
+                    p, n, f = k.split(':')
+                    if p == m and f == 'file':
+                        if v != '':
+                            mlist.append(v)
+                        todel.append(k)
+            for d in todel: del params[d]
+            params[m] = mlist
 
 class FormController(BaseController):
 
@@ -120,9 +152,6 @@ class FormController(BaseController):
             info = obj.description()
             user = handler.user.get_user_in_session(request)
             value = parse_parameters(user, id, form, obj.files(), **kw)
-
-
-
 
             main_proxy = tg.config.get('main.proxy')
 
@@ -171,7 +200,8 @@ class FormController(BaseController):
                 return {'page' : 'form', 'info' : info, 'title' :  plug.plugin_object.title(), 'widget' : e.widget}
 
             user = handler.user.get_service_in_session(request)
-                ### FETCH FILES ###
+
+            ### FETCH FILES ###
             try :
                 if user.is_service :
                     tmp_dir = services.io.fetch_files(user, plug.plugin_object.files(), kw)

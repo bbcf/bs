@@ -1,6 +1,6 @@
 from tg import app_globals
 import hashlib, tempfile, os
-from joblauncher.lib import util
+from joblauncher.lib import util, constants
 
 class OperationPlugin(object):
 
@@ -72,7 +72,9 @@ class OperationPlugin(object):
         self.service = service_name
         self.files = []
 
-
+    def new_file(self, fpath, fparam):
+        ftype = self.parameters().get('out').get(fparam)
+        self.files.append([fpath, ftype])
 
 # Some useful functions
 
@@ -98,11 +100,17 @@ def rp(params, param, default=None):
     """
     return retrieve_parameter(params, param, default)
 
-
-
+import string, random
+random_name = lambda x : ''.join(random.choice(string.ascii_lowercase + string.digits) for i in xrange(x))
 
 def temporary_path(fname=None, ext=None):
-   return util.temporary_path(fname=fname, ext=ext, dir=os.getcwd())
+    tmp_dir = util.tmpdir()
+    if fname is None : fname = random_name(6)
+    if ext is not None:
+        if ext.startswith('.') : fname += ext
+        else :                   fname  = '%s.%s' % (fname, ext)
+    fpath = os.path.join(tmp_dir, fname)
+    return fpath
 
 
 
@@ -230,4 +238,4 @@ class BaseForm(tw2.forms.TableForm):
 
 class MultipleFileUpload(twd.GrowingGridLayout):
     file = tw2.forms.FileField()
-    more = tw2.forms.CheckBox()
+    #more = tw2.forms.CheckBox()

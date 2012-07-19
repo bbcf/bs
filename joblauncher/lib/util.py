@@ -1,5 +1,5 @@
 import string, random, tempfile, os
-
+from joblauncher.lib import constants
 
 def to_datagrid(grid_type, grid_data, grid_title, grid_display):
     '''
@@ -25,22 +25,13 @@ def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in xrange(size))
 
 
-def temporary_path(fname=None, ext=None, dir=None):
-    """
-    Get you a temporary path for writing files
-    """
-    if ext is not None:
-        ext = '.' + ext
-    else :
-        ext = ''
 
-    if fname is None:
-        _f = tempfile.NamedTemporaryFile(suffix=ext, dir=dir, delete=True)
-        _f.close()
-        return _f.name
-    if fname == '': return ''
-    tmp_dir = tempfile.mkdtemp(dir=dir)
-    return os.path.join(tmp_dir, fname + ext)
+def tmpdir(d=None):
+    if d is None:
+        d = constants.temporary_directory()
+    return tempfile.mkdtemp(dir=d)
 
-def temporary_dir(dir=None):
-    return  tempfile.mkdtemp(dir=dir)
+def tmpfile(prefix='', suffix='', d=None, delete=False):
+    if d is None:
+        d = tmpdir()
+    return tempfile.NamedTemporaryFile(prefix=prefix, suffix=suffix, dir=d, delete=delete)

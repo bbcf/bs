@@ -86,9 +86,9 @@ def new_files(service_name, task_id, out_path, _files):
         if e.errno == errno.EEXIST:
             io.rm(out)
             return new_files(service_name, task_id, out_path, _files)
+
     for _f in _files:
-        io.mv(_f[0], out)
-        fname = os.path.split(_f[0])[1]
+        fname = io.mv(_f[0], out)
         _f[0] = os.path.join(out, fname)
     return True
 
