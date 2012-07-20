@@ -59,7 +59,7 @@ def _take_file(value):
     if value != '':
         filename = value.filename
         file_value = value.value
-        with util.tmpfile(prefix=filename) as tmp_file:
+        with util.tmpfile(suffix=filename) as tmp_file:
             tmp_file.write(file_value)
         return tmp_file.name
 
