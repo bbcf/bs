@@ -10,10 +10,13 @@ and clicking on "Downloads", or by cloning the git repository with::
 
     git clone https://github.com/bbcf/bs.git
 
-Once you have the source code, run::
+Once you have the source code, and on the right python environment (virtualenv) run::
+
 
     cd bs
-    sudo python setup.py install
+    easy_install -i http://tg.gy/215 tg.devtools
+    python setup.py install
+    python yapsy_patch.py
 
 '''''''''''''
 Configuration
