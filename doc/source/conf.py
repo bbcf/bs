@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# joblauncher documentation build configuration file, created by
+# bs documentation build configuration file, created by
 # sphinx-quickstart on Tue May 15 12:13:31 2012.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -16,7 +16,7 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../..')); import joblauncher
+sys.path.insert(0, os.path.abspath('../..')); import bs
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -39,7 +39,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'joblauncher'
+project = u'bs'
 copyright = u'2012, BBCF'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -163,7 +163,7 @@ html_show_sphinx = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'joblauncherdoc'
+htmlhelp_basename = 'bsdoc'
 
 # Google analytics
 googleanalytics_id = "UA-24167610-15"
@@ -184,7 +184,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'joblauncher.tex', u'joblauncher Documentation',
+  ('index', 'bs.tex', u'bs Documentation',
    u'BBCF', 'manual'),
 ]
 
@@ -214,7 +214,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'joblauncher', u'joblauncher Documentation',
+    ('index', 'bs', u'bs Documentation',
      [u'BBCF'], 1)
 ]
 
@@ -228,8 +228,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'joblauncher', u'joblauncher Documentation',
-   u'BBCF', 'joblauncher', 'One line description of project.',
+  ('index', 'bs', u'bs Documentation',
+   u'BBCF', 'bs', 'One line description of project.',
    'Miscellaneous'),
 ]
 

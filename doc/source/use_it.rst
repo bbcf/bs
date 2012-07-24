@@ -40,19 +40,19 @@ The form displayed is the one that you defined in your plugin (see :ref:`plugins
 Initialization
 ''''''''''''''
 
-In order to use *joblauncher* by your service, you must define it in
-``service.ini`` file in joblauncher source folder
+In order to use *bs* by your service, you must define it in
+``service.ini`` file in bs source folder
 
 Here an example, add it at the end of the file::
 
-    # Define here services allowed to process request on joblauncher
+    # Define here services allowed to process request on bs
     # Available parameters are :
     # REQUIRED
     #     - contact : an email of contact
     #     - shared_key : a key which identify the service
     # OPTIONAL
     #     - file.root : absolute path to get the file on the filesystem
-    # 	    (joblauncher must be installed on the same server as the service)
+    # 	    (bs must be installed on the same server as the service)
     #     - url.root : the part of the url given to fetch the file to replace with file_root
     #     - result.root : absolute path where to write results
     #     - operations : the list of plugins to get for the service (default = all)
@@ -66,7 +66,7 @@ Here an example, add it at the end of the file::
     callback.url = http://localhost:8080/callback
     operations = ['operationid1', 'operationid2', ...]
 
-In order to help you define what operations identifiers to put in the `operations` parameter, *joblauncher* (on restart)
+In order to help you define what operations identifiers to put in the `operations` parameter, *bs* (on restart)
 produce a file called *service.cfg* in the application root directory which list all operations identifiers with the
 operation title and description. e.g ::
 
@@ -84,14 +84,14 @@ definition
 ''''''''''
 Discussion
 ''''''''''
-Discussion with *joblauncher* is all about ``HTTP``and ``JSON`` requests/responses.
+Discussion with *bs* is all about ``HTTP``and ``JSON`` requests/responses.
 
 Following examples will be given in python but you can always implement it in any languages that provides HTTP handling.
 
 Following examples will take the example of ``myservice`` which is defined in the previous paragraph.
 
-Following examples will assume that ``myservice`` and ``joblauncher`` runs on the same server but on different ports :
-myservice on *8080* and joblauncher on *7520* for instance.
+Following examples will assume that ``myservice`` and ``bs`` runs on the same server but on different ports :
+myservice on *8080* and bs on *7520* for instance.
 
 
 Methods
@@ -111,7 +111,7 @@ and all leaves contains the `id` and `fl` which are the operation id and the par
 in the operation form to fill with files.
 
 So you can make nice buttons in javascript to call your appliction from this JSON.
-It will be provided soon as part of the joblauncher library.
+It will be provided soon as part of the bs library.
 
 
 Index
@@ -124,10 +124,10 @@ this method is called with an *operation_id* (identify the operation) and the *u
 
     def index(self, operation_id, files_params, user_id):
         """
-        Some fictive method that serve the joblauncher form.
+        Some fictive method that serve the bs form.
         """
-        # take the joblauncher url from configuration file
-        joblauncher_url = 'http://localhost:7520/'
+        # take the bs url from configuration file
+        bs_url = 'http://localhost:7520/'
 
         # take the shared_key from confuguration file
         shared_key = 'asharedkeydifficulttoguess'
@@ -151,8 +151,8 @@ this method is called with an *operation_id* (identify the operation) and the *u
             for param in json.loads(files_param):
                 req[param]= json.dumps(gen_files)
 
-        # send the request on joblauncher service
-        res = urllib2.urlopen(joblauncher_url, urllib.urlencode(req))
+        # send the request on bs service
+        res = urllib2.urlopen(bs_url, urllib.urlencode(req))
 
         # serve the form as a response in your application
         return res.read()
@@ -161,7 +161,7 @@ this method is called with an *operation_id* (identify the operation) and the *u
 Callback
 ''''''''
 Another important method is about *callback*. If you have defined ``callback.url`` in
-the *service.ini* file. With this example, *joblauncher* will callback *http://localhost:8080/myservice/callback*::
+the *service.ini* file. With this example, *bs* will callback *http://localhost:8080/myservice/callback*::
 
     def callback(self, user_id, data, fid, tid, st, tn, td, **kw):
         # This method is called with some private parameters that you
@@ -185,7 +185,7 @@ the *service.ini* file. With this example, *joblauncher* will callback *http://l
 
 
 - *fid* : the operation identifier (or form identifier)
-- *tid* : the task identifier that identify the job launched on joblauncher
+- *tid* : the task identifier that identify the job launched on bs
 - *st* : the status of the task. Can be
          ``RUNNING``,
          ``SUCCESS`` (you can retrieve the job result with ``kw.get('result')``) or

@@ -1,3 +1,0 @@
-
-def authorized():
-    return True

@@ -5,21 +5,21 @@ Installation
 Download
 ''''''''
 
-To install you should download the latest source code from GitHub, either by going to the `web repository <http://github.com/bbcf/joblauncher/>`_
+To install you should download the latest source code from GitHub, either by going to the `web repository <http://github.com/bbcf/bs/>`_
 and clicking on "Downloads", or by cloning the git repository with::
 
-    git clone https://github.com/bbcf/joblauncher.git
+    git clone https://github.com/bbcf/bs.git
 
 Once you have the source code, run::
 
-    cd joblauncher
+    cd bs
     sudo python setup.py install
 
 '''''''''''''
 Configuration
 '''''''''''''
 
-You have to edit some file to configure joblauncher on your server(s)
+You have to edit some file to configure bs on your server(s)
 
 - **development.ini** : define the main application (you should rename this file).
 - **celeryconfig.py** : define the configuration of the worker.
@@ -31,7 +31,7 @@ Launch
 ''''''
 Put your shell in the right environment::
 
-    workon joblauncher
+    workon bs
 
 
 Start the main application via a daemon or run::

@@ -34,6 +34,7 @@ install_requires=[
     "tw.dojo",
     "tw.dynforms",
     "yapsy",
+    "celery",
 
     ]
 
@@ -44,7 +45,7 @@ if sys.version_info[:2] == (2,4):
 print install_requires
 
 setup(
-    name='joblauncher',
+    name='bs',
     version='0.1',
     description='A decentralized job launcher',
     author='Yohan Jarosz',
@@ -57,7 +58,7 @@ setup(
     include_package_data=True,
     test_suite='nose.collector',
     tests_require=testpkgs,
-    package_data={'joblauncher': ['i18n/*/LC_MESSAGES/*.mo',
+    package_data={'bs': ['i18n/*/LC_MESSAGES/*.mo',
                                  'templates/*/*',
                                  'public/css/*',
                                  'public/images/*',
@@ -65,14 +66,14 @@ setup(
                                  'public/javascript/js/*',
                                  ]},
 
-    message_extractors={'joblauncher': [
+    message_extractors={'bs': [
             ('**.py', 'python', None),
             ('templates/**.html', 'genshi', None),
             ('public/**', 'ignore', None)]},
 
     entry_points="""
     [paste.app_factory]
-    main = joblauncher.config.middleware:make_app
+    main = bs.config.middleware:make_app
 
     [paste.app_install]
     main = pylons.util:PylonsInstaller
