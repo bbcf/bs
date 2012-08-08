@@ -3,6 +3,10 @@ import hashlib, os, json
 from bs.lib import util
 from yapsy.IPlugin import IPlugin
 
+
+
+
+
 class OperationPlugin(IPlugin):
     """
      'title' : 'Test',

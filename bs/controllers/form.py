@@ -3,7 +3,7 @@ from tg import request, expose, url, flash, response, require
 from tg.controllers import redirect
 from bs.lib.base import BaseController
 from bs.lib import constants, checker
-from bs.lib.plugins import plugin
+from bs.lib.plugins import plugin, wordlist
 from bs import handler
 from repoze.what.predicates import has_permission
 import json
@@ -29,36 +29,21 @@ from paste.auth import auth_tkt
 Dict to discriminate file list and know if they can be multiple or single.
 """
 
-def parse_parameters(user, id, form, files, **kw):
+def parse_parameters(user, id, form, in_params, **kw):
     """
-    Reformat parameters coming to get the form well displayed.
+    Reformat parameters to get the form well displayed depending
+    of the service.
     """
-    # fill list param
     fields = form.child.children
-    if isinstance(files, (list, tuple)):
-        simples = files
-        multiples = []
-    else :
-        simples = files.get('simple', [])
-        multiples = files.get('multiple', [])
-
+    # map field id to boolean multiple if file is `file` type
+    d = dict( [(param.get('id'), param.get('multiple', False)) for param in in_params if wordlist.is_of_type(param.get('type'), wordlist.FILE)])
+    # change field if it's multiple or simple only if it's a `file` field
     for index, field in enumerate(fields):
         fid = field.id
-        if fid in simples:
-            _process_file_field(user, form, field, kw, tw2.forms.FileField, index, True)
-        elif fid in multiples:
-            _process_file_field(user, form, field, kw, plugin.MultipleFileUpload, index, False)
+        if d.has_key(fid):
+            if d.get(fid) : _process_file_field(user, form, field, kw, plugin.MultipleFileUpload, index, False)
+            else          : _process_file_field(user, form, field, kw, tw2.forms.FileField, index, True)
 
-
-#    value = {}
-#    for k, v in kw.iteritems():
-#        value[k]=v
-#
-#    # edit private parameters
-#    if kw.has_key('key'):
-#        value['key']=kw.get('key')
-#    if kw.has_key('up'):
-#        value['up']=kw.get('up')
 
     pp = {}
     pp['id']=id
@@ -149,16 +134,17 @@ class FormController(BaseController):
                 raise redirect(url('./error', {'bad form id' : id}))
 
             obj = plug.plugin_object
-            form =  obj.output()
-            info = obj.description()
+            info = obj.info
+            form =  info.get('output')
+            desc = info.get('description')
             user = handler.user.get_user_in_session(request)
-            value = parse_parameters(user, id, form, obj.files(), **kw)
+            value = parse_parameters(user, id, form, info.get('in'), **kw)
 
             main_proxy = tg.config.get('main.proxy')
 
             widget = form(action= main_proxy + url('/form/index', {'id' : id})).req()
             widget.value = value
-            return {'page' : 'form', 'info' : info, 'title' : obj.title(), 'widget' : widget}
+            return {'page' : 'form', 'desc' : info, 'title' : info.get('title'), 'widget' : widget}
 
         else :
             # FORM SUBMITTED

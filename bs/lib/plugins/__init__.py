@@ -36,6 +36,7 @@ def init_plugins():
 def _check_plugin_info(plug):
     if plug.info is None:
         raise Exception('You must provide info about your plugin.')
+    # check if needed parameters are here
     if not plug.info.has_key('title'):
         raise Exception('you must provide a title for your plugin.')
     if not plug.info.has_key('description'):
@@ -48,6 +49,12 @@ def _check_plugin_info(plug):
         raise Exception('you must provide a description about input parameters used in your plugin.')
     if not plug.info.has_key('out'):
         raise Exception('you must provide a description about out parameters used in your plugin.')
+
+    # check if parameters are well described
+    for param in plug.info.get('in') +  plug.info.get('out'):
+        if param.get('type') not in wordlist.keys() :
+            raise Exception('Param of type `%s` does not exist in %s' % (param.get('type'), wordlist.keys()))
+
 
 
 def write_config_file(out, plugin_mng):
@@ -113,3 +120,4 @@ def update():
 
 
 from plugin import temporary_path, OperationPlugin, BaseForm, retrieve_parameter, MultipleFileUpload
+import wordlist
