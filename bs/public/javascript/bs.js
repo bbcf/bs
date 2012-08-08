@@ -15,6 +15,7 @@ function display_operations(root, operations){
     var menu = new dijit.Menu({colspan : 1,
 			       style : {width : '10em'}
 			      });
+
     var c = operations.childs;
     var l = c.length;
     for(var i=0;i<l;i++){
@@ -29,9 +30,9 @@ function display_operations(root, operations){
 * @ parm node : the current node
 */
 function menu_add_child(parent, node){
-    var c = node.childs;
-    var l = c.length;
-    if(l>0){
+    var c = node.childs
+    if(c){
+	var l = c.length;
 	// node has childs (build a menu & add childs to it)
 	var m = new dijit.Menu({});
 	for(var i=0;i<l;i++){

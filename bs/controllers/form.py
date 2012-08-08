@@ -32,9 +32,6 @@ Dict to discriminate file list and know if they can be multiple or single.
 def parse_parameters(user, id, form, files, **kw):
     """
     Reformat parameters coming to get the form well displayed.
-    value are the "normal" parameters and
-    childs_args are the ones to get the list of files.
-    pp are the private parameters
     """
     # fill list param
     fields = form.child.children
@@ -119,15 +116,19 @@ class FormController(BaseController):
         """
         Method to get the operations list
         """
-        operations_path = 'operations_path = %s' % json.dumps(plugin.get_plugins_path(), default=plugin.encode_tree)
+        operations_path = 'operations_path = %s' % json.dumps(plugin.get_plugins_path(ordered=True))
         return {'page' : 'form', 'paths' : operations_path}
 
 
     @expose('json')
-    def methods(self, **kw):
+    def plugins(self, **kw):
         ordered = kw.get('ordered', False)
-        return {'paths' : plugin.get_plugins_path(ordered=ordered)}
-
+        user = handler.user.get_user_in_session(request)
+        if user.is_service :
+            d = {'plugins' : plugin.get_plugins_path(service=user, ordered=ordered)}
+        else :
+            d = {'plugins' : plugin.get_plugins_path(ordered=ordered)}
+        return d
     @expose()
     def error(self, *args, **kw):
         return {'error' : 'bad request : %s ' % kw}
