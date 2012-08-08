@@ -1,88 +1,56 @@
 from tg import app_globals
-import hashlib, os
+import hashlib, os, json
 from bs.lib import util
+from yapsy.IPlugin import IPlugin
+
+class OperationPlugin(IPlugin):
+    """
+     'title' : 'Test',
+        'description' : 'A plugin for testing purposes',
+        'path' : ['Tests', 'Examples', 'First test'],
+        'output' : TestForm,
+        'parameters' : parameters,
+        'meta' : meta,
+    """
+    def __init__(self, graphical=False):
+
+        if not hasattr(self, 'info') : self.info = {}
+
+        self.title = self.info.get('title', '')
+        self.description = self.info.get('description', '')
+        self.path = self.info.get('path', None)
+        self.output = self.info.get('output', '')
+        self.parameters = self.info.get('parameters', [])
+        self.meta = self.info.get('meta', '')
 
 
-class OperationPlugin(object):
-
-    uid = None
-
-
-    def title(self):
-        """
-        A name for the Operation.
-        """
-        raise NotImplementedError('you must override this method (title) in your plugin.')
-
-    def description(self):
-        """
-        A quick description about your operation.
-        """
-        raise NotImplementedError('you must override this method (description) in your plugin.')
+        self.uid = None
+        self.service = None
+        self.in_files = []
 
 
-    def path(self):
-        """
-        An unique path among all plugins.
-        """
-        raise NotImplementedError('you must override this method (path) in your plugin.')
-
-    def output(self):
-        """
-        An output form (Toscawidget, Sprox).
-        """
-        raise NotImplementedError('you must override this method (output) in your plugin.')
-
-    def parameters(self):
-        """
-        Operation parameters. A dict with the input(s) and output(s).
-        """
-        raise NotImplementedError('you must override this method (parameters) in your plugin.')
-
-    def files(self):
-        """
-        The list of "in" parameters that are files.
-        """
-        return []
-
-    def meta(self):
-        """
-        A dict with additional information. Put here everything you want.
-        """
-        return {}
-
-
-
-    def process(self, **kw):
-        """
-        Here you must define your function that will process the form parameters.
-        """
-        raise NotImplementedError('you must override this method (process) in your plugin.')
 
     def unique_id(self):
         '''
         It's an unique identifier for your plugin.
         Do not override
         '''
-        if not self.uid:
-            self.uid = hashlib.sha1(self.path().__str__()).hexdigest()
+        if self.uid is None:
+            self.uid = hashlib.sha1(self.path.__str__()).hexdigest()
         return self.uid
 
-    def _pre_process(self, service_name):
-        """
-        Initializing plugin parameters
-        """
-        self.service = service_name
-        self.files = []
+
+
 
     def new_file(self, fpath, fparam):
         """
         Append a file to teh result
         """
-        ftype = self.parameters().get('out').get(fparam)
-        self.in_files.append([fpath, ftype])
+        for p in params:
+            if p.get('name') == fparam:
+                ftype = p.get('type')
+                self.in_files.append([fpath, ftype])
 
-# Some useful functions
 
 def retrieve_parameter(params, param, default=None):
     """
@@ -124,21 +92,47 @@ def get_plugin_byId(_id, manager=None):
     return None
 
 
-def get_plugins_path(manager=None, service=None):
+def get_plugins_path(manager=None, service=None, ordered=False):
     """
     Get forms paths.
     """
+
     if manager is None:
         manager = app_globals.plugin_manager
     plugs = manager.getAllPlugins()
-    return _mix_plugin_paths(plugs, service)
+    if ordered in [True, 'T', 1, '1', 'true', 'True', 'ok', 't']:
+        paths =_mix_plugin_paths(plugs, service)
+        paths = paths._serialize()
+    else       :
+        paths = []
+        for plug in plugs:
+            o = plug.plugin_object
+            node = Node(None)
+            node.id = o.unique_id()
+            node.info = o.info
+            node = node._serialize()
+            paths.append(node)
+    return paths
 
+
+def _serialize_node():
+    """
+    Serialize
+    """
 
 def _mix_plugin_paths(plugins, service=None):
     '''
     Mix all plugin paths to make one in order to draw hierarchy buttons on an interface.
+    Check if all different before.
     '''
     nodes = []
+    uids = []
+    for plug in plugins:
+        o = plug.plugin_object
+        uid = o.unique_id()
+        if uid in uids: raise Exception('Path %s already exists' % o.info.path)
+        uids.append(uid)
+
     for plug in plugins:
         o = plug.plugin_object
         if service is not None:
@@ -157,7 +151,7 @@ class Node(object):
         self.childs = []
         self.key = key
         self.id = None
-        self.fl = None
+        self.info = None
 
     def add(self, child):
         self.childs.append(child)
@@ -171,19 +165,34 @@ class Node(object):
     def __eq__(self, o):
         return self.key == o.key
 
-        # def __repr__(self, *args, **kwargs):
-        #     return '<%s childs : %s >' % (self.key ,self.childs)
+    def _serialize(self):
+        """
+        Method that serialize a node object
+        """
+        d = {}
+        if self.key is not None: d['key'] = self.key
+        if self.id is not None: d['id'] = self.id
+        if self.childs : d['childs'] = [child._serialize() for child in self.childs]
+        if self.id is not None: d['info'] = self._serialize_info()
+        return d
+
+    def _serialize_info(self):
+        """
+        Serialize the info parameter of a plugin
+        """
+        return dict((k, v) for k, v in self.info.iteritems() if k!='output' and v is not None)
 
 def encode_tree(obj):
     '''
     JSON function to make recursive nodes being JSON serializable
     '''
     if not isinstance(obj, Node):
-        raise TypeError("%r is not JSON serializable" % (obj,))
-    return obj.__dict__
+        return
+        #raise TypeError("%r is not JSON serializable" % (obj,))
+    return dict((k, v) for k, v in obj.__dict__.iteritems() if v is not None)
 
 
-def _mix(node, path, index, uid=None, files_list=None):
+def _mix(node, path, index, uid=None, info=None):
     '''
     Mix path with the node
     '''
@@ -194,18 +203,19 @@ def _mix(node, path, index, uid=None, files_list=None):
         else :
             new = p
             node.add(p)
-        _mix(new, path, index + 1, uid, files_list)
+        _mix(new, path, index + 1, uid, info)
+
     else :
         node.id = uid
-        node.fl = files_list
+        node.info = info
 
 def _pathify(nodes):
     '''
-    Mix a list of paths together
+    Mix plugin list together
     '''
     root = Node(root_key)
     for n in nodes:
-        _mix(root, n.path(), 0, n.unique_id(), n.files())
+        _mix(root, n.info['path'], 0, n.unique_id(), n.info)
     return root
 
 

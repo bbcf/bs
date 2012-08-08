@@ -125,8 +125,8 @@ class FormController(BaseController):
 
     @expose('json')
     def methods(self, **kw):
-        user = handler.user.get_user_in_session(request)
-        return {'paths' : json.dumps(plugin.get_plugins_path(service=user), default=plugin.encode_tree)}
+        ordered = kw.get('ordered', False)
+        return {'paths' : plugin.get_plugins_path(ordered=ordered)}
 
     @expose()
     def error(self, *args, **kw):

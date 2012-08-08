@@ -1,5 +1,6 @@
 from bs.lib import constants
 import ConfigParser, os, urllib2, tempfile, shutil
+
 import tg
 from zipfile import ZipFile as zip
 main_section = 'main'
@@ -19,8 +20,11 @@ def init_plugins():
     from yapsy.PluginManager import PluginManager
     manager = PluginManager()
     manager.setPluginPlaces([plug_dir])
-    manager.collectPlugins()
 
+    manager.setCategoriesFilter({
+        "Operations" : OperationPlugin,
+        })
+    manager.collectPlugins()
     cfg_file = constants.services_config_file()
     print ' --- write service config file %s --- ' % cfg_file
     write_config_file(cfg_file, manager)
@@ -29,7 +33,21 @@ def init_plugins():
 
 
 
-
+def _check_plugin_info(plug):
+    if plug.info is None:
+        raise Exception('You must provide info about your plugin.')
+    if not plug.info.has_key('title'):
+        raise Exception('you must provide a title for your plugin.')
+    if not plug.info.has_key('description'):
+        raise Exception('you must provide a description for your plugin.')
+    if not plug.info.has_key('path'):
+        raise Exception('you must an unique path for your plugin.')
+    if not plug.info.has_key('output'):
+        raise Exception('you must provide a graphical output for your plugin.')
+    if not plug.info.has_key('in'):
+        raise Exception('you must provide a description about input parameters used in your plugin.')
+    if not plug.info.has_key('out'):
+        raise Exception('you must provide a description about out parameters used in your plugin.')
 
 
 def write_config_file(out, plugin_mng):
@@ -43,9 +61,15 @@ def write_config_file(out, plugin_mng):
     config.add_section(main_section)
 
     for plugin in plugin_mng.getAllPlugins():
+
         po = plugin.plugin_object
-        config.set(main_section, po.unique_id(), po.files())
-        config.set(help_section, po.unique_id(), '%s : %s' % (po.title().lower(), po.description()))
+        try:
+            _check_plugin_info(po)
+            config.set(main_section, po.title, po.unique_id())
+        except Exception as e:
+            print "Plugin %s not loaded : %s" % (po, e)
+
+
     with open(out, 'wb') as cf:
         config.write(cf)
 
