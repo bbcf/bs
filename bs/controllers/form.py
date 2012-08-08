@@ -114,6 +114,19 @@ class FormController(BaseController):
         else :
             d = {'plugins' : plugin.get_plugins_path(ordered=ordered)}
         return d
+
+
+    @expose('json')
+    def vocab(self, **kw):
+        tag = kw.get('tag', 'def')
+        if tag == 'def':
+            response.content_type = "text/plain"
+            return wordlist.definition
+        if tag in ['incl', 'inclusion', 'inclusions', 'i']:
+            return wordlist.inclusions
+        if tag in ['wl', 'w', 'wordlist', 'words']:
+            return wordlist.wordlist
+
     @expose()
     def error(self, *args, **kw):
         return {'error' : 'bad request : %s ' % kw}
