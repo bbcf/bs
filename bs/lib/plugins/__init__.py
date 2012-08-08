@@ -52,8 +52,8 @@ def _check_plugin_info(plug):
 
     # check if parameters are well described
     for param in plug.info.get('in') +  plug.info.get('out'):
-        if param.get('type') not in wordlist.keys() :
-            raise Exception('Param of type `%s` does not exist in %s' % (param.get('type'), wordlist.keys()))
+        if param.get('type') not in wordlist.wordlist.keys() :
+            raise Exception('Param of type `%s` does not exist in %s' % (param.get('type'), wordlist.wordlist.keys()))
 
 
 
@@ -64,7 +64,7 @@ def write_config_file(out, plugin_mng):
         pass
     # read the configuration file
     config = ConfigParser.RawConfigParser()
-    config.add_section(help_section)
+    #config.add_section(help_section)
     config.add_section(main_section)
 
     for plugin in plugin_mng.getAllPlugins():
@@ -72,7 +72,7 @@ def write_config_file(out, plugin_mng):
         po = plugin.plugin_object
         try:
             _check_plugin_info(po)
-            config.set(main_section, po.title, po.unique_id())
+            config.set(main_section, po.info.get('title'), po.unique_id())
         except Exception as e:
             print "Plugin %s not loaded : %s" % (po, e)
 
