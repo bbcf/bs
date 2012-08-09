@@ -31,7 +31,9 @@ def tmpdir(d=None):
         d = constants.temporary_directory()
     return tempfile.mkdtemp(dir=d)
 
-def tmpfile(prefix='', suffix='', d=None, delete=False):
-    if d is None:
-        d = tmpdir()
-    return tempfile.NamedTemporaryFile(prefix=prefix, suffix=suffix, dir=d, delete=delete)
+def tmpfile(d=None, fname=None):
+    d = tmpdir(d=d)
+    if fname is None: fname = id_generator(5)
+    return os.path.join(d, fname)
+
+

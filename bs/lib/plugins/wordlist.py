@@ -65,11 +65,11 @@ for line in definition.split('\n'):
 
 
 def is_of_type(obj, oftype):
+    if obj == oftype : return True
     if not inclusions.has_key(oftype) : return False
     types = inclusions.get(oftype)
     if obj in types : return True
     for ty in types :
-        if is_of_type(word, ty) : return True
+        if is_of_type(obj, ty) : return True
     return False
-
 

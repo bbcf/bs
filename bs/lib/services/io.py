@@ -20,10 +20,10 @@ def fetch_files(service, _files, form_parameters):
 
     tmp_dir = temporary_directory()
     try :
-        for form_parameter in _files.keys():
+        for form_parameter in _files:
             if form_parameters.has_key(form_parameter):
                 value = form_parameters.get(form_parameter)
-                tmp_file = util.temporary_path(value, dir=tmp_dir)
+                tmp_file = util.tmpfile(d=tmp_dir, fname=None)
 
                 if tmp_file and file_root is not None and url_root is not None:
                     # remove //
@@ -67,8 +67,6 @@ def _take_file(value):
 def fetch_file_field(user, _files, form_parameters):
     tmp_dir = temporary_directory()
     try :
-        if not isinstance(_files, (list, tuple)):
-            _files = _format_submission_parameters(_files, form_parameters)
         for form_parameter in _files:
             if form_parameters.has_key(form_parameter):
                 value = form_parameters.get(form_parameter)

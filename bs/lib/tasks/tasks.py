@@ -54,14 +54,13 @@ def _plugin_pre_process(_id, service_name, **kw):
     if plug is None:
         raise Exception('Plugin not found by the worker.')
     plugin = plug.plugin_object
-    plugin._pre_process(service_name)
     return plugin
 
 def _plugin_process(plugin, **kw):
     """
     Actual process that is defined int the plugin 'process' method
     """
-    return plugin.process(**kw)
+    return plugin(**kw)
 
 
 def _plugin_post_process(service_name, plugin, tmp_dir, out_path):
@@ -70,7 +69,7 @@ def _plugin_post_process(service_name, plugin, tmp_dir, out_path):
     """
     task_id = plugin_process.request.id
     # write files in the output directory
-    new_files(service_name, task_id, out_path, plugin.files)
+    new_files(service_name, task_id, out_path, plugin.in_files)
 
 
 

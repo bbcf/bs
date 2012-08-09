@@ -33,11 +33,3 @@ def init_plugins():
     return manager
 
 
-#### INIT DATABASE ###
-#def init_model(url):
-#    engine = create_engine(url, echo=False)
-#    Session = sessionmaker(autoflush=False, autocommit=False, bind = engine)
-#    return Session
-#
-#DBSession = init_model(conf['CELERY_RESULT_DBURI'])
-#from bs.model.auth import User, Group

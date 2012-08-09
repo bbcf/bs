@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 """Main Controller"""
 
-from tg import expose, flash, require, request
+from tg import expose, flash, require, request, response, url
 from bs.lib.base import BaseController
 from bs.model import DBSession
 from repoze.what.predicates import has_permission
 from bs.controllers import ErrorController, LoginController, GroupController
 from bs.controllers import PermissionController, UserController, AdminController
 from bs.controllers import FormController, RequestController
+from bs import handler
 
 __all__ = ['RootController']
 
-import inspect
+import inspect, json
 from sqlalchemy.orm import class_mapper
 import bs.model.auth
-
+from bs.lib.plugins import wordlist, plugin
 models = {}
+
 for m in bs.model.auth.__all__:
     m = getattr(bs.model.auth, m)
     if not inspect.isclass(m):
@@ -47,9 +49,6 @@ class RootController(BaseController):
     requests = RequestController()
 
 
-
-
-
     @expose('bs.templates.index')
     def index(self,*args,**kw):
         return dict(page='index')
@@ -63,49 +62,46 @@ class RootController(BaseController):
 
 
 
-    @expose('bs.templates.about')
-    def about(self):
-        """Handle the 'about' page."""
-        return dict(page='about')
 
-
+    @expose('json')
+    def vocab(self, **kw):
+        """
+        Expose the controlled vocabulary
+        """
+        tag = kw.get('tag', 'def')
+        if tag == 'def':
+            response.content_type = "text/plain"
+            return wordlist.definition
+        if tag in ['incl', 'inclusion', 'inclusions', 'i']:
+            return wordlist.inclusions
+        if tag in ['wl', 'w', 'wordlist', 'words']:
+            return wordlist.wordlist
 
 
     @expose('json')
-    def test(self, *args, **kw):
-        print "called root test method %s, %s" % (args, kw)
-        return {}
+    @expose('bs.templates.form_list')
+    def list(self, *args, **kw):
+        """
+        Method to get the operations list
+        """
+        control = 'bs_redirect = %s; bs_operations_path = %s;' % (json.dumps(url('/form/index')), json.dumps(plugin.get_plugins_path(ordered=True)))
 
-    
-
-    
-
-    
-
-    ## DEVELOPMENT PAGES ##
-
-    
-
-    @require(has_permission('admin', msg='Only for admins'))
-    @expose('bs.templates.environ')
-    def environ(self):
-        """This method showcases TG's access to the wsgi environment."""
-        return dict(page='environ',environment=request.environ)
+        return {'page' : 'form', 'bs_control' : control}
 
 
-
-    @require(has_permission('admin', msg='Only for admins'))
-    @expose('bs.templates.data')
     @expose('json')
-    def data(self, **kw):
-        """This method showcases how you can use the same controller for a data page and a display page"""
-        return dict(page='data',params=kw)
-
-
-
+    def plugins(self, **kw):
+        ordered = kw.get('ordered', False)
+        user = handler.user.get_user_in_session(request)
+        if user.is_service :
+            d = {'plugins' : plugin.get_plugins_path(service=user, ordered=ordered)}
+        else :
+            d = {'plugins' : plugin.get_plugins_path(ordered=ordered)}
+        return d
 
 
     
+
 
     
 

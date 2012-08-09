@@ -1,5 +1,5 @@
 from tg import app_globals
-import hashlib, os, json
+import hashlib, os, json, wordlist
 from bs.lib import util
 from yapsy.IPlugin import IPlugin
 
@@ -24,7 +24,8 @@ class OperationPlugin(IPlugin):
         self.description = self.info.get('description', '')
         self.path = self.info.get('path', None)
         self.output = self.info.get('output', '')
-        self.parameters = self.info.get('parameters', [])
+        self.in_parameters = self.info.get('in', [])
+        self.out_parameters = self.info.get('out', [])
         self.meta = self.info.get('meta', '')
 
 
@@ -54,6 +55,11 @@ class OperationPlugin(IPlugin):
             if p.get('name') == fparam:
                 ftype = p.get('type')
                 self.in_files.append([fpath, ftype])
+
+
+
+    def in_params_typeof(self, typeof):
+        return [param for param in self.in_parameters if wordlist.is_of_type(param.get('type'), typeof)]
 
 
 def retrieve_parameter(params, param, default=None):

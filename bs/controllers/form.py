@@ -33,8 +33,18 @@ def parse_parameters(user, id, form, in_params, **kw):
     """
     Reformat parameters to get the form well displayed depending
     of the service.
+    - check if the form is pre-filled by a service
+    - replace select fields by file upload field if there is no service or service did not pre-fill
     """
     fields = form.child.children
+    # check if the form is pre-filled by type
+    if kw.has_key('prefill'):
+        prefill = json.loads(kw.get('prefill'))
+        for t, l in prefill.iteritems():
+            for param in in_params:
+                if wordlist.is_of_type(param.get('type'), t):
+                    kw[param.get('id')] = l
+
     # map field id to boolean multiple if file is `file` type
     d = dict( [(param.get('id'), param.get('multiple', False)) for param in in_params if wordlist.is_of_type(param.get('type'), wordlist.FILE)])
     # change field if it's multiple or simple only if it's a `file` field
@@ -45,15 +55,17 @@ def parse_parameters(user, id, form, in_params, **kw):
             else          : _process_file_field(user, form, field, kw, tw2.forms.FileField, index, True)
 
 
+    # add form private parameters
     pp = {}
     pp['id']=id
     kw['pp']=json.dumps(pp)
-
-
     return kw
 
 def _fill_fields(field, field_id, params):
-    _list = json.loads(params.get(field_id, "[]"))
+    """
+    Fill field options with pre-filled values
+    """
+    _list = params.get(field_id, "[]")
     if len(_list)>0:
         if isinstance(_list[0], (list, tuple)):
             field.options = [(_list[i][0], _list[i][1]) for i in xrange(len(list(_list)))]
@@ -66,7 +78,10 @@ def _fill_fields(field, field_id, params):
 
 
 def _process_file_field(user, form, field, params, cls, index, take_validator):
-    if user.is_service: # fill fields
+    """
+    Process the file field (fill it or change it)
+    """
+    if user.is_service and  params.has_key(field.id): # fill fields
         _fill_fields(field, field.id, params)
     else : # replace field for direct user input
         if take_validator: tmp = cls(validator=field.validator)
@@ -75,62 +90,8 @@ def _process_file_field(user, form, field, params, cls, index, take_validator):
         tmp.label = field.label
         form.child.children[index] = tmp
 
-def _format_submission_parameters(files, params):
-    pass
-
-def _format_submission_parameters2(files, params):
-    if files.has_key('multiple'):
-        for m in files.get('multiple'):
-            mlist = []
-            todel = []
-            for k, v in params.iteritems():
-                if k.startswith(m) and len(k.split(':')) == 3:
-                    p, n, f = k.split(':')
-                    if p == m and f == 'file':
-                        if v != '':
-                            mlist.append(v)
-                        todel.append(k)
-            for d in todel: del params[d]
-            params[m] = mlist
 
 class FormController(BaseController):
-
-    @expose('json')
-    @expose('bs.templates.form_list')
-    def list(self, *args, **kw):
-        """
-        Method to get the operations list
-        """
-        operations_path = 'operations_path = %s' % json.dumps(plugin.get_plugins_path(ordered=True))
-        return {'page' : 'form', 'paths' : operations_path}
-
-
-    @expose('json')
-    def plugins(self, **kw):
-        ordered = kw.get('ordered', False)
-        user = handler.user.get_user_in_session(request)
-        if user.is_service :
-            d = {'plugins' : plugin.get_plugins_path(service=user, ordered=ordered)}
-        else :
-            d = {'plugins' : plugin.get_plugins_path(ordered=ordered)}
-        return d
-
-
-    @expose('json')
-    def vocab(self, **kw):
-        tag = kw.get('tag', 'def')
-        if tag == 'def':
-            response.content_type = "text/plain"
-            return wordlist.definition
-        if tag in ['incl', 'inclusion', 'inclusions', 'i']:
-            return wordlist.inclusions
-        if tag in ['wl', 'w', 'wordlist', 'words']:
-            return wordlist.wordlist
-
-    @expose()
-    def error(self, *args, **kw):
-        return {'error' : 'bad request : %s ' % kw}
-
 
 
 
@@ -139,9 +100,9 @@ class FormController(BaseController):
         """
         Method to get the form
         """
-        # SERVICE DEFINED
-        if request.method == 'GET':
-        # get the plugin
+        # Display form
+        if not kw.has_key('pp'):
+            # get the plugin
             plug = plugin.get_plugin_byId(id)
             if plug is None:
                 raise redirect(url('./error', {'bad form id' : id}))
@@ -157,7 +118,7 @@ class FormController(BaseController):
 
             widget = form(action= main_proxy + url('/form/index', {'id' : id})).req()
             widget.value = value
-            return {'page' : 'form', 'desc' : info, 'title' : info.get('title'), 'widget' : widget}
+            return {'page' : 'form', 'desc' : desc, 'title' : info.get('title'), 'widget' : widget}
 
         else :
             # FORM SUBMITTED
@@ -188,8 +149,9 @@ class FormController(BaseController):
                 flash('Form id %s not found.' % form_id, 'error')
                 raise redirect(url('/'))
 
-            form = plug.plugin_object.output()(action='validation')
-            info = plug.plugin_object.description()
+            obj = plug.plugin_object
+            info = obj.info
+            form = info.get('output')(action='validation')
 
             ### VALIDATE ###
             try:
@@ -197,16 +159,17 @@ class FormController(BaseController):
             except (tw2.core.ValidationError ,Invalid) as e:
                 main_proxy = tg.config.get('main.proxy')
                 e.widget.action = main_proxy + url('/form/index', {'id' : id})
-                return {'page' : 'form', 'info' : info, 'title' :  plug.plugin_object.title(), 'widget' : e.widget}
+                return {'page' : 'form', 'desc' : info.get('description'), 'title' :  info.get('title'), 'widget' : e.widget}
 
             user = handler.user.get_service_in_session(request)
 
             ### FETCH FILES ###
             try :
+                _fs = [p.get('id') for p in obj.in_params_typeof(wordlist.FILE)]
                 if user.is_service :
-                    tmp_dir = services.io.fetch_files(user, plug.plugin_object.files(), kw)
+                    tmp_dir = services.io.fetch_files(user, _fs, kw)
                 else :
-                    tmp_dir = services.io.fetch_file_field(user, plug.plugin_object.files(), kw)
+                    tmp_dir = services.io.fetch_file_field(user, _fs, kw)
 
             except Exception as e:
                 flash(e, 'error')
@@ -224,7 +187,7 @@ class FormController(BaseController):
                 callback_url = None
 
             ### PLUGIN PROCESS ###
-            async_res = tasks.plugin_process.delay(form_id, service, tmp_dir, out_path, plug.plugin_object.title(), plug.plugin_object.description(), callback_url, **kw)
+            async_res = tasks.plugin_process.delay(form_id, service, tmp_dir, out_path, info.get('title'), info.get('description'), callback_url, **kw)
 
             task_id = async_res.task_id
             ### UPDATE DB ###
@@ -240,30 +203,8 @@ class FormController(BaseController):
         lstatus = requesturl + "/status?task_id=" + task_id
 
         return {'page' : 'submitted', 'lresult' : lresult, 'lstatus' : lstatus}
-    @expose()
-    def fire(self, id, *args, **kw):
-        """
-        Method to call from command-line
-        """
-        plug = plugin.get_plugin_byId(id)
-        user = handler.user.get_user_in_session(request)
-        if not checker.authorized():
-            raise redirect(url('./error', {'not authorized' : id}))
-        if plug is None:
-            raise redirect(url('./error', {'bad form id' : id}))
-        kw['_pp']=json.dumps({'id' : id})
-        return self.launch(*args, **kw)
-
-    @expose()
-    def launch(self, **kw):
-        """
-        Launch the tasks
-        """
-        t = {'up': u'', 'pp': u'{"id": "e2f47e2950eeba6aff70ee70ca8923cc7eefc01f"}', 'two': u'', 'key': u'', 'one': u'7'}
-        print kw
 
 
-        raise redirect(url('./index', params={'id' : form_id}))
 
 
 

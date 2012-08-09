@@ -13,10 +13,12 @@
   <link rel="stylesheet" type="text/css" href="${tg.url('/javascript/jslib/dojo/dojo/resources/dojo.css')}"/>
 
 <script type="text/javascript" src="${tg.url('/javascript/jslib/dojo/dojo/dojo.js')}"></script>
+<script type="text/javascript" src="${tg.url('/javascript/bs_addon.js')}"></script>
 <script type="text/javascript" src="${tg.url('/javascript/bs.js')}"></script>
 <script type="text/javascript">
-      <span py:replace="paths"/>
+      <span py:replace="bs_control"/>
 </script>
+
 
 </head>
 <style>
@@ -24,7 +26,7 @@
   padding:0px 12px 0px 2px;
   list-style-type:None
 }
-#operations {
+#bs_operations {
 padding:50px;
 position:relative;
 left:170px;
@@ -35,7 +37,7 @@ left:170px;
 <body class="tundra">
   <h1>Available operations</h1>
   
-  <div id="operations"/>
+  <div id="bs_operations"/>
 
 </body>
 </html>

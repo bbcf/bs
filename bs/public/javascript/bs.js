@@ -1,9 +1,9 @@
 /**
-* Initialize the buttons to ge the form
+* Initialize the buttons to show the form
 * @param root : the html node to attach the buttons to
-* @ operations : the JSOn operations comming from bs application
+* @param operations : the JSON operations comming from bs application
 */
-function display_operations(root, operations){
+function bs_make_buttons(root, operations){
     var cont = dojo.create('div', {}, root);
     
     var ops_container = new dijit.layout.ContentPane({
@@ -13,30 +13,28 @@ function display_operations(root, operations){
     
   
     var menu = new dijit.Menu({colspan : 1,
-			       style : {width : '10em'}
-			      });
-
+			       style : {width : '10em'}});
     var c = operations.childs;
     var l = c.length;
     for(var i=0;i<l;i++){
-        menu_add_child(menu, c[i]);
+        bs_add_child(menu, c[i]);
     }
     menu.placeAt('tab_ops');
 };
 
 /**
-* Add children to the operation menu
+* Recursivly add childs to the root menu
 * @param parent : the html menu to attach the current node
-* @ parm node : the current node
+* @param node : the current node
 */
-function menu_add_child(parent, node){
+function bs_add_child(parent, node){
     var c = node.childs
     if(c){
 	var l = c.length;
 	// node has childs (build a menu & add childs to it)
 	var m = new dijit.Menu({});
 	for(var i=0;i<l;i++){
-            menu_add_child(m, c[i]);
+            bs_add_child(m, c[i]);
         }
         
 	var p = new dijit.PopupMenuItem({label : node.key,
@@ -48,27 +46,28 @@ function menu_add_child(parent, node){
         var ctx = this;
         var m = new dijit.MenuItem({label : node.key,
 				    onClick : function(e){
-					button_event(node);
+					bs_make_form(node, bs_redirect);
 					dojo.stopEvent(e);
 				    }});
         parent.addChild(m);
     }
 };
 
-/**
-* Event launched after user clicked on a button to call an operation
-* @param node : the node he clicked on
-*/
-
-function button_event(node){
-    var path = window.location.pathname;
-    path = path.replace("/form/list", "/form/index");
-    window.location = path + '?id=' + node.id;
-};
 
 require(["dojo/parser", "dijit/layout/BorderContainer", "dijit/Menu", "dijit/MenuItem", "dijit/PopupMenuItem", "dijit/layout/ContentPane"]);
 
 
 require(["dojo/dom", "dojo/domReady!"], function(dom){
-    display_operations(dom.byId('operations'), operations_path);
+    var ops = dom.byId('bs_operations');
+    try {
+	if(!bs_operations_path) throw 'You must define `bs_operations_path` variable.'
+	if(!ops) throw 'You must have a div with id `bs_operations`.'
+	if(!bs_redirect) throw 'You must define `bs_redirect` variable.'
+	if(!bs_make_form) throw 'You must define `bs_make_form` function.'
+
+	bs_make_buttons(ops, bs_operations_path);
+    } catch(err){
+	console.error(err);
+    }
+
 });
