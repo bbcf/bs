@@ -28,12 +28,9 @@ def rm(_dir):
     shutil.rmtree(_dir, ignore_errors=True)
 
 def mv(src, dst):
-    print 'mv'
-    print src
-    print dst
     fname = os.path.split(src)[1]
     fdst = os.path.join(dst, fname)
-    if os.path.exists(fdst):
+    if os.path.exists(fdst) : # change fdst name if already exist
         dir, fname = os.path.split(fdst)
         reg = re.compile('(%s\()(\d+)(\).*)' % fname)
         for f in os.listdir(dir):
@@ -43,6 +40,6 @@ def mv(src, dst):
                 n, i, e = matcher.groups()
                 max = max(max, int(1))
         fdst = os.path.join(dir, '%s(%s)' % (fname, (max + 1)))
-        print 'nrew dst : %s ' % fdst
-    shutil.move(src, fdst)
+    if os.path.exists(src):
+        shutil.move(src, fdst)
     return os.path.split(fdst)[1]

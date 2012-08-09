@@ -23,7 +23,7 @@ def fetch_files(service, _files, form_parameters):
         for form_parameter in _files:
             if form_parameters.has_key(form_parameter):
                 value = form_parameters.get(form_parameter)
-                tmp_file = util.tmpfile(d=tmp_dir, fname=None)
+                tmp_file = util.tmppath(d=tmp_dir, fname=None)
 
                 if tmp_file and file_root is not None and url_root is not None:
                     # remove //
@@ -32,6 +32,7 @@ def fetch_files(service, _files, form_parameters):
                     io.copy(new, tmp_file)
                 elif tmp_file:
                     io.download(value, tmp_file)
+                util.debug("FILE FETCHED AT %s" % tmp_file)
                 form_parameters[form_parameter] = tmp_file
     except IOError as e:
         io.rm(tmp_dir)
@@ -59,7 +60,7 @@ def _take_file(value):
     if value != '':
         filename = value.filename
         file_value = value.value
-        with util.tmpfile(suffix=filename) as tmp_file:
+        with open(util.tmppath(fname=filename), 'w') as tmp_file:
             tmp_file.write(file_value)
         return tmp_file.name
 
@@ -74,6 +75,7 @@ def fetch_file_field(user, _files, form_parameters):
                     tmp_files = [_take_file(v) for v in value]
                 else :
                     tmp_files = _take_file(value)
+                util.debug("FILE FETCHED AT %s" % tmp_files)
                 form_parameters[form_parameter] = tmp_files
     except IOError as e:
         io.rm(tmp_dir)

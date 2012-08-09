@@ -49,12 +49,17 @@ class OperationPlugin(IPlugin):
 
     def new_file(self, fpath, fparam):
         """
-        Append a file to teh result
+        Append a file to the result
         """
-        for p in params:
-            if p.get('name') == fparam:
+        added = False
+        for p in self.out_parameters:
+            if p.get('id') == fparam:
+                added = True
                 ftype = p.get('type')
                 self.in_files.append([fpath, ftype])
+                break
+        if not added :
+            raise Exception('You must give the same id as one of the out parameters.')
 
 
 

@@ -1,5 +1,6 @@
 import string, random, tempfile, os
 from bs.lib import constants
+import tg
 
 def to_datagrid(grid_type, grid_data, grid_title, grid_display):
     '''
@@ -31,9 +32,15 @@ def tmpdir(d=None):
         d = constants.temporary_directory()
     return tempfile.mkdtemp(dir=d)
 
-def tmpfile(d=None, fname=None):
+def tmppath(d=None, fname=None):
     d = tmpdir(d=d)
     if fname is None: fname = id_generator(5)
     return os.path.join(d, fname)
 
 
+
+
+def debug(*args):
+    if tg.config.get('debug', False):
+        import inspect
+        print '[x] %s [x] %s' % (inspect.stack()[1][1], args)

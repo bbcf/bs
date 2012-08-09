@@ -2,7 +2,7 @@
 from tg import request, expose, url, flash, response, require
 from tg.controllers import redirect
 from bs.lib.base import BaseController
-from bs.lib import constants, checker
+from bs.lib import constants, checker, util
 from bs.lib.plugins import plugin, wordlist
 from bs import handler
 from repoze.what.predicates import has_permission
@@ -84,7 +84,7 @@ def _process_file_field(user, form, field, params, cls, index, take_validator):
     if user.is_service and  params.has_key(field.id): # fill fields
         _fill_fields(field, field.id, params)
     else : # replace field for direct user input
-        if take_validator: tmp = cls(validator=field.validator)
+        if take_validator: tmp = cls(validator=tw2.forms.FileValidator(required=True))
         else :             tmp = cls()
         tmp.id = field.id
         tmp.label = field.label
@@ -100,6 +100,8 @@ class FormController(BaseController):
         """
         Method to get the form
         """
+        user = handler.user.get_user_in_session(request)
+
         # Display form
         if not kw.has_key('pp'):
             # get the plugin
@@ -111,7 +113,7 @@ class FormController(BaseController):
             info = obj.info
             form =  info.get('output')
             desc = info.get('description')
-            user = handler.user.get_user_in_session(request)
+
             value = parse_parameters(user, id, form, info.get('in'), **kw)
 
             main_proxy = tg.config.get('main.proxy')
@@ -121,6 +123,7 @@ class FormController(BaseController):
             return {'page' : 'form', 'desc' : desc, 'title' : info.get('title'), 'widget' : widget}
 
         else :
+            util.debug("FORM SUBMITTED")
             # FORM SUBMITTED
             pp = kw.get('pp', None)
             if pp is None:
@@ -152,7 +155,8 @@ class FormController(BaseController):
             obj = plug.plugin_object
             info = obj.info
             form = info.get('output')(action='validation')
-
+            #value = parse_parameters(user, id, form, info.get('in'), **kw)
+            util.debug("VALIDATE %s" % kw)
             ### VALIDATE ###
             try:
                 form.validate(kw)
@@ -162,7 +166,7 @@ class FormController(BaseController):
                 return {'page' : 'form', 'desc' : info.get('description'), 'title' :  info.get('title'), 'widget' : e.widget}
 
             user = handler.user.get_service_in_session(request)
-
+            util.debug("VALIDATION PASSED")
             ### FETCH FILES ###
             try :
                 _fs = [p.get('id') for p in obj.in_params_typeof(wordlist.FILE)]
