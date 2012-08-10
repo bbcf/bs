@@ -1,73 +1,84 @@
 /**
+* Create a menu element.
+*/
+function bs_create_element(name){
+    var el = document.createElement('LI');
+    var l = document.createElement('A');
+    l.innerHTML = name;
+    l.href='#';
+    el.appendChild(l);
+    return el;
+}
+
+
+/**
 * Initialize the buttons to show the form
 * @param root : the html node to attach the buttons to
 * @param operations : the JSON operations comming from bs application
 */
 function bs_make_buttons(root, operations){
-    var cont = dojo.create('div', {}, root);
+    var cont = document.createElement('DIV');
+    cont.id = "tab_ops";
     
-    var ops_container = new dijit.layout.ContentPane({
-        title: "Operations",
-        id:'tab_ops'
-    }, cont);
+    var mb = document.createElement('UL');
+    mb.id = "menu-bar";
+    var op = bs_create_element("Operations");
     
-  
-    var menu = new dijit.Menu({colspan : 1,
-			       style : {width : '10em'}});
+    
+    
     var c = operations.childs;
     var l = c.length;
+    var u = document.createElement("UL");
     for(var i=0;i<l;i++){
-        bs_add_child(menu, c[i]);
+        bs_add_child(u, c[i]);
     }
-    menu.placeAt('tab_ops');
+    op.appendChild(u);
+    mb.appendChild(op);
+    cont.appendChild(mb);
+    root.appendChild(cont);
+
 };
 
 /**
 * Recursivly add childs to the root menu
 * @param parent : the html menu to attach the current node
 * @param node : the current node
+* @param bool : if parent is the root.
 */
 function bs_add_child(parent, node){
+    
+    var op = bs_create_element(node.key);
+    
+
     var c = node.childs
-    if(c){
+    if(c){     // recursivly add childs
 	var l = c.length;
-	// node has childs (build a menu & add childs to it)
-	var m = new dijit.Menu({});
+	var u = document.createElement("UL");
 	for(var i=0;i<l;i++){
-            bs_add_child(m, c[i]);
+            bs_add_child(u, c[i]);
         }
-        
-	var p = new dijit.PopupMenuItem({label : node.key,
-					 popup : m
-					});
-        parent.addChild(p);
-    } else {
-        // it's the end (must connect an event)                                                        
+	op.appendChild(u);
+    } else {   // it's the end (must connect an event)                                                        
         var ctx = this;
-        var m = new dijit.MenuItem({label : node.key,
-				    onClick : function(e){
-					bs_make_form(node, bs_redirect);
-					dojo.stopEvent(e);
-				    }});
-        parent.addChild(m);
+	op.onclick = function(){
+	    bs_make_form(node, bs_redirect);
+	
+	}
     }
+    parent.appendChild(op);
 };
 
 
-require(["dojo/parser", "dijit/layout/BorderContainer", "dijit/Menu", "dijit/MenuItem", "dijit/PopupMenuItem", "dijit/layout/ContentPane"]);
-
-
-require(["dojo/dom", "dojo/domReady!"], function(dom){
-    var ops = dom.byId('bs_operations');
+window.onload = function() {
+    var ops = document.getElementById('bs_operations');
     try {
 	if(!bs_operations_path) throw 'You must define `bs_operations_path` variable.'
 	if(!ops) throw 'You must have a div with id `bs_operations`.'
 	if(!bs_redirect) throw 'You must define `bs_redirect` variable.'
 	if(!bs_make_form) throw 'You must define `bs_make_form` function.'
-
+	
 	bs_make_buttons(ops, bs_operations_path);
     } catch(err){
 	console.error(err);
     }
-
-});
+}
