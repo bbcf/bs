@@ -27,12 +27,14 @@ function bs_make_buttons(root, operations){
     
     
     var c = operations.childs;
-    var l = c.length;
-    var u = document.createElement("UL");
-    for(var i=0;i<l;i++){
-        bs_add_child(u, c[i]);
+    if(c){
+	var l = c.length;
+	var u = document.createElement("UL");
+	for(var i=0;i<l;i++){
+            bs_add_child(u, c[i]);
+	}
+	op.appendChild(u);
     }
-    op.appendChild(u);
     mb.appendChild(op);
     cont.appendChild(mb);
     root.appendChild(cont);
@@ -62,11 +64,13 @@ function bs_add_child(parent, node){
         var ctx = this;
 	op.onclick = function(){
 	    bs_make_form(node, bs_redirect);
-	
 	}
     }
     parent.appendChild(op);
 };
+
+
+
 
 
 window.onload = function() {

@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <script type="text/javascript" src="${tg.url('/javascript/bs_addon.js')}"></script>
+</head>
+
+<body>
+  <span id="form_id"><span py:replace="form_id"/></span>
+  <span id="task_id"><span py:replace="task_id"/></span>
+  <span id="bs_redirect"><span py:replace="bs_redirect"/></span>
+</body>
+
+<script>
+  after_submission_hook(document.getElementById("form_id").innerHTML, 
+  document.getElementById("task_id").innerHTML,
+  document.getElementById("bs_redirect").innerHTML );
+</script>
+</html>
+
+
+

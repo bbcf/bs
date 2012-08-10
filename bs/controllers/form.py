@@ -198,19 +198,19 @@ class FormController(BaseController):
             handler.database.new_request(kw, task_id, out_path)
 
             flash('Job launched with id %s' % task_id)
-            raise redirect(url('./submitted',  params={'task_id' : task_id}))
+            raise redirect(url('./after_submit_hook',  params={'form_id' : form_id, 'task_id' : task_id}))
+
+    @expose('bs.templates.after_submission_hook')
+    def after_submit_hook(self, task_id, form_id):
+        user = handler.user.get_user_in_session(request)
+        return {'task_id' : task_id, 'form_id' : form_id , 'bs_redirect' : url('./submitted')}
 
     @expose('bs.templates.submitted')
     def submitted(self, task_id):
         requesturl = url("/requests")
         lresult = requesturl + "/result?task_id=" + task_id
         lstatus = requesturl + "/status?task_id=" + task_id
-
         return {'page' : 'submitted', 'lresult' : lresult, 'lstatus' : lstatus}
-
-
-
-
 
     @expose()
     def done(self, *args, **kw):

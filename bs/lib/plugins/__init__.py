@@ -71,11 +71,12 @@ def write_config_file(out, plugin_mng):
 
         po = plugin.plugin_object
         try:
+            print "loading : %s" % po
             _check_plugin_info(po)
-            config.set(main_section, po.info.get('title'), po.unique_id())
+            config.set(main_section, po.__class__.__name__, po.unique_id())
+
         except Exception as e:
             print "Plugin %s not loaded : %s" % (po, e)
-
 
     with open(out, 'wb') as cf:
         config.write(cf)
