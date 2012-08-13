@@ -36,6 +36,7 @@ class RequestController(base.BaseController):
         if not req_data:
             flash('wrong task identifier : %s' % task_id, 'error')
             raise redirect(url("/"))
+
         if req_data.result.task is None: status = 'PENDING'
         else :                           status = req_data.result.task.status
         if status == 'SUCCESS':
@@ -50,21 +51,22 @@ class RequestController(base.BaseController):
 
             if len(results) == 1:
                 name = results[0]
-            if name is not None:
 
-                if name in results:
-                    ext = os.path.splitext(name)[1]
-                    if ext.lower() in ['pdf', 'gz', 'gzip']:
-                        response.content_type = 'application/' + ext.lower()
-                    elif ext.lower() in ['png', 'jpeg']:
-                        response.content_type = 'image/' + ext.lower()
-                    else :
-                        response.content_type = "text/plain"
-                    out_file = os.path.normpath(os.path.join(out, name))
-                    print out_file
-                    if not out_file.startswith(out):
-                        return "Are you kidding me?"
-                    return open(out_file).read()
+            if name is not None and name in results:
+                ext = os.path.splitext(name)[1]
+                if ext.lower() in ['.pdf', '.gz', '.gzip']:
+                    response.content_type = 'application/' + ext.lower()
+                elif ext.lower() in ['.png', '.jpeg', '.jpg', '.gif']:
+                    response.content_type = 'image/' + ext.lower()
+                elif ext.lower() in ['.sql', '.db', '.sqlite3']:
+                    response.content_type = 'application/x-sqlite3'
+                else :
+                    response.content_type = "text/plain"
+                out_file = os.path.normpath(os.path.join(out, name))
+                if not out_file.startswith(out):
+                    return "Are you kidding me?"
+                response.headerlist.append(('Content-Disposition', 'attachment;filename=%s' % results[0]))
+                return open(out_file).read()
 
             return {'page' : 'request', 'results' : results, 'linkto' : url('/requests/result', {'task_id' : task_id})}
 
