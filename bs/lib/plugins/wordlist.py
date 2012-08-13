@@ -5,19 +5,24 @@ default                      #a simple parameter
 boolean                      #can be true or false
 text                         #free text
 
+list                         #an item list
++ assembly                   #a list of assembly
+
 numeric                      #a numeric value
 + int                        #an integer
 + float                      #a float
 
 file                         #a simple file
++ txt                      #a text file
+
 + image                      #a simple graphic
 + + png                      #a png
 + + pdf                      #a pdf
 
-+ track                       #a file describing genomic files
-+ + txt                      #a text file
++ track                      #a file describing genomic files
 + + bed                      #a bed file
 + + wig                      #a wig file
++ + bam                      #a BAM file
 
 assembly                     #a list of assemblies
 """

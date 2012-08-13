@@ -89,6 +89,7 @@
     display: block;
     border: 0;
     box-shadow: 0 1px 0 #111, 0 2px 0 #666;
+    position : relative;
 }
 
 #menu-bar ul li:last-child {   
