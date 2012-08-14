@@ -1,0 +1,6 @@
+This is a sample client that embed BioScript.
+In order to launch it, just run :
+$ easy_install bottle
+$ python client.py
+The observe result at localhost:8080
+You can change the default port or url at the end of the script
