@@ -77,6 +77,9 @@ class RootController(BaseController):
         if tag in ['wl', 'w', 'wordlist', 'words']:
             return wordlist.wordlist
 
+    @expose('bs.templates.vocabulary')
+    def vocabulary(self, **kw):
+        return {'page' : 'vocabulary'}
 
     @expose('json')
     @expose('bs.templates.form_list')

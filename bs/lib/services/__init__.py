@@ -66,14 +66,12 @@ class ServiceManager(object):
         DBSession.flush()
         transaction.commit()
 
-    def get(self, service, param=None):
+    def get(self, service, param=None, default=None):
         """
         Get the service parameters. Or the param specified for the service specified.
         """
         if self.parameters.has_key(service):
-            if param is not None:
-                return self.parameters.get(service).get(param, None)
-            return self.parameters.get(service)
+            return self.parameters.get(service).get(param, default)
         raise Exception("Service %s is not defined" % service)
 
     def check(self, param, value):

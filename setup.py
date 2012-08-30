@@ -29,11 +29,9 @@ install_requires=[
     "repoze.what.plugins.sql",
     "repoze.who==1.0.19",
     "tgext.admin >= 0.3.9",
-    "tw.forms",
+    "tw2.forms",
     "tg.devtools",
-    "tw.dojo",
-    "tw.dynforms",
-    "yapsy",
+    "tw2.dynforms",
     "celery",
 
     ]

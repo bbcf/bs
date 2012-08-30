@@ -1,9 +1,19 @@
 ############
 Installation
 ############
-''''''''
-Download
-''''''''
+
+.. note:: This is a draft. Installation steps are a bit complicated at the moment, and should reduce to just a few steps.
+
+'''''''''''''''''
+Full installation
+'''''''''''''''''
+
+Install RabbitMQ
+Edit conf scripts (celeryconfig.py, dev.ini. setup.ini, workerctl, webserverctl)
+
+Start the rabbitMQ server::
+
+    sudo rabbitmq-server --detached
 
 To install you should download the latest source code from GitHub, either by going to the `web repository <http://github.com/bbcf/bs/>`_
 and clicking on "Downloads", or by cloning the git repository with::
@@ -12,41 +22,46 @@ and clicking on "Downloads", or by cloning the git repository with::
 
 Once you have the source code, and on the right python environment (virtualenv) run::
 
-
     cd bs
     easy_install -i http://tg.gy/215 tg.devtools
+    easy_install -U zope.interface
     python setup.py install
     python yapsy_patch.py
 
-'''''''''''''
-Configuration
-'''''''''''''
+Then setup the application
 
-You have to edit some file to configure bs on your server(s)
+    paster setup-app setup.ini
 
-- **development.ini** : define the main application (you should rename this file).
-- **celeryconfig.py** : define the configuration of the worker.
+Run the application
 
-And additional configuration is needed for the messaging system : RabbitMQ (refers to the `rabbit MQ documentation <http://www.rabbitmq.com/documentation.html>`_)
-
-''''''
-Launch
-''''''
-Put your shell in the right environment::
-
-    workon bs
-
-
-Start the main application via a daemon or run::
-
-    paster serve development.ini
-
-Start the rabbitMQ server::
-
-    sudo rabbitmq-server --detached
-
+    paster serve --reload dev.ini
 
 Then start the worker(s)::
 
     celeryd --loglevel=DEBUG
+
+
+''''''''''''''''''''
+Plugins installation
+''''''''''''''''''''
+
+This installation is to use Operations provided by Bioscript without using the graphical interface.
+
+To install you should download the latest source code from GitHub, either by going to the `web repository <http://github.com/bbcf/plugins/>`_
+and clicking on "Downloads", or by cloning the git repository with::
+
+    git clone https://github.com/bbcf/plugins.git
+
+Install the library::
+
+    easy_install plugins
+
+Verify that's working::
+
+    python
+    >>> from bs.plugins.Test import Test
+    >>> Test()()
+
+
+
 

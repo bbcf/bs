@@ -152,7 +152,7 @@ def _mix_plugin_paths(plugins, service=None):
         o = plug.plugin_object
         if service is not None:
             from bs.lib.services import service_manager
-            param = service_manager.get(service.name, 'operations')
+            param = service_manager.get(service.name, 'operations', default=[])
             if o.unique_id() in param:
                 nodes.append(o)
         else :
