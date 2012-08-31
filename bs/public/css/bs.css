@@ -9,6 +9,8 @@
     list-style:none;
 }
 
+
+#bs_container{background-color: red;}
 /* menu bar style */
 #menu-bar{
     width: 150px;

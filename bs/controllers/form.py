@@ -95,11 +95,13 @@ class FormController(BaseController):
 
 
 
-    @expose('bs.templates.plugin_form')
+   # @expose('mako:bs.templates.plugin_form')
+    @expose('jsonp:')
     def index(self, id, *args, **kw):
         """
         Method to get the form
         """
+        return {'bluou' : 'bjhb'}
         user = handler.user.get_user_in_session(request)
 
         # Display form
