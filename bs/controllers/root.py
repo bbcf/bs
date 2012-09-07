@@ -5,9 +5,7 @@ from tg import expose, flash, require, request, response, url
 from bs.lib.base import BaseController
 from bs.model import DBSession
 from repoze.what.predicates import has_permission
-from bs.controllers import ErrorController, LoginController, GroupController
-from bs.controllers import PermissionController, UserController, AdminController
-from bs.controllers import FormController, RequestController
+from bs.controllers import VisualController, RequestController, PluginController
 from bs import handler
 
 __all__ = ['RootController']
@@ -39,14 +37,9 @@ class RootController(BaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
     """
 
-    error = ErrorController()
-    login = LoginController()
-    groups = GroupController(DBSession, menu_items=models)
-    permissions = PermissionController(DBSession, menu_items=models)
-    users = UserController(DBSession, menu_items=models)
-    admin = AdminController()
-    form = FormController()
+    visual = VisualController()
     requests = RequestController()
+    plugins = PluginController()
 
 
     @expose('bs.templates.index')
@@ -93,7 +86,7 @@ class RootController(BaseController):
 
 
     @expose('json')
-    def plugins(self, **kw):
+    def plugins_list(self, **kw):
         ordered = kw.get('ordered', False)
         user = handler.user.get_user_in_session(request)
         if user.is_service :
@@ -102,8 +95,9 @@ class RootController(BaseController):
             d = {'plugins' : plugin.get_plugins_path(ordered=ordered)}
         return d
 
-
-    
+    @expose()
+    def test_upload(self, *args, **kw):
+        return {}
 
 
     

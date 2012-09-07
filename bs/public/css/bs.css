@@ -9,8 +9,22 @@
     list-style:none;
 }
 
+.error{color: #ff0000;}
+div.bs_container{background-color: #f5f5f5;}
+div.bs_container div.bs_title{
+    font-size: large;
+    font-weight: bold;}
+div.bs_container div.bs_desc{
+    font-weight: lighter;
+    margin: 5px;
+    padding: 1px;}
+div.bs_container div.bs_form{
+    margin: 10px;
+    padding: 5px;
+}
 
-#bs_container{background-color: red;}
+
+
 /* menu bar style */
 #menu-bar{
     width: 150px;
