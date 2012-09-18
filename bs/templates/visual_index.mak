@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width"/>
 
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/bs.css')}" />
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.1.min.js" ></script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.8.1.min.js" ></script>
     <script type="text/javascript" src="${tg.url('/javascript/bs.js')}"></script>
 </head>
 
@@ -20,10 +20,30 @@
 
 
 
+    <%!
+    def se(text):
+        return "'" + text + "'"
+    %>
+
+
+
 
 <script>
+
+
+
     window.onload = function(){
-        $('#bs_operations').bioscript({ operation_list : ${oplist|n}}).bioscript('operation_list');
+
+        var options = {
+            operation_list : ${oplist|n},
+            show_plugin : function(plugin_id){
+                window.location = ${serv|se,n} + 'visual/get?id=' + plugin_id;
+            }
+        }
+
+
+
+        $('#bs_operations').bioscript(options).bioscript('operation_list');
     };
 </script>
 

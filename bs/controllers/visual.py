@@ -22,13 +22,15 @@ class VisualController(BaseController):
         """
         Display a list of all plugins in BioScript
         """
-        # get bioscript server url
+        # get BioScript Server url (usually from config file)
         bs_server_url = tg.config.get('main.proxy') + url('/')
-        # construct request to send to bioscript server
+        # build request to send to BioScript server
         bs_url =  bs_server_url + 'plugins?ordered=true'
-        # get the list back
+        # get the operation list back
         operation_list = urllib2.urlopen(bs_url).read()
-        return {'oplist' : operation_list}
+        # serve result on visual_index.mak template file
+        return {'oplist' : operation_list, 'serv' : bs_server_url}
+
 
     @expose('mako:bs.templates.visual_get')
     def get(self, id, *args, **kw):
@@ -36,14 +38,14 @@ class VisualController(BaseController):
         Display the plugin form
         by it's id
         """
-        # get bioscript server url
+        # get BioScript server url
         bs_server_url = tg.config.get('main.proxy') + url('/')
         # construct request to send to bioscript server
-        bs_url =  bs_server_url + '/plugins/get?id=' +  id
+        bs_url =  bs_server_url + 'plugins/get?id=' +  id
         # get the form back
         form = urllib2.urlopen(bs_url).read()
         # display the form in template
-        return {'bs' : form, 'bs_url' : 'bs_server_url = "http://ptbbpc2.epfl.ch/jl";'}
+        return {'bs' : form,  'bs_server_url' : bs_server_url}
 
 
 

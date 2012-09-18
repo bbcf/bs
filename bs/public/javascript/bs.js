@@ -5,8 +5,13 @@
     var settings = {
         operation_list : {},
         root_name : 'BioScript operations',
+        bs_server_url : 'http://localhost:8080/',
+        form_selector : 'div.bs_form',
         show_plugin : function(plugin_id){
             alert('Click on plugin ' + plugin_id + ' .');
+        },
+        validation_successful : function(plugin_id, task_id){
+            alert('Validation passed on plugin ' + plugin_id + '. Task launched with id ' + task_id + '.');
         }
     };
     /* inside call */
@@ -23,12 +28,16 @@
                 $.extend(settings, options);
                 var $this = $(this),
                     data = $this.data(bs_namespace);
+
                 if(!data){
                     $(this).data(bs_namespace,{
                         target : $this,
                         oplist : settings.operation_list.plugins,
                         rname : settings.root_name,
-                        plugin : settings.show_plugin
+                        plugin : settings.show_plugin,
+                        bsurl : settings.bs_server_url,
+                        fselector : settings.form_selector,
+                        vsuccess : settings.validation_successful
                     });
                     data = $this.data(bs_namespace);
                 }
@@ -81,7 +90,60 @@
             $(el).click(function(){
                 data.plugin(el.id);
             });
+        },
+
+        /**
+         * hack the submit button of the BioScript
+         * form to perform a JSONP query instead
+         */
+        hack_submit : function(){
+            var data = $(this).data(bs_namespace);
+            var bs_url = data.bsurl;
+            var fselector = data.fselector;
+            $(fselector).children('form').submit(function(e){
+                e.preventDefault();
+                /* fetch form id from form */
+                var fid = jQuery.parseJSON($(fselector).find('input#pp').val())['id'];
+                var pdata = $(this).serialize() + '&id=' + fid + '&callback=bs_jsonp_cb';
+                /* submit query */
+                $.ajax({
+                    url: bs_url + 'plugins/validate?' + pdata,
+                    dataType : 'jsonp',
+                    jsonp : 'bs_jsonp_cb',
+                    crossDomain: true
+                });
+                return false;
+            });
+        },
+
+        /**
+         * After form submit, a json is sent back from
+         * BioScript server
+         */
+        jsonp_callback : function(jsonp){
+            var $this = $(this);
+            if (jsonp){
+                var val = jsonp.validation;
+                if (val == 'failed'){
+                   var data = $(this).data(bs_namespace);
+                    var fselector = data.fselector;
+                    $(fselector).children('form').replaceWith(jsonp.widget);
+                    _incall($this, 'hack_submit');
+                } else if(val == 'success'){
+                    var data = $(this).data(bs_namespace);
+                    data.vsuccess(jsonp.form_id, jsonp.task_id);
+                } else {
+                    console.error("Callback with wrong data");
+                    console.error(data);
+                }
+            } else {
+                console.error("Callback with no data.");
+            }
         }
+
+
+
+
     };
 
     $.fn[bs_namespace] = function(method){
@@ -90,7 +152,12 @@
         } else if ( typeof method === 'object' || !method){
             return methods.init.apply(this, arguments)
         } else {
-            $.error('Method ' + method + 'does not exist on jQuery.' + bs_namespace + '.');
+            $.error('Method "' + method + '" does not exist on jQuery.' + bs_namespace + '.');
         }
     }
 })(jQuery);
+
+
+function bs_jsonp_cb(data){
+    $('body').bioscript({'jsonp_data': data}).bioscript('jsonp_callback', data);
+}

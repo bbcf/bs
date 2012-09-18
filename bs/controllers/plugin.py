@@ -69,10 +69,14 @@ class PluginController(BaseController):
         #value = parse_parameters(user, id, form, info.get('in'), **kw)
         value = {}
 
+        # private parameters from BioScript application to pass to the form
+        pp = {'id' : id}
+        value = { 'pp' : json.dumps(pp)}
+
 
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
-        widget = form(action= main_proxy + url('/form/index', {'id' : id})).req()
+        widget = form(action= main_proxy + url('/plugin/validate', {'id' : id})).req()
         widget.value = value
 
         return {'page' : 'plugin', 'desc' : desc, 'title' : info.get('title'), 'widget' : widget}
@@ -86,6 +90,7 @@ class PluginController(BaseController):
         """
         plugin parameters validation
         """
+
         user = handler.user.get_user_in_session(request)
 
         util.debug("FORM %s SUBMITTED : %s " % (id, kw))
@@ -116,8 +121,9 @@ class PluginController(BaseController):
             form.validate(kw)
         except (tw2.core.ValidationError ,Invalid) as e:
             main_proxy = tg.config.get('main.proxy')
-            e.widget.action = main_proxy + url('/form/index', {'id' : id})
-            value = parse_parameters(user, id, form, info.get('in'), **kw)
+            e.widget.action = main_proxy + url('plugins/index', {'id' : id})
+            pp = {'id' : id}
+            value = { 'pp' : json.dumps(pp)}
             e.widget.value = value
             util.debug("VALIDATION FAILED " + str(e))
             import sys, traceback
@@ -165,10 +171,12 @@ class PluginController(BaseController):
 
 
 def prefill_fields(**kw):
-    pass
+    if kw.has_key('prefill'):
+        print "PREFILL"
+
+
 def prepare_file_fields(**kw):
     pass
-
 
 
 #    @expose('mako:bs.templates.fupload')
