@@ -17,7 +17,7 @@ class VisualController(BaseController):
     user come directly to BioScript server
     """
 
-    @expose('mako:bs.templates.index')
+    @expose('mako:bs.templates.visual_index')
     def index(self):
         """
         Display a list of all plugins in BioScript
