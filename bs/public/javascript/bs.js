@@ -104,16 +104,63 @@
                 e.preventDefault();
                 /* fetch form id from form */
                 var fid = jQuery.parseJSON($(fselector).find('input#pp').val())['id'];
+                var files = $(':file');
+                var f = files[0];
+		$(':file').change(function(){
+		    var file = this.files[0];
+		    name = file.name;
+		    size = file.size;
+		    type = file.type;
+		    //your validation
+		});
+
                 var pdata = $(this).serialize() + '&id=' + fid + '&callback=bs_jsonp_cb';
-                /* submit query */
-                $.ajax({
-                    url: bs_url + 'plugins/validate?' + pdata,
-                    dataType : 'jsonp',
-                    jsonp : 'bs_jsonp_cb',
-                    crossDomain: true
+		/* submit query */
+		var formData = new FormData();
+        var post_data = ''
+        for(var i = 0; i < files.length; i++) {
+            if(files[i].files[0]){
+                console.log(files[i].id);
+		    formData.append(files[i].id, files[i].files[0]);
+            post_data += '&' + files[i].id + '=' + files[i];
+                console.log(files[i].files[0]);
+            }
+		}
+//        var ar = $(this).serializeArray();
+//        for(var i = 0; i < ar.length; i++) {
+//                formData.append(ar[i]['name'], ar[i]['value']);
+//            post_data += '&' + ar[i]['name'] + '=' + ar[i]['name'];
+//        }
+        $.ajax({
+                url: bs_url + 'plugins/validate?' + pdata,
+                type : 'POST',
+                datatype:'jsonp',
+                data : formData,
+                processData:false,
+                contentType:false
                 });
                 return false;
             });
+
+
+//		$.ajax({
+//                    url: bs_url + 'plugins/validate?' + pdata,
+//                    dataType : 'jsonp',
+//                    jsonp : 'bs_jsonp_cb',
+//                    crossDomain: true,
+//                    xhr : function(){
+//                        _cxhr = $ajaxSettings.xhr();
+//                        if(_cxhr.upload){
+//                            _cxhr.upload.addEventListener('progress', progress_handler, false);
+//                        }
+//                        return _cxhr;
+//                    },
+//                    cache:false,
+//                    contentType : false,
+//
+//                });
+//                return false;
+//            });
         },
 
         /**
@@ -160,4 +207,9 @@
 
 function bs_jsonp_cb(data){
     $('body').bioscript({'jsonp_data': data}).bioscript('jsonp_callback', data);
+}
+
+
+function progress_handler(e){
+    console.log(e);
 }

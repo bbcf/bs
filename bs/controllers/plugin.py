@@ -82,11 +82,14 @@ class PluginController(BaseController):
         return {'page' : 'plugin', 'desc' : desc, 'title' : info.get('title'), 'widget' : widget}
 
 
-
-
+    @expose('jsonp:')
+    def upload(self, *args, **kw):
+        print 'uploading with %s, %s ' % (args, kw)
+        print request.params
+        return {}
 
     @expose('jsonp:')
-    def validate(self, id, *args, **kw):
+    def validate(self, id,  *args, **kw):
         """
         plugin parameters validation
         """
@@ -117,6 +120,7 @@ class PluginController(BaseController):
 
         # validate
         util.debug("VALIDATE %s" % kw)
+
         try:
             form.validate(kw)
         except (tw2.core.ValidationError ,Invalid) as e:
@@ -126,9 +130,9 @@ class PluginController(BaseController):
             value = { 'pp' : json.dumps(pp)}
             e.widget.value = value
             util.debug("VALIDATION FAILED " + str(e))
-            import sys, traceback
-            etype, value, tb = sys.exc_info()
-            traceback.print_exception(etype, value, tb)
+#            import sys, traceback
+#            etype, value, tb = sys.exc_info()
+#            traceback.print_exception(etype, value, tb)
             return {'validation':'failed', 'desc' : info.get('description'),
                     'title' :  info.get('title'), 'widget' : e.widget.display()}
 
