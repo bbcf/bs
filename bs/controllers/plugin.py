@@ -1,61 +1,49 @@
 # -*- coding: utf-8 -*-
-from tg import request, expose, url, flash, response, require, abort
-from tg.controllers import redirect
-from bs.lib.base import BaseController
-from bs.lib import constants, checker, util
-from bs.operations import wordlist
-from bs.operations import util
-from bs import handler
-from repoze.what.predicates import has_permission
-import json
-from pylons import tmpl_context
-
-from bs import handler
-from bs.lib.tasks import tasks
-from bs.lib import services, io
-from bs.lib.services import service_manager
-from bs import lib
-import tg
+import json, tw2, tg
 from formencode import Invalid
-from paste.request import get_cookies
 
-import tw2.forms
-import tw2.core
-import tw2.dynforms
-from webob import Request
+from bs.lib import base, util, services, constants, tasks
+from bs.lib.services import service_manager
 
-from paste.auth import auth_tkt
+from bs.operations import util as putil
+from bs.operations import wordlist
+
+from bs import handler
 
 
 
-class PluginController(BaseController):
+
+
+
+
+class PluginController(base.BaseController):
     """
     Plugin visual
     """
-    @expose('json')
+    @tg.expose('json')
     def index(self, ordered=False):
         """
         Get all plugins available
         @param ordered: if you want a nested json based on
         plugins paths
         """
-        user = handler.user.get_user_in_session(request)
+        user = handler.user.get_user_in_session(tg.request)
         if user.is_service :
-            d = {'plugins' : util.get_plugins_path(service=user, ordered=ordered)}
+            d = {'plugins' : putil.get_plugins_path(service=user, ordered=ordered)}
         else :
-            d = {'plugins' : util.get_plugins_path(ordered=ordered)}
+            d = {'plugins' : putil.get_plugins_path(ordered=ordered)}
         return d
 
 
-    @expose('mako:bs.templates.plugin_form')
+    @tg.expose('mako:bs.templates.plugin_form')
     def get(self, id, *args, **kw):
         """
         Display the form by it's id
         """
         # check plugin id
-        plug = util.get_plugin_byId(id)
+        plug = putil.get_plugin_byId(id)
         if plug is None:
-            abort(400, "Bad plugin identifier")
+            tg.abort(400, "Bad plugin identifier")
 
         # get the plugin
         obj = plug.plugin_object
@@ -77,42 +65,42 @@ class PluginController(BaseController):
 
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
-        widget = form(action= main_proxy + url('/plugin/validate', {'id' : id})).req()
+        widget = form(action= main_proxy + tg.url('/plugin/validate', {'id' : id})).req()
         widget.value = value
 
         return {'page' : 'plugin', 'desc' : desc, 'title' : info.get('title'), 'widget' : widget}
 
 
-    @expose('jsonp:')
+    @tg.expose('jsonp:')
     def upload(self, *args, **kw):
         print 'uploading with %s, %s ' % (args, kw)
-        print request.params
+        print tg.request.params
         return {}
 
-    @expose('jsonp:')
+    @tg.expose('jsonp:')
     def validate(self, id,  *args, **kw):
         """
         plugin parameters validation
         """
 
-        user = handler.user.get_user_in_session(request)
+        user = handler.user.get_user_in_session(tg.request)
 
         util.debug("FORM %s SUBMITTED : %s " % (id, kw))
 
         # check parameters
         pp = kw.get('pp', None)
         if pp is None:
-            abort(400, "Plugin identifier not found in the request.")
+            tg.abort(400, "Plugin identifier not found in the request.")
 
         pp = json.loads(pp)
         form_id = pp.get('id', None)
         if form_id is None:
-            abort(400, "Plugin identifier not found in the request.")
+            tg.abort(400, "Plugin identifier not found in the request.")
 
         # check plugin id
-        plug = plugin.get_plugin_byId(form_id)
+        plug = putil.get_plugin_byId(form_id)
         if plug is None:
-            abort(400, "Bad plugin identifier")
+            tg.abort(400, "Bad plugin identifier")
 
         # get plugin form output
         obj = plug.plugin_object
@@ -126,7 +114,7 @@ class PluginController(BaseController):
             form.validate(kw)
         except (tw2.core.ValidationError ,Invalid) as e:
             main_proxy = tg.config.get('main.proxy')
-            e.widget.action = main_proxy + url('plugins/index', {'id' : id})
+            e.widget.action = main_proxy + tg.url('plugins/index', {'id' : id})
             pp = {'id' : id}
             value = { 'pp' : json.dumps(pp)}
             e.widget.value = value
@@ -151,7 +139,7 @@ class PluginController(BaseController):
             import sys, traceback
             etype, value, tb = sys.exc_info()
             traceback.print_exception(etype, value, tb)
-            raise redirect(url('./index', params={'id' : form_id}))
+            raise tg.redirect(tg.url('./index', params={'id' : form_id}))
 
         # get output directory to write results
         service = user.name
