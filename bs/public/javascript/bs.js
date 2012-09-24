@@ -104,63 +104,44 @@
                 e.preventDefault();
                 /* fetch form id from form */
                 var fid = jQuery.parseJSON($(fselector).find('input#pp').val())['id'];
-                var files = $(':file');
-                var f = files[0];
-		$(':file').change(function(){
-		    var file = this.files[0];
-		    name = file.name;
-		    size = file.size;
-		    type = file.type;
-		    //your validation
-		});
 
-                var pdata = $(this).serialize() + '&id=' + fid + '&callback=bs_jsonp_cb';
-		/* submit query */
-		var formData = new FormData();
-        var post_data = ''
-        for(var i = 0; i < files.length; i++) {
-            if(files[i].files[0]){
-                console.log(files[i].id);
-		    formData.append(files[i].id, files[i].files[0]);
-            post_data += '&' + files[i].id + '=' + files[i];
-                console.log(files[i].files[0]);
+//		$(':file').change(function(){
+//		    var file = this.files[0];
+//		    name = file.name;
+//		    size = file.size;
+//		    type = file.type;
+//		    //your validation
+//		});
+
+            /* get data from form */
+            var pdata = $(this).serialize() + '&id=' + fid + '&callback=bs_jsonp_cb';
+            /* build form data objet to upload files if any */
+            var formData = new FormData();
+            var files = $(':file');
+            for(var i = 0; i < files.length; i++) {
+                var fid = files[i].id;
+                var fs = files[i].files;
+                console.log(fs);
+                for(var j=0;j<fs.length;j++){
+                    var f = fs[j];
+                    console.log(f);
+                    if(f){
+                        formData.append(fid, f);
+                    }
+                }
             }
-		}
-//        var ar = $(this).serializeArray();
-//        for(var i = 0; i < ar.length; i++) {
-//                formData.append(ar[i]['name'], ar[i]['value']);
-//            post_data += '&' + ar[i]['name'] + '=' + ar[i]['name'];
-//        }
-        $.ajax({
-                url: bs_url + 'plugins/validate?' + pdata,
-                type : 'POST',
-                datatype:'jsonp',
-                data : formData,
-                processData:false,
-                contentType:false
+
+            /* submit query */
+            $.ajax({
+                    url: bs_url + 'plugins/validate?' + pdata,
+                    type : 'POST',
+                    datatype:'jsonp',
+                    data : formData,
+                    processData:false,
+                    contentType:false
+                    });
+                    return false;
                 });
-                return false;
-            });
-
-
-//		$.ajax({
-//                    url: bs_url + 'plugins/validate?' + pdata,
-//                    dataType : 'jsonp',
-//                    jsonp : 'bs_jsonp_cb',
-//                    crossDomain: true,
-//                    xhr : function(){
-//                        _cxhr = $ajaxSettings.xhr();
-//                        if(_cxhr.upload){
-//                            _cxhr.upload.addEventListener('progress', progress_handler, false);
-//                        }
-//                        return _cxhr;
-//                    },
-//                    cache:false,
-//                    contentType : false,
-//
-//                });
-//                return false;
-//            });
         },
 
         /**
