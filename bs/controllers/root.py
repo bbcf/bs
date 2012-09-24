@@ -13,7 +13,7 @@ __all__ = ['RootController']
 import inspect, json
 from sqlalchemy.orm import class_mapper
 import bs.model.auth
-from bs.lib.plugins import wordlist, plugin
+from bs.operations import wordlist
 models = {}
 
 for m in bs.model.auth.__all__:
@@ -100,7 +100,10 @@ class RootController(BaseController):
         return {}
 
 
-    
-
+    @expose()
+    def test(self):
+        from bs.operations import plugin_manager
+        for p in plugin_manager.getAllPlugins():
+            print p
     
 

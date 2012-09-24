@@ -1,0 +1,9 @@
+[Core]
+Name = Simple
+Module = Minimal
+
+[Documentation]
+Author = Jarosz Yohan
+Version = 0.1
+Website = http://github.com/yjarosz
+Description = Minimal plugin set up

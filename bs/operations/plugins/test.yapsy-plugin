@@ -1,0 +1,9 @@
+[Core]
+Name = Test
+Module = Test
+
+[Documentation]
+Author = Jarosz Yohan
+Version = 0.1
+Website = http://github.com/yjarosz
+Description = Test plugin to put a threshold on a track

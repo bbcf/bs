@@ -30,7 +30,7 @@ SERVICE_CALLBACK_URL_PARAMETER = 'callback.url'
 date_format = "%d. %b %Y %Hh%M"
 
 def plugin_directory():
-    return os.path.join(resource_filename('bs', 'plugins'))
+    return os.path.join(resource_filename('bs', 'operations'), 'plugins')
 
 def services_directory():
     return os.path.normpath(os.path.join(resource_filename('bs', os.path.pardir), 'services.ini'))

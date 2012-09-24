@@ -3,7 +3,8 @@ from tg import request, expose, url, flash, response, require, abort
 from tg.controllers import redirect
 from bs.lib.base import BaseController
 from bs.lib import constants, checker, util
-from bs.lib.plugins import plugin, wordlist
+from bs.operations import wordlist
+from bs.operations import util
 from bs import handler
 from repoze.what.predicates import has_permission
 import json
@@ -40,9 +41,9 @@ class PluginController(BaseController):
         """
         user = handler.user.get_user_in_session(request)
         if user.is_service :
-            d = {'plugins' : plugin.get_plugins_path(service=user, ordered=ordered)}
+            d = {'plugins' : util.get_plugins_path(service=user, ordered=ordered)}
         else :
-            d = {'plugins' : plugin.get_plugins_path(ordered=ordered)}
+            d = {'plugins' : util.get_plugins_path(ordered=ordered)}
         return d
 
 
@@ -52,7 +53,7 @@ class PluginController(BaseController):
         Display the form by it's id
         """
         # check plugin id
-        plug = plugin.get_plugin_byId(id)
+        plug = util.get_plugin_byId(id)
         if plug is None:
             abort(400, "Bad plugin identifier")
 
@@ -63,7 +64,7 @@ class PluginController(BaseController):
         desc = info.get('description')
 
         # parse request parameters
-        prefill_fields(**kw)
+        prefill_fields(info.get('in'), **kw)
         prepare_file_fields(**kw)
 
         #value = parse_parameters(user, id, form, info.get('in'), **kw)

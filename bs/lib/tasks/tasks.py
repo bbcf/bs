@@ -1,12 +1,15 @@
 from __future__ import absolute_import
 from celery.task import task, chord, subtask
 from celery.task.sets import TaskSet
-from . import get_plugin_byId
+
 from bs.lib import io
 import os, urllib, urllib2, json, errno
 from celery.task.http import HttpDispatchTask
 
 
+@task()
+def test():
+    return 1
 
 
 @task()

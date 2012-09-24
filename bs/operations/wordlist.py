@@ -28,9 +28,12 @@ assembly                     #a list of assemblies
 """
 
 FILE = 'file'
+TRACK = 'track'
 
 wordlist = {}
 inclusions = {}
+parent_types = []
+
 
 for line in definition.split('\n'):
     if not line.find('#') == -1:
@@ -39,6 +42,7 @@ for line in definition.split('\n'):
         wordlist[word_stripped] = comment
         if not word.count('+') > 0:                         # we have a root element
             parents = [word_stripped]
+            parent_types.append(word_stripped)
             count = 0
 
         else :
@@ -70,6 +74,9 @@ for line in definition.split('\n'):
 
 
 def is_of_type(obj, oftype):
+    """
+    Look if obj is of type "oftype":
+    """
     if obj == oftype : return True
     if not inclusions.has_key(oftype) : return False
     types = inclusions.get(oftype)
@@ -78,3 +85,13 @@ def is_of_type(obj, oftype):
         if is_of_type(obj, ty) : return True
     return False
 
+def parent_type(t):
+    """
+    Get the "parent type of t. The parent type is one of the "top types".
+    """
+    if t in parent_types: return t
+    for k, v in inclusions.iteritems():
+        if t in v:
+            if k in parent_types: return k
+            return parent_type(k)
+    raise Exception("No parent found for type %s" % t)

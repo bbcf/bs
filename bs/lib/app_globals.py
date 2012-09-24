@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from bs.lib.plugins import init_plugins
+
 """The application's Globals object"""
 
 #from bs.websetup.bootstrap import group_admins, group_users, perm_admin, perm_user
@@ -27,5 +27,4 @@ class Globals(object):
 
 
     def __init__(self):
-
-        self.plugin_manager = init_plugins()
+        pass

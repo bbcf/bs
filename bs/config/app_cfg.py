@@ -42,7 +42,6 @@ def on_startup():
     print ' --- starting bs application --- '+str(datetime.datetime.now())
 
 
-
 def on_shutdown():
     print '--- stopping bs application --- '
 base_config.call_on_startup = [on_startup]
