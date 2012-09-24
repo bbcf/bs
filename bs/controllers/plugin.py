@@ -174,10 +174,22 @@ class PluginController(BaseController):
 
 
 
-def prefill_fields(**kw):
+def prefill_fields(form_parameters, **kw):
     if kw.has_key('prefill'):
-        print "PREFILL"
+        prefill = json.loads(kw.get('prefill'))
+        for term_to_prefill, prefill_with in prefill.iteritems():
+            for fparam in form_parameters:
+                if wordlist.is_of_type(fparam.get('type'), term_to_prefill):
+                    kw[fparam.get('id')] = prefill_with
 
+                    # map field id to boolean multiple if file is `file` type
+                #    d = dict( [(param.get('id'), param.get('multiple', False)) for param in in_params if wordlist.is_of_type(param.get('type'), wordlist.FILE)])
+                #    # change field if it's multiple or simple only if it's a `file` field
+                #    for index, field in enumerate(fields):
+                #        fid = field.id
+                #        if d.has_key(fid):
+                #            if d.get(fid) : _process_file_field(user, form, field, kw, plugin.MultipleFileUpload, index, False)
+                #            else          : _process_file_field(user, form, field, kw, tw2.forms.FileField, index, True)
 
 def prepare_file_fields(**kw):
     pass

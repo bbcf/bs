@@ -4,7 +4,6 @@
 
   <py:def function="mainmenu">
     <ul id="mainmenu">
-      <li class="first"><a href="${tg.url('/')}" class="${('', 'active')[defined('page') and page=='index']}">Home</a></li>
       <li><a href="${tg.url('/visual/')}" class="${('', 'active')[defined('page') and page=='form']}">Operations</a></li>
       <li><a href="${tg.url('/vocabulary')}" class="${('', 'active')[defined('page') and page=='form']}">Vocabulary</a></li>
       <li><a href="http://bbcf.epfl.ch/bs">Documentation</a></li>
@@ -16,8 +15,8 @@
   <py:def function="header">
       <div id="header">
           <h1>
-              JobLauncher
-              <span class="subtitle">Job processor and form provider for applications</span>
+              BioScript
+              <span class="subtitle">Vocabulary</span>
           </h1>
       </div>
   </py:def>
@@ -25,7 +24,7 @@
   <py:def function="footer">
       <div id="footer">
           <div class="foottext">
-              <p>JobLauncher is a <a href="http://bbcf.epfl.ch/">BBCF</a> application hosted on <a href="https:///github.com/bbcf/bs">github</a>.</p>
+              <p>BioScript is a <a href="http://bbcf.epfl.ch/">BBCF</a> application hosted on <a href="https:///github.com/bbcf/bs">github</a>.</p>
               <p><a href="http://www.turbogears.org/2.1/">Powered by TurboGears 2</a></p>
           </div>
           <div class="clearingdiv"></div>
