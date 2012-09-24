@@ -121,10 +121,8 @@
             for(var i = 0; i < files.length; i++) {
                 var fid = files[i].id;
                 var fs = files[i].files;
-                console.log(fs);
                 for(var j=0;j<fs.length;j++){
                     var f = fs[j];
-                    console.log(f);
                     if(f){
                         formData.append(fid, f);
                     }
