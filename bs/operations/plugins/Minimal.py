@@ -9,7 +9,7 @@ meta = {'version' : "1.0.0",
 
 in_parameters = [
     {'id' : 'param_one_text', 'type' : 'text'},
-    {'id' : 'param_two_numeric', 'type' : 'int'},
+    {'id' : 'param_two_numeric', 'type' : 'int', 'required' : True},
     {'id' : 'param_three_boolean', 'type' : 'boolean'},
     {'id' : 'param_four_file' , 'type' : 'file', 'required' : True},
     {'id' : 'param_five_file', 'type' : 'file', 'multiple' : True},

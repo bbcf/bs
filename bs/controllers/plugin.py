@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json, tw2, tg
 from formencode import Invalid
+from tg import expose
 
 from bs.lib import base, util, services, constants, tasks
 from bs.lib.services import service_manager
@@ -20,7 +21,7 @@ class PluginController(base.BaseController):
     """
     Plugin visual
     """
-    @tg.expose('json')
+    @expose('json')
     def index(self, ordered=False):
         """
         Get all plugins available
@@ -35,7 +36,7 @@ class PluginController(base.BaseController):
         return d
 
 
-    @tg.expose('mako:bs.templates.plugin_form')
+    @expose('mako:bs.templates.plugin_form')
     def get(self, id, *args, **kw):
         """
         Display the form by it's id
@@ -63,6 +64,7 @@ class PluginController(base.BaseController):
         value = { 'pp' : json.dumps(pp)}
 
 
+
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
         widget = form(action= main_proxy + tg.url('/plugin/validate', {'id' : id})).req()
@@ -71,21 +73,21 @@ class PluginController(base.BaseController):
         return {'page' : 'plugin', 'desc' : desc, 'title' : info.get('title'), 'widget' : widget}
 
 
-    @tg.expose('jsonp:')
+    @expose()
     def upload(self, *args, **kw):
         print 'uploading with %s, %s ' % (args, kw)
         print tg.request.params
-        return {}
+        tg.response.headers['Content-Type'] = 'text/javascript'
+        return '%s(%s)' % ('toto', tg.json_encode({}))
 
-    @tg.expose('jsonp:')
-    def validate(self, id,  *args, **kw):
+    @expose()
+    def validate(self, **kw):
         """
         plugin parameters validation
         """
-
         user = handler.user.get_user_in_session(tg.request)
 
-        util.debug("FORM %s SUBMITTED : %s " % (id, kw))
+        util.debug("PLUGIN SUBMITTED : %s " % kw)
 
         # check parameters
         pp = kw.get('pp', None)
@@ -110,20 +112,23 @@ class PluginController(base.BaseController):
         # validate
         util.debug("VALIDATE %s" % kw)
 
+        # callback
+        callback = kw.get('callback', 'callback')
+
         try:
             form.validate(kw)
         except (tw2.core.ValidationError ,Invalid) as e:
             main_proxy = tg.config.get('main.proxy')
-            e.widget.action = main_proxy + tg.url('plugins/index', {'id' : id})
-            pp = {'id' : id}
+            e.widget.action = main_proxy + tg.url('plugins/index', {'id' : form_id})
+            pp = {'id' : form_id}
             value = { 'pp' : json.dumps(pp)}
             e.widget.value = value
             util.debug("VALIDATION FAILED " + str(e))
 #            import sys, traceback
 #            etype, value, tb = sys.exc_info()
 #            traceback.print_exception(etype, value, tb)
-            return {'validation':'failed', 'desc' : info.get('description'),
-                    'title' :  info.get('title'), 'widget' : e.widget.display()}
+            return jsonp_response(**{'validation':'failed', 'desc' : info.get('description'),
+                    'title' :  info.get('title'), 'widget' : e.widget.display(), 'callback' : callback})
 
 
         util.debug("VALIDATION PASSED")
@@ -158,7 +163,7 @@ class PluginController(base.BaseController):
 
         # update database information
         handler.database.new_request(kw, task_id, out_path)
-        return {'validation': 'success', 'form_id' : form_id, 'task_id' : task_id}
+        return jsonp_response(**{'validation': 'success', 'form_id' : form_id, 'task_id' : task_id, 'callback' : callback})
 
 
 
@@ -183,6 +188,12 @@ def prefill_fields(form_parameters, **kw):
 def prepare_file_fields(**kw):
     pass
 
+
+
+def jsonp_response(**kw):
+    # encode in JSONP here cauz there is a problem with custom rendrer
+    tg.response.headers['Content-Type'] = 'text/javascript'
+    return '%s(%s)' % (kw.get('callback', 'callback'), tg.json_encode(kw))
 
 #    @expose('mako:bs.templates.fupload')
 #    def fupload(self):

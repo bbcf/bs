@@ -103,7 +103,7 @@
             $(fselector).children('form').submit(function(e){
                 e.preventDefault();
                 /* fetch form id from form */
-                var fid = jQuery.parseJSON($(fselector).find('input#pp').val())['id'];
+                //var fid = jQuery.parseJSON($(fselector).find('input#pp').val())['id'];
 
 //		$(':file').change(function(){
 //		    var file = this.files[0];
@@ -114,7 +114,7 @@
 //		});
 
             /* get data from form */
-            var pdata = $(this).serialize() + '&id=' + fid + '&callback=bs_jsonp_cb';
+            var pdata = $(this).serialize() + '&callback=bs_jsonp_cb';
             /* build form data objet to upload files if any */
             var formData = new FormData();
             var files = $(':file');
