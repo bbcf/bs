@@ -12,40 +12,21 @@
  */
 -->
 <html lang="en">
+
 <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
-    <title>BioScript</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/style.css')}" />
-    <meta name="viewport" content="width=device-width">
-
-    <script type="text/javascript" src="${tg.url('/toscawidget/tw2.dynforms/dynforms.js')}"></script>
-
-    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/bs.css')}" />
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-    <script type="text/javascript" src="${tg.url('/javascript/bs.js')}"></script>
-
-
-
-
+    <%namespace name="d" file="bs.templates.definitions"/>
+    ${d.css()}
+    ${d.title()}
+    ${d.css()}
+    ${d.js()}
 </head>
-
 
 <body>
 
-<div>${bs|n}</div>
-
-##<script src="${tg.url('/fupload/vendor/jquery.ui.widget.js')}"></script>
-##
-##<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-##<script src="${tg.url('/fupload/jquery.iframe-transport.js')}"></script>
-##<!-- The basic File Upload plugin -->
-##<script src="${tg.url('/fupload/jquery.fileupload.js')}"></script>
-##
-##<script type="text/javascript" src="${tg.url('/javascript/bs.js')}"></script>
-
-
-
-
+    ${d.banner(sub='Graphical mode')}
+    ${d.menubar()}
+    <div>${bs|n}</div>
+    ${d.footer()}
 
 </body>
 

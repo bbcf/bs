@@ -42,7 +42,7 @@ class RootController(BaseController):
     plugins = PluginController()
 
 
-    @expose('bs.templates.index')
+    @expose('mako:bs.templates.index')
     def index(self,*args,**kw):
         return dict(page='index')
 
