@@ -8,6 +8,7 @@ from bs.lib.services import service_manager
 
 from bs.operations import util as putil
 from bs.operations import wordlist
+from bs.operations.base import DynForm
 
 from bs.celery import tasks
 

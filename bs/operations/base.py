@@ -88,12 +88,17 @@ class OperationPlugin(IPlugin):
 
 import tw2.core
 import tw2.forms
-import tw2.dynforms as twd
+import tw2.dynforms
 
 class BaseForm(tw2.forms.TableForm):
     pp = tw2.forms.HiddenField()
     key = tw2.forms.HiddenField()
     up = tw2.forms.HiddenField()
 
-class MultipleFileUpload(twd.GrowingGridLayout):
+class DynForm(tw2.dynforms.HidingTableLayout):
+    pp = tw2.forms.HiddenField()
+    key = tw2.forms.HiddenField()
+    up = tw2.forms.HiddenField()
+
+class MultipleFileUpload(tw2.dynforms.GrowingGridLayout):
     file = tw2.forms.FileField()

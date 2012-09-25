@@ -10,7 +10,7 @@ from bs.config.environment import load_environment
 
 from repoze.who.config import make_middleware_with_config
 
-
+import tw2.core as twc
 
 __all__ = ['make_app']
 
@@ -44,7 +44,9 @@ def make_app(global_conf, full_stack=True, **app_conf):
     under ``[app:main]``.
     """
 
-    app = make_base_app(global_conf, full_stack=True, **app_conf)
+    custom = lambda app : twc.make_middleware(app, default_engine='mako')
+    app = make_base_app(global_conf, wrap_app=custom, full_stack=True, **app_conf)
+    #app = make_base_app(global_conf, full_stack=True, **app_conf)
     # Wrap your base TurboGears 2 application with custom middleware here
     # This custom middleware is about authentication
     app = make_middleware_with_config(

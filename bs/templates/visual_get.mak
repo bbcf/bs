@@ -16,14 +16,14 @@
     <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
     <title>BioScript</title>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/style.css')}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/admin.css')}" />
     <meta name="viewport" content="width=device-width">
 
-##    <script type="text/javascript" src="${tg.url('/javascript/jslib/tw2.dynforms/dynforms.js')}"></script>
+    <script type="text/javascript" src="${tg.url('/toscawidget/tw2.dynforms/dynforms.js')}"></script>
+
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/bs.css')}" />
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
     <script type="text/javascript" src="${tg.url('/javascript/bs.js')}"></script>
-    <script type="text/javascript" src="${tg.url('/javascript/jQuery.AjaxFileUpload.js/jquery.ajaxfileupload.js')}"></script>
+
 
 
 
