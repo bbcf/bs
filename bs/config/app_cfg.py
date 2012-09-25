@@ -40,7 +40,13 @@ base_config.use_toscawidgets2=True
 def on_startup():
     import datetime
     print ' --- starting bs application --- '+str(datetime.datetime.now())
-
+    try :
+        import bs.operations
+    except Exception as e:
+        import sys, traceback
+        etype, value, tb = sys.exc_info()
+        traceback.print_exception(etype, value, tb)
+        raise e
 
 def on_shutdown():
     print '--- stopping bs application --- '

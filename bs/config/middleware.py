@@ -61,4 +61,3 @@ def make_app(global_conf, full_stack=True, **app_conf):
     return app
 
 
-import bs.operations
