@@ -33,20 +33,6 @@ def get_plugin_byId(_id):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import hashlib, os, json, wordlist
 from bs.lib import util
 
@@ -55,31 +41,11 @@ from bs.lib import util
 import string, random
 from bs.operations import plugin_manager
 
-random_name = lambda x : ''.join(random.choice(string.ascii_lowercase + string.digits) for i in xrange(x))
-
-def temporary_path(fname=None, ext=None):
-    tmp_dir = util.tmpdir()
-    if fname is None : fname = random_name(6)
-    if ext is not None:
-        if ext.startswith('.') : fname += ext
-        else :                   fname  = '%s.%s' % (fname, ext)
-    fpath = os.path.join(tmp_dir, fname)
-    return fpath
-
-def list_plugins():
-    for p in plugin_manager.getAllPlugins():
-        print p
 
 
 
 
 
-
-
-def _serialize_node():
-    """
-    Serialize
-    """
 
 def _mix_plugin_paths(plugins, service=None):
     '''
@@ -91,7 +57,7 @@ def _mix_plugin_paths(plugins, service=None):
     for plug in plugins:
         o = plug.plugin_object
         uid = o.unique_id()
-        if uid in uids: raise Exception('Path %s already exists' % o.info.path)
+        if uid in uids: raise Exception('Path %s already exists' % o.info.get('path'))
         uids.append(uid)
 
     for plug in plugins:

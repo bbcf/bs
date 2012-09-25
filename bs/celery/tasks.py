@@ -1,11 +1,9 @@
 from __future__ import absolute_import
 from celery.task import task, chord, subtask
-from celery.task.sets import TaskSet
 
 from bs.lib import io
 from bs.operations import util
 import os, urllib, urllib2, json, errno, shutil
-from celery.task.http import HttpDispatchTask
 
 
 
@@ -73,7 +71,9 @@ def _plugin_post_process(service_name, plugin, tmp_dir, out_path):
     # write files in the output directory
     new_files(service_name, task_id, out_path, plugin.in_files)
     # delete tmp files
-    for f in plugin.tmp_files: shutil.rmtree(f)
+    for f in plugin.tmp_files:
+        print 'deleting %s' % f
+        shutil.rmtree(f)
 
 
 

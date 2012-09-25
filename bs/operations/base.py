@@ -74,10 +74,11 @@ class OperationPlugin(IPlugin):
             tmp_dir = resource_filename('bs', 'tmp')
 
         tmp_dir = tempfile.mkdtemp(dir=tmp_dir)
-        if fname is None : fname = random_name(6)
+        if fname is None or fname == '': fname = random_name(6)
         if ext is not None:
             if ext.startswith('.') : fname += ext
             else : fname = '%s.%s' % (fname, ext)
+
         fpath = os.path.join(tmp_dir, fname)
         self.tmp_files.append(tmp_dir)
         return fpath
