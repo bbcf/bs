@@ -1,4 +1,4 @@
-CELERY_IMPORTS = ('bs.lib.tasks',)
+CELERY_IMPORTS = ('bs.celery.tasks',)
 
 # Result storage settings
 CELERY_RESULT_BACKEND = 'database'

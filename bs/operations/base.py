@@ -1,14 +1,15 @@
 import hashlib, os, json, wordlist
-from bs.lib import util
+from pkg_resources import resource_filename
 from yapsy.IPlugin import IPlugin
 
 
-
+import string, random, tempfile
+random_name = lambda x : ''.join(random.choice(string.ascii_lowercase + string.digits) for i in xrange(x))
 
 
 class OperationPlugin(IPlugin):
 
-    def __init__(self, graphical=False):
+    def __init__(self):
 
         if not hasattr(self, 'info') : self.info = {}
 
@@ -23,6 +24,7 @@ class OperationPlugin(IPlugin):
         self.uid = None
         self.service = None
         self.in_files = []
+        self.tmp_files = []
 
 
 
@@ -55,6 +57,30 @@ class OperationPlugin(IPlugin):
     def in_params_typeof(self, typeof):
         return [param for param in self.in_parameters if wordlist.is_of_type(param.get('type'), typeof)]
 
+
+    def temporary_path(self, fname=None, ext=None):
+        """
+        Get a temporary path to write a file.
+        File will be automatically deleted at the end of the plugin
+        process.
+        :param fname: the file name
+        :return: a path
+        """
+        try:
+            import tg
+            tmp_dir = tg.config.get('temporary.directory',
+                resource_filename('bs', 'tmp'))
+        except:
+            tmp_dir = resource_filename('bs', 'tmp')
+
+        tmp_dir = tempfile.mkdtemp(dir=tmp_dir)
+        if fname is None : fname = random_name(6)
+        if ext is not None:
+            if ext.startswith('.') : fname += ext
+            else : fname = '%s.%s' % (fname, ext)
+        fpath = os.path.join(tmp_dir, fname)
+        self.tmp_files.append(tmp_dir)
+        return fpath
 
 
 

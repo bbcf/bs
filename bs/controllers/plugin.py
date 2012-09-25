@@ -3,11 +3,13 @@ import json, tw2, tg
 from formencode import Invalid
 from tg import expose
 
-from bs.lib import base, util, services, constants, tasks
+from bs.lib import base, util, services, constants
 from bs.lib.services import service_manager
 
 from bs.operations import util as putil
 from bs.operations import wordlist
+
+from bs.celery import tasks
 
 from bs import handler
 
@@ -73,12 +75,6 @@ class PluginController(base.BaseController):
         return {'page' : 'plugin', 'desc' : desc, 'title' : info.get('title'), 'widget' : widget}
 
 
-    @expose()
-    def upload(self, *args, **kw):
-        print 'uploading with %s, %s ' % (args, kw)
-        print tg.request.params
-        tg.response.headers['Content-Type'] = 'text/javascript'
-        return '%s(%s)' % ('toto', tg.json_encode({}))
 
     @expose()
     def validate(self, **kw):
@@ -87,7 +83,7 @@ class PluginController(base.BaseController):
         """
         user = handler.user.get_user_in_session(tg.request)
 
-        util.debug("PLUGIN SUBMITTED : %s " % kw)
+        util.debug("PLUGIN SUBMITTED")
 
         # check parameters
         pp = kw.get('pp', None)
@@ -110,7 +106,7 @@ class PluginController(base.BaseController):
         form = info.get('output')(action='validation')
 
         # validate
-        util.debug("VALIDATE %s" % kw)
+        util.debug("VALIDATE")
 
         # callback
         callback = kw.get('callback', 'callback')
@@ -144,7 +140,7 @@ class PluginController(base.BaseController):
             import sys, traceback
             etype, value, tb = sys.exc_info()
             traceback.print_exception(etype, value, tb)
-            raise tg.redirect(tg.url('./index', params={'id' : form_id}))
+            tg.abort(500, e)
 
         # get output directory to write results
         service = user.name
@@ -191,7 +187,7 @@ def prepare_file_fields(**kw):
 
 
 def jsonp_response(**kw):
-    # encode in JSONP here cauz there is a problem with custom rendrer
+    # encode in JSONP here cauz there is a problem with custom renderer
     tg.response.headers['Content-Type'] = 'text/javascript'
     return '%s(%s)' % (kw.get('callback', 'callback'), tg.json_encode(kw))
 

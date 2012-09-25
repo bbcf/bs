@@ -3,13 +3,12 @@ from celery.task import task, chord, subtask
 from celery.task.sets import TaskSet
 
 from bs.lib import io
-import os, urllib, urllib2, json, errno
+from bs.operations import util
+import os, urllib, urllib2, json, errno, shutil
 from celery.task.http import HttpDispatchTask
 
 
-@task()
-def test():
-    return 1
+
 
 
 @task()
@@ -53,7 +52,7 @@ def _plugin_pre_process(_id, service_name, **kw):
     """
     Pre-processing : get plugin, parse parameters
     """
-    plug = get_plugin_byId(_id)
+    plug = util.get_plugin_byId(_id)
     if plug is None:
         raise Exception('Plugin not found by the worker.')
     plugin = plug.plugin_object
@@ -73,6 +72,8 @@ def _plugin_post_process(service_name, plugin, tmp_dir, out_path):
     task_id = plugin_process.request.id
     # write files in the output directory
     new_files(service_name, task_id, out_path, plugin.in_files)
+    # delete tmp files
+    for f in plugin.tmp_files: shutil.rmtree(f)
 
 
 

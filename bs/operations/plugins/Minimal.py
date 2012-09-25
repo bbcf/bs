@@ -8,14 +8,12 @@ meta = {'version' : "1.0.0",
         'contact' : "webmaster-bbcf@epfl.ch"}
 
 in_parameters = [
-    {'id' : 'param_one_text', 'type' : 'text'},
-    {'id' : 'param_two_numeric', 'type' : 'int', 'required' : True},
-    {'id' : 'param_three_boolean', 'type' : 'boolean'},
-    {'id' : 'param_four_file' , 'type' : 'file', 'required' : True},
-    {'id' : 'param_five_file', 'type' : 'file', 'multiple' : True},
+    {'id' : 'input', 'type' : 'text', 'required' : True},
     ]
 
-out_parameters = []
+out_parameters = [
+    {'id' : 'output', 'type' : 'file'},
+    ]
 
 
 plugin_information = {
@@ -31,22 +29,17 @@ plugin_information = {
 
 
 
-temporary_path = lambda x : x
-
-
-
-# a method
-def my_method(**kw):
-    print 'my method received %s ' % kw
-    return 1
-
-
-
-
 class Simple(OperationPlugin):
 
     info = plugin_information
 
     def __call__(self, **kw):
-        return my_method(**kw)
+        text = kw.get('input', '')       # get the parameter back
+
+        path = self.temporary_path()     # get a temporary path
+        with open(path, 'w') as f:            # open a file & write the input
+            f.write(text)
+        self.new_file(path, 'output')     # add a file to the result
+
+        return 1
 

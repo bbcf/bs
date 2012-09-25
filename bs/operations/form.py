@@ -25,12 +25,12 @@ def validator(ptype, required):
     """
     if type2validator.get(ptype, False):
         if required: return twc.IntValidator(required=True)
-        return twc.IntValidator
+        return twc.IntValidator()
     elif required :
         if wordlist.is_of_type(ptype, wordlist.FILE):
             if required : return twf.FileValidator(required=True)
-            return twf.FileValidator
-        return twc.Required
+            return twf.FileValidator()
+        return twc.Validator(required=True)
     return None
 
 def generate_form(parameters):
