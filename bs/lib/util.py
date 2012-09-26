@@ -28,8 +28,7 @@ def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
 
 
 def tmpdir(d=None):
-    if d is None:
-        d = constants.temporary_directory()
+    if d is None: d = constants.temporary_directory()
     return tempfile.mkdtemp(dir=d)
 
 def tmppath(d=None, fname=None):

@@ -74,36 +74,9 @@ class RootController(BaseController):
     def vocabulary(self, **kw):
         return {'page' : 'vocabulary'}
 
-    @expose('json')
-    @expose('bs.templates.form_list')
-    def list(self, *args, **kw):
-        """
-        Method to get the operations list
-        """
-        control = 'bs_redirect = %s; bs_operations_path = %s;' % (json.dumps(url('/form/index')), json.dumps(plugin.get_plugins_path(ordered=True)))
 
-        return {'page' : 'form', 'bs_control' : control}
-
-
-    @expose('json')
-    def plugins_list(self, **kw):
-        ordered = kw.get('ordered', False)
-        user = handler.user.get_user_in_session(request)
-        if user.is_service :
-            d = {'plugins' : plugin.get_plugins_path(service=user, ordered=ordered)}
-        else :
-            d = {'plugins' : plugin.get_plugins_path(ordered=ordered)}
-        return d
-
-    @expose()
-    def test_upload(self, *args, **kw):
+    @expose('mako:bs.templates.dev')
+    def developers(self):
         return {}
 
-
-    @expose()
-    def test(self):
-        from bs.operations import plugin_manager
-        for p in plugin_manager.getAllPlugins():
-            print p
-    
 

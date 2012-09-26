@@ -7,7 +7,7 @@
        <li>BioScript</li>
        <li><a href="${tg.url('/visual/')}">Operations</a></li>
        <li><a href="http://bbcf.epfl.ch/bs">Documentation</a></li>
-        <li><a href="${tg.url('/vocabulary')}">Developers</a></li>
+        <li><a href="${tg.url('/developers')}">Developers</a></li>
      </ul>
 </%def>
 

@@ -5,7 +5,7 @@ from bs.lib.base import BaseController
 from bs import handler
 from repoze.what.predicates import has_permission
 from pylons import tmpl_context
-import urllib2
+import urllib2, urllib
 import tg
 import json
 
@@ -18,7 +18,7 @@ class VisualController(BaseController):
     """
 
     @expose('mako:bs.templates.visual_index')
-    def index(self):
+    def index(self, *args):
         """
         Display a list of all plugins in BioScript
         """
@@ -28,8 +28,11 @@ class VisualController(BaseController):
         bs_url =  bs_server_url + 'plugins?ordered=true'
         # get the operation list back
         operation_list = urllib2.urlopen(bs_url).read()
+        # fields can be pre-filled
+        meth = 'get'
+        if len(args)> 0 and args[0] == 'prefill': meth = 'get_prefill'
         # serve result on visual_index.mak template file
-        return {'oplist' : operation_list, 'serv' : bs_server_url}
+        return {'oplist' : operation_list, 'serv' : bs_server_url, 'method' : meth}
 
 
     @expose('mako:bs.templates.visual_get')
@@ -47,6 +50,34 @@ class VisualController(BaseController):
         # display the form in template
         return {'bs' : form,  'bs_server_url' : bs_server_url}
 
+    @expose('mako:bs.templates.visual_get')
+    def get_prefill(self, id, *args, **kw):
+        """
+        The same method as 'get' but here we want
+        to pre-fill 'file' fields with data.
+        """
+        bs_server_url = tg.config.get('main.proxy') + url('/')
+        bs_url =  bs_server_url + 'plugins/get?id=' +  id
+
+        # we want to prefill 'file' fields
+        # here we generate random data
+        # data is formatted like that : [(file_url, file_name), (file_url, file_name), ...]
+        import random, string
+        random_data = lambda x : [('http://serv.ch/' + ''.join(random.choice(string.ascii_lowercase) for i in xrange(4)),
+                                  ''.join(random.choice(string.ascii_lowercase) for i in xrange(4))) for i in range(x)]
+
+        prefill_data = [(fname, furl) for fname, furl in random_data(3)]
+        # as we don't really which form will be displayed
+        # we tell to prefill "file" field type.
+        prefill = {'prefill' : json.dumps({'file' : prefill_data})}
+        post_data = urllib.urlencode(prefill)
+        # add it to url (can also be send via POST)
+        #bs_url += '&prefill=' + json.dumps(prefill)
+
+        # get the form back
+        form = urllib2.urlopen(url=bs_url, data=post_data).read()
+        # display the form in template
+        return {'bs' : form,  'bs_server_url' : bs_server_url}
 
 
 

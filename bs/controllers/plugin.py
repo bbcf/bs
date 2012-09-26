@@ -8,11 +8,13 @@ from bs.lib.services import service_manager
 
 from bs.operations import util as putil
 from bs.operations import wordlist
-from bs.operations.base import DynForm
+from bs.operations.base import MultipleFileUpload
 
 from bs.celery import tasks
 
 from bs import handler
+
+import tw2.core as twc
 
 
 
@@ -41,6 +43,8 @@ class PluginController(base.BaseController):
 
     @expose('mako:bs.templates.plugin_form')
     def get(self, id, *args, **kw):
+        print 'get'
+        print kw
         """
         Display the form by it's id
         """
@@ -56,14 +60,13 @@ class PluginController(base.BaseController):
         desc = info.get('description')
 
         # parse request parameters
-        prefill_fields(info.get('in'), **kw)
-        prepare_file_fields(**kw)
+        modified = prefill_fields(info.get('in'), form, **kw)
 
         #value = parse_parameters(user, id, form, info.get('in'), **kw)
         value = {}
 
         # private parameters from BioScript application to pass to the form
-        pp = {'id' : id}
+        pp = {'id' : id, 'modified' : json.dumps(modified)}
         value = { 'pp' : json.dumps(pp)}
 
 
@@ -117,8 +120,10 @@ class PluginController(base.BaseController):
         except (tw2.core.ValidationError ,Invalid) as e:
             main_proxy = tg.config.get('main.proxy')
             e.widget.action = main_proxy + tg.url('plugins/index', {'id' : form_id})
-            pp = {'id' : form_id}
+            modified = prefill_fields(info.get('in'), form, **kw)
+            pp = {'id' : id, 'modified' : json.dumps(modified)}
             value = { 'pp' : json.dumps(pp)}
+
             e.widget.value = value
             util.debug("VALIDATION FAILED " + str(e))
 #            import sys, traceback
@@ -132,10 +137,9 @@ class PluginController(base.BaseController):
         # fetch files if any
         try :
             _fs = [p.get('id') for p in obj.in_params_typeof(wordlist.FILE)]
-            if user.is_service :
-                tmp_dir = services.io.fetch_files(user, _fs, kw)
-            else :
-                tmp_dir = services.io.fetch_file_field(user, _fs, kw)
+            modified = json.loads(pp.get('modified'))
+
+            tmp_dir = services.io.fetch(user, _fs, kw)
 
         except Exception as e:
             import sys, traceback
@@ -165,27 +169,62 @@ class PluginController(base.BaseController):
 
 
 
-def prefill_fields(form_parameters, **kw):
+def prefill_fields(form_parameters, form, **kw):
+    """
+    If prefill key is in the request,
+    we must pre-fill some fields and perhaps change their definition
+    :param form_parameters: the 'in' parameters of the form
+    :param form: the 'form widget'
+    :param kw: the parameters in the request
+    :return:
+    """
+
+    modified = []   # list of modified fields
     if kw.has_key('prefill'):
         prefill = json.loads(kw.get('prefill'))
-        for term_to_prefill, prefill_with in prefill.iteritems():
+        for type_to_prefill, prefill_with in prefill.iteritems():
             for fparam in form_parameters:
-                if wordlist.is_of_type(fparam.get('type'), term_to_prefill):
-                    kw[fparam.get('id')] = prefill_with
+                # check which "type" to prefill
+                if wordlist.is_of_type(fparam.get('type'), type_to_prefill):
+                    fid = fparam.get('id')
+                    kw[fid] = prefill_with
+                    # if fparam is of `file` type, we need to modify it
+                    if wordlist.is_of_type(fparam.get('type'), wordlist.FILE):
+                        multiple = fparam.get('multiple', False)
+                        for index, field in enumerate(form.children):
+                            if field.id == fid:
+                                if multiple     : mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, index, prefill_with)
+                                else            : mod = _change_file_field(form, field, tw2.forms.SingleSelectField, index, prefill_with)
+                                modified.append(mod)
+    return modified
 
-                    # map field id to boolean multiple if file is `file` type
-                #    d = dict( [(param.get('id'), param.get('multiple', False)) for param in in_params if wordlist.is_of_type(param.get('type'), wordlist.FILE)])
-                #    # change field if it's multiple or simple only if it's a `file` field
-                #    for index, field in enumerate(fields):
-                #        fid = field.id
-                #        if d.has_key(fid):
-                #            if d.get(fid) : _process_file_field(user, form, field, kw, plugin.MultipleFileUpload, index, False)
-                #            else          : _process_file_field(user, form, field, kw, tw2.forms.FileField, index, True)
+def _change_file_field(form, field, cls, index, value):
+    """
+    Modify field type
+    :param form: the 'form widget'
+    :param field: the field to modify
+    :param cls: the cls to replace the field with
+    :param index: the position of the field in the form
+    :param value: fill the new field with "value"
+    """
 
-def prepare_file_fields(**kw):
-    pass
-
-
+    # prepare
+    tmp = cls()
+    tmp.id = field.id
+    if field.validator is not None:
+        tmp.validator = twc.Validator(required=True)
+    tmp.name = field.name
+    # fill
+    if len(value) > 0:
+        if isinstance(value[0], (list, tuple)):
+            tmp.options = [(value[i][0], value[i][1]) for i in xrange(len(list(value)))]
+        else :
+            tmp.options = dict([(value[i], value[i]) for i in xrange(len(list(value)))])
+    else :
+        tmp.options=[]
+    # replace
+    form.children[index] = tmp
+    return field.id
 
 def jsonp_response(**kw):
     # encode in JSONP here cauz there is a problem with custom renderer
@@ -258,18 +297,7 @@ def jsonp_response(**kw):
 #    kw['pp']=json.dumps(pp)
 #    return kw
 #
-#def _fill_fields(field, field_id, params):
-#    """
-#    Fill field options with pre-filled values
-#    """
-#    _list = params.get(field_id, "[]")
-#    if len(_list)>0:
-#        if isinstance(_list[0], (list, tuple)):
-#            field.options = [(_list[i][0], _list[i][1]) for i in xrange(len(list(_list)))]
-#        else :
-#            field.options = dict([(_list[i], _list[i]) for i in xrange(len(list(_list)))])
-#    else :
-#        field.options=[]
+
 #
 #
 #

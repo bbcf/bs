@@ -4,6 +4,7 @@ body{
     font-family: Georgia, "Times New Roman", Times, serif;
 }
 
+/* BANNER */
 ul#banner{
     list-style-type: none;
     background-color: #d3d3d3;
@@ -57,7 +58,7 @@ ul#banner li a:hover {
     color: #FFF;
 }
 
-
+/* FOOTER */
 div#footer{
     background-color: #d3d3d3;
     height: 40px;
@@ -66,11 +67,26 @@ div#footer{
     position:absolute;
     bottom:0;
 }
+/* CONTENT */
+div#content{
+    margin:30px;
+}
+div#content p{
+    margin: 30px;
+    box-shadow: 10px 10px 5px #888;
+    padding: 30px;
+    border: 1px solid #c0c0c0;
 
+}
+
+
+
+/* FORM */
 div.bs_container{
     margin: 30px;
     box-shadow: 10px 10px 5px #888;
     padding: 30px;
+    border: 1px solid #c0c0c0;
 }
 
 div.bs_container div.bs_title{
@@ -88,3 +104,6 @@ div.bs_container div.bs_form{
     border: medium outset;
     box-shadow: 10px 10px 5px #888;
 }
+
+
+
