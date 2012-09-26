@@ -23,8 +23,7 @@
 
 <body>
 
-    ${d.banner(sub='Graphical mode')}
-    ${d.menubar()}
+    ${d.banner()}
     <div>${bs|n}</div>
     ${d.footer()}
 

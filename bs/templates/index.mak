@@ -9,7 +9,6 @@
 <body>
 
     ${d.banner()}
-    ${d.menubar()}
 
     <div class="notice"> Beta-test.</div>
 

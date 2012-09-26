@@ -53,35 +53,26 @@ def _update(url):
     tmp_file = tempfile.NamedTemporaryFile(mode='wb', suffix='.zip', delete=False)
     tmp_file.write(req.read())
     tmp_file.close()
-    print tmp_file.name
     #extract
     tmp_dir = tempfile.mkdtemp()
     z = zip(tmp_file.name)
     for info in z.infolist():
         f = info.filename
         dirname, fname = os.path.split(f)
-        print dirname
-        print fname
-        print '------------'
         if dirname.endswith('plugins') and not fname == '':
             data = z.read(f)
             ext_name = os.path.split(f)[1]
             out_path = os.path.join(tmp_dir, ext_name)
             with open(out_path, 'wb') as out:
                 out.write(data)
-    print '---- HERE'
     #removing files from plugins directory
     plug_dir = constants.plugin_directory()
-    print 'plugin directory is : %s' % plug_dir
     for f in os.listdir(plug_dir):
-        print f
         if f != 'README' and f != '.gitignore':
-            print 'remove'
-            shutil.rmtree(f, ignore_errors=True)
+            os.remove(os.path.join(plug_dir, f))
 
     #move new files to plugin directory
     for plug in os.listdir(tmp_dir):
-        print 'adding file %s' % plug
         shutil.move(os.path.join(tmp_dir, plug), plug_dir)
 
     #removing tmp files
