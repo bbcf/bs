@@ -17,6 +17,8 @@
 
     <div id="bs_operations"/>
 
+    ${d.footer()}
+
 </body>
 
     <%!

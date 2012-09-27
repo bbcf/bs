@@ -24,17 +24,19 @@ def fetch(service, fparams, form_parameters):
         util.debug(service_name + ' is not a service')
 
 
-
+    util.debug('tmpdir')
     tmp_dir = temporary_directory()
-
-
+    util.debug('plop')
+    print fparams
     for fparam in fparams:
-
+        util.debug('fparam %s ' % fparam)
         value = form_parameters.get(fparam, None)
+        util.debug(value)
         if value is None or value == '' : continue
-
+        util.debug(value)
         # it's not a file field
         if isinstance(value, basestring):
+            util.debug('not a file field')
             tmp_file = util.tmppath(d=tmp_dir, fname=None)
             if tmp_file and file_root is not None and url_root is not None:
                 # remove //. Servide defined a directory where to take & put files
@@ -133,12 +135,6 @@ def _format_submission_parameters(files, params):
         params[m] = mlist
     return t
 
-def _take_file(value):
-        filename = value.filename
-        file_value = value.value
-        with open(util.tmppath(fname=filename), 'w') as tmp_file:
-            tmp_file.write(file_value)
-        return tmp_file.name
 
 
 

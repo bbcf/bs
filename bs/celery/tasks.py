@@ -54,6 +54,7 @@ def _plugin_pre_process(_id, service_name, **kw):
     if plug is None:
         raise Exception('Plugin not found by the worker.')
     plugin = plug.plugin_object
+    plugin.__init__()
     return plugin
 
 def _plugin_process(plugin, **kw):
@@ -83,6 +84,10 @@ def new_files(service_name, task_id, out_path, _files):
     Write the files in the service directory
     """
     out = os.path.join(out_path, task_id)
+    print 'new files'
+    print out_path
+    print _files
+    print out
     try:
         os.mkdir(out)
     except OSError, e:

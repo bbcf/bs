@@ -10,11 +10,53 @@ class RequestController(base.BaseController):
 
 
 
-    @expose('bs.templates.request')
-    def index(self):
-        req_data = DBSession.query(Request).all()
-        dg = util.to_datagrid(request_list, req_data, "Requests", len(req_data)>0)
-        return {'page' : 'requests', 'request_list' : [dg]}
+    @expose('mako:bs.templates.request_index')
+    def index(self, task_id, **kw):
+        req_data = DBSession.query(Request).join(Result).filter(Result.task_id == task_id).first()
+        if req_data is None:
+            return {'status' : 'FAILURE', 'msg' : 'Wrong task identifier.'}
+
+        if req_data.result.task is None: status = 'PENDING'
+        else :                           status = req_data.result.task.status
+
+        if status == 'FAILURE':
+            return {'status' : status, 'msg' : req_data.result.task.traceback}
+        elif status == 'PENDING':
+            return {'status' : status, 'msg' : 'Processing still running.'}
+
+        elif status == 'SUCCESS':
+
+            out = os.path.join(req_data.result.path, task_id)
+            print out
+
+            results = os.listdir(out)
+            print results
+            if len(results) == 0:
+                return {'status' : 'NORESULT', 'msg' : 'no results'}
+            name = kw.get('name', None)
+            if len(results) == 1:
+                name = results[0]
+                print name
+
+            if name is not None and name in results:
+                ext = os.path.splitext(name)[1]
+                if ext.lower() in ['.pdf', '.gz', '.gzip']:
+                    response.content_type = 'application/' + ext.lower()
+                elif ext.lower() in ['.png', '.jpeg', '.jpg', '.gif']:
+                    response.content_type = 'image/' + ext.lower()
+                elif ext.lower() in ['.sql', '.db', '.sqlite3']:
+                    response.content_type = 'application/x-sqlite3'
+                else :
+                    response.content_type = "text/plain"
+                out_file = os.path.normpath(os.path.join(out, name))
+                if not out_file.startswith(out):
+                    return "Are you kidding me?"
+                response.headerlist.append(('Content-Disposition', 'attachment;filename="%s"' % name))
+                return open(out_file).read()
+
+            return {'status' : status, 'results' : results, 'links' : url('/requests', {'task_id' : task_id})}
+
+
 
 
     @expose('json')
