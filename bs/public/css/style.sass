@@ -1,0 +1,112 @@
+@import "base"
+
+*
+  margin: 0
+  padding: 0
+
+body
+  font-family: Georgia, "Times New Roman", Times, serif
+
+/* BANNER */
+ul#banner
+  list-style-type: none
+  background-color: $col-grey-l
+  height: $banner-height
+  width: 100%
+  margin: auto
+  @include bshadow
+  margin-bottom: 30px
+
+
+ul#banner li:first-child
+  font-size: 24px
+  position: relative
+  top: 2px
+  margin-left: 20px
+
+ul#banner li
+  height: $banner-height
+  position: relative
+  top: 10px
+
+
+ul#banner li ul
+  list-style-type: none
+
+ul#banner li ul li
+  float: none
+  font-size: 12px
+  position: relative
+  left: 10px
+
+ul#banner li ul li:first-child
+  left: 0px
+  font-size: 24px
+
+
+ul#banner li
+  float: left
+
+
+ul#banner li a
+  background-repeat: no-repeat
+  background-position: right
+  padding: 0px 40px 0px 40px
+  display: block
+  text-decoration: none
+  color: $col-brown
+
+
+ul#banner li a:hover
+  color: $col-grey-lll
+
+
+/* FOOTER */
+div#footer
+  background-color: $col-grey-l
+  height: $banner-height
+  width: 100%
+  margin: auto
+  position:absolute
+    bottom: 0
+
+/* CONTENT */
+div#content
+  margin: 30px
+
+div#content p
+  margin: 30px
+  @include bshadow
+  padding: 30px
+  @include bborder
+
+
+
+
+
+/* FORM */
+div.bs_container
+  margin: 30px
+  box-shadow: 10px 10px 5px #888
+  padding: 30px
+  @include bborder
+
+
+div.bs_container div.bs_title
+  font-size: 30px
+  padding: 12px
+
+div.bs_container div.bs_desc
+  padding: 7px
+  font-style: italic
+
+div.bs_container div.bs_form
+  margin: 20px
+  padding: 20px
+  width: auto
+  border: medium outset
+  @include bshadow
+
+
+
+
