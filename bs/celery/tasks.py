@@ -54,8 +54,7 @@ def _plugin_pre_process(_id, service_name, **kw):
     if plug is None:
         raise Exception('Plugin not found by the worker.')
     plugin = plug.plugin_object
-    plugin.__init__()
-    return plugin
+    return plugin.__class__()
 
 def _plugin_process(plugin, **kw):
     """
