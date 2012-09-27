@@ -1,14 +1,29 @@
-$col-grey-l: #d3d3d3
-$col-grey: #888
-$col-brown: #371C1C
-$col-grey-ll: #c0c0c0
-$col-grey-lll :#FFF
 
 
+$col-base :#454D46
+$col-1 :#596E55
+$col-2 :#6A877F
+$col-3 :#79B3AD
+$col-4 :#AAD7D9
+
+
+$bgcolor: $col-base
+$banfoot: $col-4
+$links: $col-1
+$linkshoover: $col-base
+
+$margin-dst :30px
+$padding-dst: 30px
 $banner-height: 40px
 
 @mixin bshadow
-  box-shadow: 10px 10px 5px $col-grey
+  box-shadow: 10px 10px 5px $col-3
 
 @mixin bborder
-  border: 1px solid $col-grey-ll
+  border: 1px solid $col-3
+
+@mixin belement
+  margin: $margin-dst
+  padding: $padding-dst
+  @include bshadow
+  @include bborder

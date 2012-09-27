@@ -6,16 +6,17 @@
 
 body
   font-family: Georgia, "Times New Roman", Times, serif
+  background-color: $bgcolor
 
 /* BANNER */
 ul#banner
   list-style-type: none
-  background-color: $col-grey-l
+  background-color: $banfoot
   height: $banner-height
   width: 100%
   margin: auto
   @include bshadow
-  margin-bottom: 30px
+  margin-bottom: $margin-dst
 
 
 ul#banner li:first-child
@@ -54,58 +55,51 @@ ul#banner li a
   padding: 0px 40px 0px 40px
   display: block
   text-decoration: none
-  color: $col-brown
+  color: $links
 
 
 ul#banner li a:hover
-  color: $col-grey-lll
+  color: $linkshoover
 
 
 /* FOOTER */
 div#footer
-  background-color: $col-grey-l
+  background-color: $banfoot
   height: $banner-height
   width: 100%
   margin: auto
-  position:absolute
-    bottom: 0
+  position: absolute
+  bottom: 0
 
 /* CONTENT */
 div#content
-  margin: 30px
+  margin: $margin-dst
 
 div#content p
-  margin: 30px
-  @include bshadow
-  padding: 30px
-  @include bborder
+  @include belement
 
-
-
-
+.belement
+  @include belement
 
 /* FORM */
 div.bs_container
-  margin: 30px
-  box-shadow: 10px 10px 5px #888
-  padding: 30px
-  @include bborder
+  @include belement
 
 
 div.bs_container div.bs_title
   font-size: 30px
-  padding: 12px
+  padding: $padding-dst/2
 
 div.bs_container div.bs_desc
   padding: 7px
   font-style: italic
 
 div.bs_container div.bs_form
-  margin: 20px
-  padding: 20px
+  margin: $margin-dst/2
+  padding: $padding-dst
   width: auto
-  border: medium outset
   @include bshadow
+  @include bborder
 
 
 

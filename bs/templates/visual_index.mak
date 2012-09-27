@@ -15,7 +15,7 @@
 
     ${d.banner()}
 
-    <div id="bs_operations"/>
+    <div id="bs_operations"></div>
 
     ${d.footer()}
 
