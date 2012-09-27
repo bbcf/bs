@@ -45,13 +45,15 @@ def fetch(service, fparams, form_parameters):
             elif tmp_file:
                 # fetch files from url
                 io.download(value, tmp_file)
-
+            tmp_files = [tmp_file]
         # here we should have a file field
         elif isinstance(value, (list, tuple)): tmp_files = [_take_file(v, tmp_dir) for v in value]
         else :                               tmp_files = _take_file(value, tmp_dir)
 
-        util.debug("FILE FETCHED IN %s" % tmp_dir)
-        form_parameters[fparam] = tmp_dir
+        if len(tmp_files) == 1:
+            tmp_files = tmp_files[0]
+        util.debug("FILE FETCHED IN %s" % tmp_files)
+        form_parameters[fparam] = tmp_files
 
     return tmp_dir
 

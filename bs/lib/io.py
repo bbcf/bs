@@ -7,7 +7,7 @@ block_sz = 8192
 def download(_from, _to):
         u = urlparse.urlparse(_from)
         if not u.hostname:
-            raise HTTPError('%s is not a valid URL.' % _from)
+            raise urllib2.HTTPError('%s is not a valid URL.' % _from)
         try:
             u = urllib2.urlopen(_from)
             with open(_to, 'w') as out:
@@ -16,7 +16,7 @@ def download(_from, _to):
                     if not buffer: break
                     out.write(buffer)
             return True
-        except HTTPError as e:
+        except urllib2.HTTPError as e:
             print '%s : %s' % (_from, e)
             raise e
 

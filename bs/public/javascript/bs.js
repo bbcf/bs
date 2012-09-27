@@ -151,13 +151,21 @@
             if (jsonp){
                 var val = jsonp.validation;
                 if (val == 'failed'){
+                    // validation failed : display the form with errors
                    var data = $(this).data(bs_namespace);
                     var fselector = data.fselector;
                     $(fselector).children('form').replaceWith(jsonp.widget);
                     _incall($this, 'hack_submit');
                 } else if(val == 'success'){
-                    var data = $(this).data(bs_namespace);
-                    data.vsuccess(jsonp.form_id, jsonp.task_id);
+                    // validation passed
+                    if(jsonp.error){
+                        // but there is an error
+                        alert(jsonp.error);
+                    } else {
+                        var data = $(this).data(bs_namespace);
+                        data.vsuccess(jsonp.form_id, jsonp.task_id);
+                    }
+
                 } else {
                     console.error("Callback with wrong data");
                     console.error(data);

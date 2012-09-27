@@ -121,7 +121,7 @@ class PluginController(base.BaseController):
             main_proxy = tg.config.get('main.proxy')
             e.widget.action = main_proxy + tg.url('plugins/index', {'id' : form_id})
             modified = prefill_fields(info.get('in'), form, **kw)
-            pp = {'id' : id, 'modified' : json.dumps(modified)}
+            pp = {'id' : form_id, 'modified' : json.dumps(modified)}
             value = { 'pp' : json.dumps(pp)}
 
             e.widget.value = value
@@ -145,7 +145,8 @@ class PluginController(base.BaseController):
             import sys, traceback
             etype, value, tb = sys.exc_info()
             traceback.print_exception(etype, value, tb)
-            tg.abort(500, e)
+            return jsonp_response(**{'validation':'success', 'desc' : info.get('description'),
+                                    'title' :  info.get('title'), 'error' : e.read(), 'callback' : callback})
 
         # get output directory to write results
         service = user.name
