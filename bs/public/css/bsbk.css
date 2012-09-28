@@ -1,0 +1,167 @@
+/** bs css for drop down buttons 
+* inspired from http://www.red-team-design.com/css3-animated-dropdown-menu
+*/
+
+/* reset */
+ul#bs_menubar, ul#bs_menubar ul{
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+
+.error{color: #ff0000;}
+div#bs_operations_container{background-color: #f5f5f5;}
+div#bs_operations_container div.bs_title{
+    font-size: large;
+    font-weight: bold;}
+div#bs_operations_container div.bs_desc{
+    font-weight: lighter;
+    margin: 5px;
+    padding: 1px;}
+div#bs_operations_container div.bs_form{
+    margin: 10px;
+    padding: 5px;
+}
+
+
+
+/* menu bar style */
+ul#bs_menubar{
+    width: 150px;
+    margin: 60px auto;
+    border: 1px solid #222;
+    background-color: #d3d3d3;
+    background-image: linear-gradient(#d3d3d3, #444);
+    border-radius: 6px;
+    box-shadow: 0 1px 1px #777;
+    position:fixed
+}
+/* clear floats */
+ul#bs_menubar:before, ul#bs_menubar:after {
+    content: "";
+    display: table;
+}
+
+ul#bs_menubar:after {
+    clear: both;
+}
+
+ul#bs_menubar {
+    zoom:1;
+}
+
+/* list elements */
+ul#bs_menubar li {
+    float: left;
+    border-right: 1px solid #111;
+    box-shadow: 1px 0 0 #444;
+}
+
+ul#bs_menubar a {
+    float: left;
+    padding: 12px 30px;
+    color: #000000;
+    text-transform: uppercase;
+    font: bold 12px Arial, Helvetica;
+    text-decoration: none;
+}
+
+ul#bs_menubar li:hover > a {
+    color: #fafafa;
+    color: white;
+}
+
+/* submenus */
+ul#bs_menubar ul {
+    margin: 20px 0 0 0;
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    top: 38px;
+    left: 0;
+    z-index: 1;    
+    background: #444;
+    background: linear-gradient(#d3d3d3, #444);
+    box-shadow: 0 -1px 0 rgba(255,255,255,.3);
+    border-radius: 3px;
+    transition: all .2s ease-in-out;  
+}
+
+ul#bs_menubar li:hover > ul {
+    opacity: 1;
+    visibility: visible;
+    margin: 0;
+}
+
+ul#bs_menubar ul ul {
+    top: 0;
+    left: 150px;
+    margin: 0 0 0 20px;
+    box-shadow: -1px 0 0 rgba(255,255,255,.3);
+}
+
+ul#bs_menubar ul li {
+    float: none;
+    display: block;
+    border: 0;
+    box-shadow: 0 1px 0 #d3d3d3, 0 2px 0 #666;
+    position : relative;
+}
+
+ul#bs_menubar ul li:last-child {   
+    box-shadow: none;    
+}
+
+ul#bs_menubar ul a {    
+    padding: 10px;
+    width: 130px;
+    display: block;
+    white-space: nowrap;
+    float: none;
+    text-transform: none;
+}
+
+ul#bs_menubar ul a:hover {
+    background-color: #0186ba;
+    background-image: linear-gradient(#04acec, #0186ba);
+}
+
+
+/* first and last child */
+ul#bs_menubar ul li:first-child > a {
+    border-radius: 3px 3px 0 0;
+}
+
+ul#bs_menubar ul li:first-child > a:after {
+    content: '';
+    position: absolute;
+    left: 40px;
+    top: -6px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid #444;
+}
+
+ul#bs_menubar ul ul li:first-child a:after {
+    left: -6px;
+    top: 50%;
+    margin-top: -6px;
+    border-left: 0;
+    border-bottom: 6px solid transparent;
+    border-top: 6px solid transparent;
+    border-right: 6px solid #3b3b3b;
+}
+
+ul#bs_menubar ul li:first-child a:hover:after {
+    border-bottom-color: #04acec; 
+}
+
+ul#bs_menubar ul ul li:first-child a:hover:after {
+    border-right-color: #0299d3; 
+    border-bottom-color: transparent; 
+}
+
+ul#bs_menubar ul li:last-child > a {
+    border-radius: 0 0 3px 3px;
+}
+

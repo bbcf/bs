@@ -8,7 +8,7 @@ $col-2 :#AAB3B6
 $col-3 :#6E7476
 $col-4 :#4B4E50
 
-
+$col-error:red
 
 $bgcolor: $col-2
 $banfoot: $col-base
@@ -25,9 +25,18 @@ $banner-height: 40px
 
 @mixin bborder
   border: 1px solid $col-4
+  border-radius: 5px
 
 @mixin belement
   margin: $margin-dst
   padding: $padding-dst
   @include bshadow
   @include bborder
+
+@mixin title
+  font-size: large
+  font-weight: bold
+
+@mixin note
+  font-weight: lighter
+  font-style: italic
