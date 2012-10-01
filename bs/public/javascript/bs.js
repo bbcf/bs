@@ -105,13 +105,13 @@
                 /* fetch form id from form */
                 //var fid = jQuery.parseJSON($(fselector).find('input#pp').val())['id'];
 
-//		$(':file').change(function(){
-//		    var file = this.files[0];
-//		    name = file.name;
-//		    size = file.size;
-//		    type = file.type;
-//		    //your validation
-//		});
+//    $(':file').change(function(){
+//        var file = this.files[0];
+//        name = file.name;
+//        size = file.size;
+//        type = file.type;
+//        //your validation
+//    });
 
             /* get data from form */
             var pdata = $(this).serialize() + '&callback=bs_jsonp_cb';

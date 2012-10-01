@@ -12,7 +12,7 @@
 
 <body>
     ${d.banner()}
-
+     
     <div id="content">
         <p>
         User can access to BioScript directly, but BioScript can also be embedded in an application.

@@ -138,7 +138,7 @@ class PluginController(base.BaseController):
         try :
             _fs = [p.get('id') for p in obj.in_params_typeof(wordlist.FILE)]
             modified = json.loads(pp.get('modified'))
-
+            
             tmp_dir = services.io.fetch(user, _fs, kw)
 
         except Exception as e:
