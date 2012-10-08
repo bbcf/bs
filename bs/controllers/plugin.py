@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-import json, tw2, tg
+import json
+import tw2
+import tg
 from formencode import Invalid
 from tg import expose
 
@@ -15,11 +17,6 @@ from bs.celery import tasks
 from bs import handler
 
 import tw2.core as twc
-
-
-
-
-
 
 
 class PluginController(base.BaseController):
@@ -43,8 +40,6 @@ class PluginController(base.BaseController):
 
     @expose('mako:bs.templates.plugin_form')
     def get(self, id, *args, **kw):
-        print 'get'
-        print kw
         """
         Display the form by it's id
         """
@@ -61,7 +56,6 @@ class PluginController(base.BaseController):
 
         # parse request parameters
         modified = prefill_fields(info.get('in'), form, **kw)
-
         #value = parse_parameters(user, id, form, info.get('in'), **kw)
         value = {}
 
@@ -69,16 +63,12 @@ class PluginController(base.BaseController):
         pp = {'id' : id, 'modified' : json.dumps(modified)}
         value = { 'pp' : json.dumps(pp)}
 
-
-
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
-        widget = form(action= main_proxy + tg.url('/plugin/validate', {'id' : id})).req()
+        widget = form(action=main_proxy + tg.url('/plugin/validate', {'id': id})).req()
         widget.value = value
 
-        return {'page' : 'plugin', 'desc' : desc, 'title' : info.get('title'), 'widget' : widget}
-
-
+        return {'page': 'plugin', 'desc': desc, 'title': info.get('title'), 'widget': widget}
 
     @expose()
     def validate(self, **kw):
@@ -129,28 +119,27 @@ class PluginController(base.BaseController):
 #            import sys, traceback
 #            etype, value, tb = sys.exc_info()
 #            traceback.print_exception(etype, value, tb)
-            return jsonp_response(**{'validation':'failed', 'desc' : info.get('description'),
-                    'title' :  info.get('title'), 'widget' : e.widget.display(), 'callback' : callback})
-
+            return jsonp_response(**{'validation': 'failed', 'desc': info.get('description'),
+                    'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
 
         util.debug("VALIDATION PASSED")
         # fetch files if any
-        try :
+        try:
             _fs = [p.get('id') for p in obj.in_params_typeof(wordlist.FILE)]
             modified = json.loads(pp.get('modified'))
-            
             tmp_dir = services.io.fetch(user, _fs, kw)
 
         except Exception as e:
-            import sys, traceback
+            import sys
+            import traceback
             etype, value, tb = sys.exc_info()
             traceback.print_exception(etype, value, tb)
-            return jsonp_response(**{'validation':'success', 'desc' : info.get('description'),
-                                    'title' :  info.get('title'), 'error' : e.read(), 'callback' : callback})
+            return jsonp_response(**{'validation': 'success', 'desc': info.get('description'),
+                                    'title':  info.get('title'), 'error': e.read(), 'callback': callback})
 
         # get output directory to write results
         service = user.name
-        if user.is_service :
+        if user.is_service:
             out_path = services.io.out_path(service)
             callback_url = services.service_manager.get(service, constants.SERVICE_CALLBACK_URL_PARAMETER)
         else:
@@ -165,9 +154,7 @@ class PluginController(base.BaseController):
 
         # update database information
         handler.database.new_request(kw, task_id, out_path)
-        return jsonp_response(**{'validation': 'success', 'form_id' : form_id, 'task_id' : task_id, 'callback' : callback})
-
-
+        return jsonp_response(**{'validation': 'success', 'form_id': form_id, 'task_id': task_id, 'callback': callback})
 
 
 def prefill_fields(form_parameters, form, **kw):
@@ -181,25 +168,41 @@ def prefill_fields(form_parameters, form, **kw):
     """
 
     modified = []   # list of modified fields
-    if kw.has_key('prefill'):
+    if 'prefill' in kw:
+        util.debug('Has prefill')
         prefill = json.loads(kw.get('prefill'))
+        util.debug(prefill)
         for type_to_prefill, prefill_with in prefill.iteritems():
             for fparam in form_parameters:
                 # check which "type" to prefill
+                util.debug('check parameters %s' % fparam)
                 if wordlist.is_of_type(fparam.get('type'), type_to_prefill):
+
                     fid = fparam.get('id')
                     kw[fid] = prefill_with
                     # if fparam is of `file` type, we need to modify it
                     if wordlist.is_of_type(fparam.get('type'), wordlist.FILE):
+                        util.debug('is type of file %s' % fid)
                         multiple = fparam.get('multiple', False)
-                        for index, field in enumerate(form.children):
+                        #TODO utility method to get all children
+                        util.debug(form.children)
+                        for field in form.children_deep():
                             if field.id == fid:
-                                if multiple     : mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, index, prefill_with)
-                                else            : mod = _change_file_field(form, field, tw2.forms.SingleSelectField, index, prefill_with)
+                                if multiple     : mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, prefill_with)
+                                else            : mod = _change_file_field(form, field, tw2.forms.SingleSelectField, prefill_with)
                                 modified.append(mod)
-    return modified
 
-def _change_file_field(form, field, cls, index, value):
+
+#                        for index, field in enumerate(form.children):
+#                            util.debug(field.id)
+#                            if field.id == fid:
+#                                if multiple     : mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, index, prefill_with)
+#                                else            : mod = _change_file_field(form, field, tw2.forms.SingleSelectField, index, prefill_with)
+#                                modified.append(mod)
+        return modified
+
+
+def _change_file_field(form, field, cls, value):
     """
     Modify field type
     :param form: the 'form widget'
@@ -219,13 +222,27 @@ def _change_file_field(form, field, cls, index, value):
     if len(value) > 0:
         if isinstance(value[0], (list, tuple)):
             tmp.options = [(value[i][0], value[i][1]) for i in xrange(len(list(value)))]
-        else :
+        else:
             tmp.options = dict([(value[i], value[i]) for i in xrange(len(list(value)))])
-    else :
-        tmp.options=[]
+    else:
+        tmp.options = []
     # replace
-    form.children[index] = tmp
+    util.debug('replace with %s' % tmp.options)
+
+    tmp_parent = field.parent
+    parent_deep = 1
+    tmp_form = form
+    while(tmp_parent != form):
+        tmp_parent = tmp_parent.parent
+        parent_deep += 1
+        tmp_form = tmp_form.child
+    util.debug(tmp_form)
+    for index, f in enumerate(tmp_form.children):
+        if f.id == field.id:
+            tmp_form.children[index] = tmp
+            util.debug('blouuu')
     return field.id
+
 
 def jsonp_response(**kw):
     # encode in JSONP here cauz there is a problem with custom renderer
