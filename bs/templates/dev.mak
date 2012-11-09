@@ -17,7 +17,7 @@
         <p>
         User can access to BioScript directly, but BioScript can also be embedded in an application.
         File upload fields can be pre-filled with the application files.<br/>
-        You have example <a href="${tg.url('/visual/index/prefill')}">here</a>.
+        You have example <a href="${tg.url('/direct/index/prefill')}">here</a>.
         </p>
 
         <p>

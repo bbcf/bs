@@ -8,8 +8,7 @@ def log_connection(fn):
     Log the connection in the database.
     """
 
-
-    def wrapped(self):
+    def wrapped(self, *args, **kw):
         user = get_user_in_session(request)
         conn = Connection()
         conn.user_id = user.id
@@ -22,5 +21,5 @@ def log_connection(fn):
         conn.query_string = request.query_string
         conn.body = request.body
         DBSession.add(conn)
-        return fn(self)
+        return fn(self, *args, **kw)
     return wrapped

@@ -33,7 +33,6 @@ class DirectController(BaseController):
         return {'oplist': operation_list, 'serv': bs_server_url, 'method': meth}
 
     @expose('mako:bs.templates.visual_get')
-    @log_connection
     def get(self, id, *args, **kw):
         """
         Display the plugin form

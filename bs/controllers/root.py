@@ -3,7 +3,7 @@
 
 from tg import expose, flash, response
 from bs.lib.base import BaseController
-from bs.controllers import DirectController, RequestController, PluginController
+from bs.controllers import DirectController, JobController, PluginController
 import inspect
 from sqlalchemy.orm import class_mapper
 import bs.model.auth
@@ -36,7 +36,7 @@ class RootController(BaseController):
     """
 
     direct = DirectController()
-    requests = RequestController()
+    jobs = JobController()
     plugins = PluginController()
 
     @expose('mako:bs.templates.index')

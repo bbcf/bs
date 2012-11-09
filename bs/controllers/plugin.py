@@ -193,8 +193,10 @@ def prefill_fields(form_parameters, form, **kw):
                         util.debug('is type of file %s' % fid)
                         multiple = fparam.get('multiple', False)
                         #TODO utility method to get all children
-                        util.debug(form.children)
+                        util.debug("####################################")
                         for field in form.children_deep():
+
+                            util.debug(field)
                             if field.id == fid:
                                 if multiple:
                                     mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, prefill_with)
