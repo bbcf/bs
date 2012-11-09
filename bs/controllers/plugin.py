@@ -11,7 +11,7 @@ from bs.operations import util as putil
 from bs.operations import wordlist
 
 from bs.celery import tasks
-from bs.model import DBSession, PluginRequest, Job, Result, Task
+from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 from bs import handler
 
 import tw2.core as twc
@@ -101,9 +101,11 @@ class PluginController(base.BaseController):
         # callback
         callback = kw.get('callback', 'callback')
 
-        plugin_request = _log_form_request(plugin=obj, user=user, parameters=kw)
+         # get the plugin from the database
+        plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == obj.unique_id()).first()
+        plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
+
         try:
-            util.debug("VALIDATE")
             form.validate(kw)
         except (tw2.core.ValidationError, Invalid) as e:
             main_proxy = tg.config.get('main.proxy')
@@ -118,22 +120,26 @@ class PluginController(base.BaseController):
             plugin_request.status = 'FAILED'
             plugin_request.error = str(e)
             DBSession.add(plugin_request)
+
             return jsonp_response(**{'validation': 'failed', 'desc': info.get('description'),
                     'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
         try:
-            input_directory = filemanager.fetch(user, obj, kw)
+            inputs_directory = filemanager.fetch(user, obj, kw)
         except Exception as e:
             plugin_request.status = 'FAILED'
             plugin_request.error = str(e)
             DBSession.add(plugin_request)
+            import sys, traceback
+            etype, value, tb = sys.exc_info()
+            traceback.print_exception(etype, value, tb)
             return jsonp_response(**{'validation': 'success', 'desc': info.get('description'),
-                                    'title':  info.get('title'), 'error': e.read(), 'callback': callback})
+                                    'title':  info.get('title'), 'error': 'error while fetching files : ' + str(e), 'callback': callback})
 
         # get output directory to write results
-        output_directory = filemanager.temporary_directory()
+        outputs_directory = filemanager.temporary_directory()
         service_callback = None
         if user.is_service:
-            output_directory = services.io.out_path(user.name)
+            outputs_directory = services.io.out_path(user.name)
             service_callback = services.service_manager.get(user.name, constants.SERVICE_CALLBACK_URL_PARAMETER)
 
         # call plugin process
@@ -141,8 +147,19 @@ class PluginController(base.BaseController):
         if user_parameters:
             user_parameters = json.loads(user_parameters)
 
-        async_res = tasks.plugin_process.delay(form_id, user.name, input_directory, output_directory, info.get('title'),
-            info.get('description'), service_callback, **kw)
+        bioscript_callback = tg.url('./callback_results')
+
+        plugin_info = {'title': info['title'],
+                        'plugin_id': plugin_db.id,
+                        'generated_id': plugin_db.generated_id,
+                        'description': info['description'],
+                        'path': info['path'],
+                        'in': info['in'],
+                        'out': info['out'],
+                        'meta': info['meta']}
+
+        async_res = tasks.plugin_job.delay(user.name, inputs_directory, outputs_directory, plugin_info,
+            user_parameters, service_callback, bioscript_callback, **kw)
 
         task_id = async_res.task_id
         _log_job_request(plugin_request.id, task_id)
@@ -254,16 +271,27 @@ def jsonp_response(**kw):
     return '%s(%s)' % (kw.get('callback', 'callback'), tg.json_encode(kw))
 
 
-def _log_form_request(plugin, user, parameters):
+def _log_form_request(plugin_id, user, parameters):
     """
     log the plugin form submission.
     """
     pl = PluginRequest()
-    pl.plugin = plugin
+    pl.plugin_id = plugin_id
     pl.user = user
-    pl.parameters = parameters
+    pl.parameters = get_formparameters(parameters)
     DBSession.add(pl)
     return pl
+
+
+def get_formparameters(params):
+    d = {}
+    for k, v in params.iteritems():
+        if not isinstance(v, basestring):
+            value = v.filename
+        else:
+            value = v
+        d[k] = value
+    return d
 
 
 def _log_job_request(request_id, task_id):

@@ -27,12 +27,22 @@ def load_plugins():
         })
 
     manager.collectPlugins()
-    _loaded = True
-    # check plugins
+    # check plugins and add in db if not already
+    plugids = []
     for plug in manager.getAllPlugins():
         p = plug.plugin_object
         _check_plugin_info(p)
-        _check_in_database(p)
+        if tg.config['pylons.app_globals']:
+            _check_in_database(p)
+        plugids.append(p.unique_id())
+
+    # check deprecated plugins
+    if tg.config['pylons.app_globals']:
+        for p in DBSession.query(Plugin).all():
+            if p.generated_id not in plugids:
+                p.deprecated = True
+                DBSession.add(p)
+        DBSession.flush()
     return manager
 
 
@@ -78,9 +88,6 @@ def _update(url):
     #removing tmp files
     shutil.rmtree(tmp_dir)
     os.remove(tmp_file.name)
-
-
-
 
 
 def _check_in_database(plug):

@@ -67,7 +67,7 @@ class Connection(DeclarativeBase):
 class Plugin(DeclarativeBase):
     __tablename__ = "%splugin" % prefix
     id = Column(Integer, autoincrement=True, primary_key=True)
-    generated_id = Column(Text)
+    generated_id = Column(Text, unique=True)
     deprecated = Column(Boolean)
     info = Column(JSONEncodedDict)
 

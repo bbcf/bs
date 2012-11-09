@@ -14,16 +14,16 @@ import shutil
 
 @task()
 def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
-    user_parameters, service_callback, bioscript_callback, form_parameters):
+    user_parameters, service_callback, bioscript_callback, **form_parameters):
 
-    task_id = plugin_process.request.id
+    task_id = plugin_job.request.id
 
     if service_callback is not None:
-        callback_service(service_callback, plugin_info['id'], task_id, 
+        callback_service(service_callback, plugin_info['generated_id'], task_id,
             'RUNNING', additional=user_parameters)
 
     # get plugin class
-    plug = util.get_plugin_byId(plugin_info['id'])
+    plug = util.get_plugin_byId(plugin_info['generated_id'])
     if plug is None:
         raise Exception('Plugin not found by the worker.')
     plugin = plug.plugin_object.__class__()

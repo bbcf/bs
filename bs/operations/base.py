@@ -38,7 +38,10 @@ class OperationPlugin(IPlugin):
         Do not override
         '''
         if self.uid is None:
-            self.uid = hashlib.sha1(self.path.__str__()).hexdigest()
+            tohash = str(self.__class__) + str(self.title) + str(self.in_parameters) + str(self.out_parameters)
+            if 'version' in self.meta:
+                tohash += self.meta['version']
+            self.uid = hashlib.sha1(tohash).hexdigest()
         return self.uid
 
     def new_file(self, fpath, fparam):

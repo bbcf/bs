@@ -28,11 +28,9 @@ def fetch(user, plugin, form_parameters):
 
         if not isinstance(form_value, basestring):  # its a file field
             if isinstance(form_value, (list, tuple)):
-
                 input_files = [download_file_field(v, os.path.join(temporary_directory(root_directory), v.filename)) for v in form_value]
             else:
-                input_files = [download_file_field(form_value, os.path.join(temporary_directory(root_directory), v.filename))]
-
+                input_files = [download_file_field(form_value, os.path.join(temporary_directory(root_directory), form_value.filename))]
         else:
             if user.is_service:
                 parameters = service_manager.get(user.name)
@@ -50,7 +48,8 @@ def fetch(user, plugin, form_parameters):
                 _to = os.path.join(temporary_directory(root_directory), os.path.split(form_value)[1].split('?')[0])
                 download_from_url(form_value, _to)
                 input_files = [_to]
-
+        if len(input_files) == 1:
+            input_files = input_files[0]
         form_parameters[fid] = input_files
     return root_directory
 
