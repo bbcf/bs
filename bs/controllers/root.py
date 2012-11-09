@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 """Main Controller"""
 
-from tg import expose, flash, require, request, response, url
+from tg import expose, flash, response
 from bs.lib.base import BaseController
-from bs.model import DBSession
-from repoze.what.predicates import has_permission
-from bs.controllers import VisualController, RequestController, PluginController
-from bs import handler
-
-__all__ = ['RootController']
-
-import inspect, json
+from bs.controllers import DirectController, RequestController, PluginController
+import inspect
 from sqlalchemy.orm import class_mapper
 import bs.model.auth
 from bs.operations import wordlist
+
+__all__ = ['RootController']
+
 models = {}
 
 for m in bs.model.auth.__all__:
@@ -26,6 +23,7 @@ for m in bs.model.auth.__all__:
     except:
         pass
 
+
 class RootController(BaseController):
     """
     The root controller for the bs application.
@@ -37,24 +35,18 @@ class RootController(BaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
     """
 
-    visual = VisualController()
+    direct = DirectController()
     requests = RequestController()
     plugins = PluginController()
 
-
     @expose('mako:bs.templates.index')
-    def index(self,*args,**kw):
+    def index(self, *args, **kw):
         return dict(page='index')
-
-    
 
     @expose('bs.templates.index')
     def login_needed(self):
         flash('You need to login', 'error')
         return dict(page='index')
-
-
-
 
     @expose('json')
     def vocab(self, **kw):
@@ -72,11 +64,8 @@ class RootController(BaseController):
 
     @expose('bs.templates.vocabulary')
     def vocabulary(self, **kw):
-        return {'page' : 'vocabulary'}
-
+        return {'page': 'vocabulary'}
 
     @expose('mako:bs.templates.dev')
     def developers(self):
         return {}
-
-

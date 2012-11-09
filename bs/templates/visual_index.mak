@@ -35,7 +35,7 @@
         var options = {
             operation_list : ${oplist|n},
             show_plugin : function(plugin_id){
-                window.location = ${serv|se,n} + 'visual/' + ${method|se,n}+ '?id=' + plugin_id;
+                window.location = ${serv|se,n} + 'direct/' + ${method|se,n}+ '?id=' + plugin_id;
             },
             'root_name' : 'Operations'
         }

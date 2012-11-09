@@ -1,17 +1,22 @@
-import hashlib, os, json, wordlist
+import hashlib
+import os
+import wordlist
 from pkg_resources import resource_filename
 from yapsy.IPlugin import IPlugin
 
 
-import string, random, tempfile
-random_name = lambda x : ''.join(random.choice(string.ascii_lowercase + string.digits) for i in xrange(x))
+import string
+import random
+import tempfile
+random_name = lambda x: ''.join(random.choice(string.ascii_lowercase + string.digits) for i in xrange(x))
 
 
 class OperationPlugin(IPlugin):
 
     def __init__(self):
 
-        if not hasattr(self, 'info') : self.info = {}
+        if not hasattr(self, 'info'):
+            self.info = {}
 
         self.title = self.info.get('title', '')
         self.description = self.info.get('description', '')
@@ -20,13 +25,12 @@ class OperationPlugin(IPlugin):
         self.in_parameters = self.info.get('in', [])
         self.out_parameters = self.info.get('out', [])
         self.meta = self.info.get('meta', '')
+        self.deprecated = self.info.get('deprecated', False)
 
         self.uid = None
         self.service = None
-        self.in_files = []
+        self.output_files = []
         self.tmp_files = []
-
-
 
     def unique_id(self):
         '''
@@ -37,8 +41,6 @@ class OperationPlugin(IPlugin):
             self.uid = hashlib.sha1(self.path.__str__()).hexdigest()
         return self.uid
 
-
-
     def new_file(self, fpath, fparam):
         """
         Append a file to the result
@@ -48,15 +50,13 @@ class OperationPlugin(IPlugin):
             if p.get('id') == fparam:
                 added = True
                 ftype = p.get('type')
-                self.in_files.append([fpath, ftype])
+                self.output_files.append([fpath, ftype])
                 break
-        if not added :
+        if not added:
             raise Exception('You must give the same id as one of the out parameters.')
-
 
     def in_params_typeof(self, typeof):
         return [param for param in self.in_parameters if wordlist.is_of_type(param.get('type'), typeof)]
-
 
     def temporary_path(self, fname=None, ext=None):
         """
@@ -74,31 +74,34 @@ class OperationPlugin(IPlugin):
             tmp_dir = resource_filename('bs', 'tmp')
 
         tmp_dir = tempfile.mkdtemp(dir=tmp_dir)
-        if fname is None or fname == '': fname = random_name(6)
+        if fname is None or fname == '':
+            fname = random_name(6)
         if ext is not None:
-            if ext.startswith('.') : fname += ext
-            else : fname = '%s.%s' % (fname, ext)
+            if ext.startswith('.'):
+                fname += ext
+            else:
+                fname = '%s.%s' % (fname, ext)
 
         fpath = os.path.join(tmp_dir, fname)
         self.tmp_files.append(tmp_dir)
         return fpath
 
-
-
-
 import tw2.core
 import tw2.forms
 import tw2.dynforms
+
 
 class BaseForm(tw2.forms.TableForm):
     pp = tw2.forms.HiddenField()
     key = tw2.forms.HiddenField()
     up = tw2.forms.HiddenField()
 
+
 class DynForm(tw2.dynforms.HidingTableLayout):
     pp = tw2.forms.HiddenField()
     key = tw2.forms.HiddenField()
     up = tw2.forms.HiddenField()
+
 
 class MultipleFileUpload(tw2.dynforms.GrowingGridLayout):
     file = tw2.forms.FileField()

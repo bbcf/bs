@@ -12,7 +12,8 @@ convert them into boolean, for example, you should use the
 from tg.configuration import AppConfig
 import bs
 from bs import model
-from bs.lib import app_globals, helpers
+from bs.lib import app_globals
+from bs.lib import helpers
 
 base_config = AppConfig()
 base_config.renderers = []
@@ -32,28 +33,28 @@ base_config.renderers.append('mako')
 base_config.use_sqlalchemy = True
 base_config.model = model
 base_config.DBSession = model.DBSession
-base_config.use_transaction_manager=True
-base_config.use_toscawidgets=False
-base_config.use_toscawidgets2=True
+base_config.use_transaction_manager = True
+base_config.use_toscawidgets = False
+base_config.use_toscawidgets2 = True
 
 # HOOKS
+
+
 def on_startup():
     import datetime
-    print ' --- starting bs application --- '+str(datetime.datetime.now())
-    try :
-        import bs.operations
-    except Exception as e:
-        import sys, traceback
-        etype, value, tb = sys.exc_info()
-        traceback.print_exception(etype, value, tb)
-        raise e
+    print ' --- starting bs application --- ' + str(datetime.datetime.now())
+
 
 def on_shutdown():
     print '--- stopping bs application --- '
+
+
+def start_app(app):
+    print ' --- import operations --- '
+    import bs.operations
+    return app
+
 base_config.call_on_startup = [on_startup]
 base_config.call_on_shutdown = [on_shutdown]
-
+base_config.register_hook('before_config', start_app)
 token = 'GDV'
-
-
-

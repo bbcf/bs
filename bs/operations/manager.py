@@ -1,7 +1,7 @@
 from bs.lib import constants
 import wordlist, os, urllib2, tempfile, shutil, tg
 from bs.operations.base import OperationPlugin
-
+from bs.model import DBSession, Plugin
 
 _loaded = False
 
@@ -23,16 +23,16 @@ def load_plugins():
     manager = PluginManager()
     manager.setPluginPlaces([plug_dir])
     manager.setCategoriesFilter({
-        "Operations" : OperationPlugin,
+        "Operations": OperationPlugin,
         })
+
     manager.collectPlugins()
     _loaded = True
-
     # check plugins
     for plug in manager.getAllPlugins():
         p = plug.plugin_object
         _check_plugin_info(p)
-
+        _check_in_database(p)
     return manager
 
 
@@ -83,12 +83,23 @@ def _update(url):
 
 
 
-
-
-
-
-
-
+def _check_in_database(plug):
+    """
+    Check if the plugin is in the database else create it
+    """
+    DB_plug = DBSession.query(Plugin).filter(Plugin.generated_id == plug.unique_id()).first()
+    if DB_plug is None:
+        DB_plug = Plugin()
+        DB_plug.generated_id = plug.unique_id()
+        DB_plug.deprecated = plug.deprecated
+        info = plug.info
+        DB_plug.info = {'title': info['title'],
+                        'description': info['description'],
+                        'path': info['path'],
+                        'in': info['in'],
+                        'out': info['out'],
+                        'meta': info['meta']}
+        DBSession.add(DB_plug)
 
 
 def _check_plugin_info(plug):

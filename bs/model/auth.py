@@ -61,37 +61,39 @@ class Group(DeclarativeBase):
     # special methods
     def __repr__(self):
         return '<Group: name=%r>' % self.name
+
     def __unicode__(self):
         return self.name
 
     @property
-    def get_users(self) :
+    def get_users(self):
         return self.users
 
-    @property  
+    @property
     def get_permissions(self):
         return self.permissions
 
     def _get_date(self):
         return self._created.strftime(date_format)
 
-    def _set_date(self,date):
-        self._created=date
+    def _set_date(self, date):
+        self._created = date
 
     created = synonym('_created', descriptor=property(_get_date, _set_date))
 
-
-    def has_permission(self,tag):
+    def has_permission(self, tag):
         '''
         Return true if the group has the permission specified
         '''
         for perm in self.permissions:
-            if perm.name == tag : return True
+            if perm.name == tag:
+                return True
             return False
 
 # The 'info' argument we're passing to the email_address and password columns
 # contain metadata that Rum (http://python-rum.org/) can use generate an
 # admin interface for your models.
+
 
 class User(DeclarativeBase):
     """
@@ -110,16 +112,16 @@ class User(DeclarativeBase):
     # columns
     id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(Unicode(255))
-    _email = Column(Unicode(255), unique=True, info={'rum': {'field':'Email'}})
+    _email = Column(Unicode(255), unique=True, info={'rum': {'field': 'Email'}})
     _created = Column(DateTime, default=datetime.now)
-    key = Column(Unicode(255), unique=True,default=setdefaultkey)
+    key = Column(Unicode(255), unique=True, default=setdefaultkey)
     is_service = Column(Boolean, default=False)
 
     def _get_date(self):
         return self._created.strftime(date_format)
 
-    def _set_date(self,date):
-        self._created=date
+    def _set_date(self, date):
+        self._created = date
 
     created = synonym('_created', descriptor=property(_get_date, _set_date))
 
@@ -138,8 +140,6 @@ class User(DeclarativeBase):
         """Return the user object whose email address is ``email``."""
         return DBSession.query(cls).filter(cls.email == email).first()
 
- 
-
     # non-column properties
     def validate_login(self, password):
         print 'validate_login'
@@ -154,10 +154,11 @@ class User(DeclarativeBase):
         return perms
 
     def __repr__(self):
-        return '<User: id=%r, name=%r, email=%r, key=%r>' % (self.id, self.name, self.email,self.key)
+        return '<User: id=%r, name=%r, email=%r, key=%r>' % (self.id, self.name, self.email, self.key)
 
     def __unicode__(self):
         return self.name
+
 
 class Permission(DeclarativeBase):
     """
