@@ -2,7 +2,7 @@ import hashlib
 import os
 import wordlist
 from pkg_resources import resource_filename
-from yapsy.IPlugin import IPlugin
+#from yapsy.IPlugin import IPlugin
 
 
 import string
@@ -11,7 +11,9 @@ import tempfile
 random_name = lambda x: ''.join(random.choice(string.ascii_lowercase + string.digits) for i in xrange(x))
 
 
-class OperationPlugin(IPlugin):
+class OperationPlugin(object):
+
+    bs_plugin = 'bs-operation'
 
     def __init__(self):
 

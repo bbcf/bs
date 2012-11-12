@@ -2,11 +2,11 @@ def get_plugins_path(service=None, ordered=False):
     """
     Get the paths of the plugins
     """
-    plugs = plugin_manager.getAllPlugins()
+    plugs = plugin_manager.plugins()
     if ordered in [True, 'T', 1, '1', 'true', 'True', 'ok', 't']:
-        paths =_mix_plugin_paths(plugs, service)
+        paths = _mix_plugin_paths(plugs, service)
         paths = paths._serialize()
-    else :
+    else:
         paths = []
         for plug in plugs:
             o = plug.plugin_object
@@ -18,18 +18,15 @@ def get_plugins_path(service=None, ordered=False):
     return paths
 
 
-
 def get_plugin_byId(_id):
     '''
     Get a plugin by it's id
     '''
-    plugs = plugin_manager.getAllPlugins()
-    for p in plugs :
-        if p.plugin_object.unique_id() == _id : return p
+    plugs = plugin_manager.plugins()
+    for p in plugs:
+        if p.plugin_object.unique_id() == _id:
+            return p
     raise Exception('Plugin with id %s not found' % _id)
-
-
-
 
 
 

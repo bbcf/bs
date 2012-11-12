@@ -2,6 +2,7 @@ from bs.lib import constants
 import wordlist, os, urllib2, tempfile, shutil, tg
 from bs.operations.base import OperationPlugin
 from bs.model import DBSession, Plugin
+from bs.lib.plugin_manager import PluginManager
 
 _loaded = False
 
@@ -18,23 +19,27 @@ def load_plugins():
     # initialize plugin manager with yapsy
     plug_dir = constants.plugin_directory()
 
-    print ' --- init plugins located in %s ---' % plug_dir
-    from yapsy.PluginManager import PluginManager
-    manager = PluginManager()
-    manager.setPluginPlaces([plug_dir])
-    manager.setCategoriesFilter({
-        "Operations": OperationPlugin,
-        })
+    manager = PluginManager(restrict='bs-operation')
+    manager.add_plugin_path(plug_dir)
 
-    manager.collectPlugins()
+    print ' --- init plugins located in %s ---' % plug_dir
+    # from yapsy.PluginManager import PluginManager
+    # manager = PluginManager()
+    # manager.setPluginPlaces([plug_dir])
+    # manager.setCategoriesFilter({
+    #     "Operations": OperationPlugin,
+    #     })
+
+    # manager.collectPlugins()
     # check plugins and add in db if not already
     plugids = []
-    for plug in manager.getAllPlugins():
-        p = plug.plugin_object
-        _check_plugin_info(p)
+    for name, clazz in manager.plugins().iteritems():
+        plug = clazz()
+        #p = plug.plugin_object
+        _check_plugin_info(plug)
         if tg.config['pylons.app_globals']:
-            _check_in_database(p)
-        plugids.append(p.unique_id())
+            _check_in_database(plug)
+        plugids.append(plug.unique_id())
 
     # check deprecated plugins
     if tg.config['pylons.app_globals']:

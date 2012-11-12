@@ -45,7 +45,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
 
     # moving files to the output directory
     for output_file, output_type in plugin.output_files:
-        out_path = os.path.join(out, output_file)
+        out_path = os.path.join(out, os.path.split(output_file)[1])
         io.mv(output_file, out)
         results.append({'is_file': True, 'path': out_path, 'type': output_type})
 

@@ -25,7 +25,6 @@ def fetch(user, plugin, form_parameters):
 
     for fid in file_ids:
         form_value = form_parameters.get(fid, None)
-
         if not isinstance(form_value, basestring):  # its a file field
             if isinstance(form_value, (list, tuple)):
                 input_files = [download_file_field(v, os.path.join(temporary_directory(root_directory), v.filename)) for v in form_value]
