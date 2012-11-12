@@ -55,6 +55,8 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         shutil.rmtree(todel)
 
     # updating bioscript with the results
+    print 'bioscript callback'
+    print bioscript_callback
     URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results))
 
     # callback

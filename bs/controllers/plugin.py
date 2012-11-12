@@ -100,8 +100,7 @@ class PluginController(base.BaseController):
 
         # callback
         callback = kw.get('callback', 'callback')
-
-         # get the plugin from the database
+        # get the plugin from the database
         plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == obj.unique_id()).first()
         plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
 
@@ -129,7 +128,8 @@ class PluginController(base.BaseController):
             plugin_request.status = 'FAILED'
             plugin_request.error = str(e)
             DBSession.add(plugin_request)
-            import sys, traceback
+            import sys
+            import traceback
             etype, value, tb = sys.exc_info()
             traceback.print_exception(etype, value, tb)
             return jsonp_response(**{'validation': 'success', 'desc': info.get('description'),
@@ -147,7 +147,7 @@ class PluginController(base.BaseController):
         if user_parameters:
             user_parameters = json.loads(user_parameters)
 
-        bioscript_callback = tg.url('./callback_results')
+        bioscript_callback = tg.config.get('main.proxy') + '/' + tg.url('plugins/callback_results')
 
         plugin_info = {'title': info['title'],
                         'plugin_id': plugin_db.id,
@@ -168,10 +168,14 @@ class PluginController(base.BaseController):
 
     @expose('json')
     def callback_results(self, task_id, results):
+        print "CALLBACK RESULTS"
+        results = json.loads(results)
         for result in results:
             task = DBSession.query(Task).filter(Task.task_id == task_id).first()
             res = Result()
+            print task.job
             res.job_id = task.job.id
+            print result
             if result.get('is_file', False):
                 res.is_file = True
                 res.path = result.get('path')
@@ -179,7 +183,7 @@ class PluginController(base.BaseController):
             else:
                 res.result = result.get('value')
             DBSession.add(res)
-        return {'status': 'SUCCESS', 'retval': 1}
+        return {'status': 'success', 'retval': 1}
 
 
 def prefill_fields(form_parameters, form, **kw):
@@ -280,6 +284,7 @@ def _log_form_request(plugin_id, user, parameters):
     pl.user = user
     pl.parameters = get_formparameters(parameters)
     DBSession.add(pl)
+    DBSession.flush()
     return pl
 
 

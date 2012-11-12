@@ -46,9 +46,6 @@ def load_plugins():
     return manager
 
 
-
-
-
 def _update(url):
     """
     Update plugins from a repository

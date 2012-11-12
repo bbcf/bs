@@ -5,7 +5,7 @@ Database model. Put here the rest of the database.
 
 from sqlalchemy import ForeignKey, Column, Sequence
 from sqlalchemy.types import Integer, DateTime, VARCHAR, TypeDecorator, PickleType, Text, Boolean
-from sqlalchemy.orm import relationship, synonym
+from sqlalchemy.orm import relationship, backref
 from bs.model import DeclarativeBase
 import json
 from datetime import datetime
@@ -92,7 +92,7 @@ class Job(DeclarativeBase):
     request_id = Column(Integer, ForeignKey("%splugin_request.id" % prefix, ondelete="CASCADE"), nullable=False)
     request = relationship("PluginRequest", backref="job", uselist=False)
     task_id = Column(Integer, ForeignKey('celery_taskmeta.task_id', ondelete="CASCADE"), nullable=False)
-    task = relationship("Task", backref="job", uselist=False)
+    task = relationship("Task", backref=backref("job", uselist=False))
 
 
 class Result(DeclarativeBase):
