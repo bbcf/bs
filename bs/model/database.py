@@ -94,6 +94,12 @@ class Job(DeclarativeBase):
     task_id = Column(Integer, ForeignKey('celery_taskmeta.task_id', ondelete="CASCADE"), nullable=False)
     task = relationship("Task", backref=backref("job", uselist=False))
 
+    @property
+    def status(self):
+        if not self.task:
+            return 'PENDING'
+        return self.task.status
+
 
 class Result(DeclarativeBase):
     __tablename__ = "%sresult" % prefix
@@ -104,6 +110,8 @@ class Result(DeclarativeBase):
     _type = Column(Text)
     is_file = Column(Boolean)
     path = Column(Text)
+    fname = Column(Text)
+
 
 
 # class Request(DeclarativeBase):

@@ -17,12 +17,14 @@
         % elif error:
             <p> ${error} </p>
         % else:
-            <p> Job ${job_id}.</p>
-            <p><ul>
+            <p> Job <b>${task_id}</b> ${status}.</p>
             % for result in results:
-                <li>${result}</li>
+                % if result['is_file']:
+                    <p>File : <a href=${result['path']}>${result['fname']}</a></p>
+                % else:
+                    <p>Operation return : ${result['result']}</p>
+                % endif
             % endfor
-            </ul></p>
         % endif
     </div>
 

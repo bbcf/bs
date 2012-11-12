@@ -2,6 +2,7 @@
 import json
 import tw2
 import tg
+import os
 from formencode import Invalid
 from tg import expose
 
@@ -168,18 +169,16 @@ class PluginController(base.BaseController):
 
     @expose('json')
     def callback_results(self, task_id, results):
-        print "CALLBACK RESULTS"
         results = json.loads(results)
         for result in results:
             task = DBSession.query(Task).filter(Task.task_id == task_id).first()
             res = Result()
-            print task.job
             res.job_id = task.job.id
-            print result
             if result.get('is_file', False):
                 res.is_file = True
                 res.path = result.get('path')
                 res._type = result.get('type')
+                res.fname = os.path.split(res.path)[1]
             else:
                 res.result = result.get('value')
             DBSession.add(res)

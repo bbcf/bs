@@ -12,11 +12,13 @@
 
     ${d.banner()}
     <div id="content">
+        <p>
         % if error:
-           <p>${error}</p>
+           ${error}
         % elif result:
-            <p>${result}</p>
+            ${result}
         % endif
+        </p>
     </div>
 
     ${d.footer()}
