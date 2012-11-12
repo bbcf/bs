@@ -8,8 +8,8 @@ def get_plugins_path(service=None, ordered=False):
         paths = paths._serialize()
     else:
         paths = []
-        for plug in plugs:
-            o = plug.plugin_object
+        for pname, pclazz in plugs.iteritems():
+            o = pclazz()
             node = Node(None)
             node.id = o.unique_id()
             node.info = o.info
@@ -23,9 +23,10 @@ def get_plugin_byId(_id):
     Get a plugin by it's id
     '''
     plugs = plugin_manager.plugins()
-    for p in plugs:
-        if p.plugin_object.unique_id() == _id:
-            return p
+    for pname, pclazz in plugs.iteritems():
+        plug = pclazz()
+        if plug.unique_id() == _id:
+            return plug
     raise Exception('Plugin with id %s not found' % _id)
 
 
@@ -42,8 +43,6 @@ from bs.operations import plugin_manager
 
 
 
-
-
 def _mix_plugin_paths(plugins, service=None):
     '''
     Mix all plugin paths to make one in order to draw hierarchy buttons on an interface.
@@ -51,14 +50,15 @@ def _mix_plugin_paths(plugins, service=None):
     '''
     nodes = []
     uids = []
-    for plug in plugins:
-        o = plug.plugin_object
+    for pname, pclazz in plugins.iteritems():
+        o = pclazz()
         uid = o.unique_id()
-        if uid in uids: raise Exception('Path %s already exists' % o.info.get('path'))
+        if uid in uids:
+            raise Exception('Path %s already exists' % o.info.get('path'))
         uids.append(uid)
 
-    for plug in plugins:
-        o = plug.plugin_object
+    for pname, pclazz in plugins.iteritems():
+        o = pclazz()
         if service is not None:
             from bs.lib.services import service_manager
             param = service_manager.get(service.name, 'operations', default=[])
@@ -66,7 +66,7 @@ def _mix_plugin_paths(plugins, service=None):
                 nodes.append(o)
             elif o.unique_id() in param:
                 nodes.append(o)
-        else :
+        else:
             nodes.append(o)
 
     return _pathify(nodes)

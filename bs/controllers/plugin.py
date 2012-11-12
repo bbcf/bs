@@ -50,7 +50,7 @@ class PluginController(base.BaseController):
             tg.abort(400, "Bad plugin identifier")
 
         # get the plugin
-        obj = plug.plugin_object
+        obj = plug
         info = obj.info
         form = info.get('output')
         desc = info.get('description')

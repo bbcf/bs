@@ -77,12 +77,6 @@ class PluginManager(object):
         :param path: the directory to walk in.
         """
         debug('Walk in %s (%s)' % (path, root))
-        #self._load_module(root, path)
-        deeper = self._deeper(os.path.join(path, '__init__.py'))
-
-        if not deeper:
-            self._load_module(root, path)
-            return
 
         for loader, name, ispkg in pkgutil.iter_modules([path]):
             debug('Examine module %s %s %s' % (loader, name, ispkg), 1)
@@ -91,19 +85,18 @@ class PluginManager(object):
             if ispkg:
                 self._walk_plugins_paths(mod_root, mod_path)
             else:
-                if self._deeper(mod_path):
-                    # load classes
-                    fp, pathname, description = imp.find_module(name, [path])
-                    try:
-                        mod = imp.load_module(name, fp, pathname, description)
-                        clsmembers = inspect.getmembers(mod, inspect.isclass)
-                        for name, clz in clsmembers:
-                            if clz.__module__ == mod.__name__:
-                                self._load_plugin(name, clz)
-                    except:
-                        raise
-                    finally:
-                        fp.close()
+                # load classes
+                fp, pathname, description = imp.find_module(name, [path])
+                try:
+                    mod = imp.load_module(name, fp, pathname, description)
+                    clsmembers = inspect.getmembers(mod, inspect.isclass)
+                    for name, clz in clsmembers:
+                        if clz.__module__ == mod.__name__:
+                            self._load_plugin(name, clz)
+                except:
+                    raise
+                finally:
+                    fp.close()
 
     def _load_plugin(self, name, clazz):
         debug('Loading %s (%s)' % (name, clazz), 2)
@@ -160,25 +153,6 @@ class PluginManager(object):
                 if element.__name__ in sys.modules:
                     del(sys.modules[element.__name__])
         self.__init_params()
-
-    def _deeper(self, path):
-        """
-        Look if pypl should go deeper in directories and fetch every files.
-        At any moment you can put the attribute "pypl__deeper" to false if
-        you want to pypl stop at that file.
-        For a package, put it in the "__init__" file and just the package will be loaded,
-        not any file that are in it.
-        For a module, put it somewhere in the file and just the module will be loaded.
-        :param path: the file to look at.
-        :return True or False
-        """
-        deeper = True
-        s = imp.load_source("plugin__tmp_source", path)
-        if hasattr(s, 'bs_deeper'):
-            deeper = getattr(s, 'bs_deeper')
-        del sys.modules["plugin__tmp_source"]
-        debug('deeper in %s ? %s' % (path, deeper), 1)
-        return deeper
 
     def plugins(self):
         if not self._loaded:
