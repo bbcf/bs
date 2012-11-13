@@ -3,6 +3,7 @@ import imp
 import sys
 import inspect
 import pkgutil
+import traceback
 
 RESERVED_FNAMES = ['__init__']
 PLUGIN_EXTENSIONS = ['.py']
@@ -93,8 +94,10 @@ class PluginManager(object):
                     for name, clz in clsmembers:
                         if clz.__module__ == mod.__name__:
                             self._load_plugin(name, clz)
-                except:
-                    raise
+                except Exception as e:
+                    print '[plugin manager] module %s not loaded cause : %s' % (name, str(e))
+                    #exc_type, exc_value, exc_traceback = sys.exc_info()
+                    #print repr(traceback.format_tb(exc_traceback))
                 finally:
                     fp.close()
 
@@ -104,7 +107,6 @@ class PluginManager(object):
             plugid = name
             if hasattr(clazz, 'bs_identifier'):
                 plugid = getattr(clazz, 'bs_identifier')
-
             # change plugin id if there is already one
             if plugid in self._loaded_plugins:
                 debug('plugin id %s already exist' % plugid, 2)
