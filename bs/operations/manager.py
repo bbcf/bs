@@ -56,7 +56,7 @@ def _update(url):
     Update plugins from a repository
     :param url: the url of the repository
     """
-
+    dont_touch = ['', 'README', '.gitignore']
     print ' --- updating plugins from %s ---' % url
     from zipfile import ZipFile as zip
 
@@ -70,21 +70,28 @@ def _update(url):
     z = zip(tmp_file.name)
     for info in z.infolist():
         f = info.filename
-        dirname, fname = os.path.split(f)
-        if dirname.endswith('plugins') and not fname == '':
+        p = os.path.sep.join(f.split(os.path.sep)[1:])
+        directory, filename = os.path.split(p)
+        if filename not in dont_touch:
             data = z.read(f)
-            ext_name = os.path.split(f)[1]
-            out_path = os.path.join(tmp_dir, ext_name)
-            with open(out_path, 'wb') as out:
-                out.write(data)
+            out_path = os.path.join(tmp_dir, filename)
+            if os.path.isdir(f):
+                print '\t[mkdir] %s to %s' % (f, out_path)
+                os.mkdir(out_path)
+            else:
+                print '\t[cp] %s to %s' % (f, out_path)
+                with open(out_path, 'wb') as out:
+                    out.write(data)
+
     #removing files from plugins directory
     plug_dir = constants.plugin_directory()
     for f in os.listdir(plug_dir):
-        if f != 'README' and f != '.gitignore':
+        if f not in dont_touch:
             os.remove(os.path.join(plug_dir, f))
 
     #move new files to plugin directory
     for plug in os.listdir(tmp_dir):
+        print '\t[mv] %s to %s' % (os.path.join(tmp_dir, plug), plug_dir)
         shutil.move(os.path.join(tmp_dir, plug), plug_dir)
 
     #removing tmp files
