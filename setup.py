@@ -1,3 +1,11 @@
+#This is just a work-around for a Python2.7 issue causing
+#interpreter crash at exit when trying to log an info message.
+try:
+    import logging
+    import multiprocessing
+except:
+    pass
+
 import sys
 
 try:
@@ -11,36 +19,21 @@ testpkgs=['WebTest >= 1.2.3',
                'nose',
                'coverage',
                'wsgiref',
-               'repoze.who-testutil >= 1.0.1',
-               ]
+          ]
 install_requires=[
-    "zope.interface",
-    "TurboGears2 >= 2.1.5",
-    "Genshi",
+    "TurboGears2 >= 2.2.0",
     "zope.sqlalchemy >= 0.4",
-    "repoze.tm2 >= 1.0a5",
     "sqlalchemy",
     "sqlalchemy-migrate",
-    "repoze.what-quickstart",
-    "repoze.what >= 1.0.8",
-    "repoze.what-quickstart",
     "repoze.who-friendlyform >= 1.0.4",
-    "repoze.what-pylons >= 1.0",
-    "repoze.what.plugins.sql",
-    "repoze.who==1.0.19",
-    "tgext.admin >= 0.3.9",
+    "repoze.who",
+    "tgext.admin >= 0.5.1",
     "tw2.forms",
-    "tg.devtools",
     "tw2.dynforms",
+    "tw2.dynforms",
+    "repoze.who.plugins.sa",
     "celery",
-
     ]
-
-if sys.version_info[:2] == (2,4):
-    testpkgs.extend(['hashlib', 'pysqlite'])
-    install_requires.extend(['hashlib', 'pysqlite'])
-
-print install_requires
 
 setup(
     name='bs',
@@ -66,7 +59,7 @@ setup(
 
     message_extractors={'bs': [
             ('**.py', 'python', None),
-            ('templates/**.html', 'genshi', None),
+            ('templates/**.mako', 'mako', None),
             ('public/**', 'ignore', None)]},
 
     entry_points="""
@@ -78,7 +71,7 @@ setup(
     """,
 
     dependency_links=[
-        "http://tg.gy/215/"
+        "http://tg.gy/220/"
         ],
     zip_safe=False
 )
