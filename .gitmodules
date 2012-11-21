@@ -1,0 +1,3 @@
+[submodule "bs/public/javascript/jslib/dojo"]
+	path = bs/public/javascript/jslib/dojo
+	url = git://github.com/dojo/dojo.git
