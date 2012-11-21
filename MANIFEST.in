@@ -1,0 +1,4 @@
+recursive-include bs/public *
+include bs/public/favicon.ico
+recursive-include bs/i18n *
+recursive-include bs/templates *
