@@ -11,7 +11,7 @@ The addition of new scripts does not require a high computationnals skills and i
 by the plugin system in the application. It is designed to be simple and fast.
 
 
-Moreover, BioScript is built to be easily pluggable to any third party application, through a cross-domain Ajax API.
+Moreover, BioScript is built to be easily pluggable to any third party application, through a cross-domain Ajax API
 which mean that in practice, BioScript can be used and accessed from any web application.
 
 
