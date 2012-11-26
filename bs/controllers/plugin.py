@@ -121,7 +121,6 @@ class PluginController(base.BaseController):
             plugin_request.status = 'FAILED'
             plugin_request.error = str(e)
             DBSession.add(plugin_request)
-
             return jsonp_response(**{'validation': 'failed', 'desc': info.get('description'),
                     'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
         try:
@@ -165,7 +164,7 @@ class PluginController(base.BaseController):
 
         task_id = async_res.task_id
         _log_job_request(plugin_request.id, task_id)
-
+        print 'respond'
         return jsonp_response(**{'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback})
 
     @expose('json')

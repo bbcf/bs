@@ -40,7 +40,7 @@ Webserver onfiguration can be found in 'development.ini' file.
 
 Worker configuration is under 'celeryconfig.py' file.
 
-By default, bs use SQlite as pricipal backend & message broker. if you want to use other:
+By default, bs use SQlite as backend & message broker. if you want to use other:
 
     - webserver & worker backends can be changed to any backend supported by SQLalchemy.
     - Message broker : can be upgraded with any message broker supported by Celery.

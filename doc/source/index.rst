@@ -17,6 +17,7 @@ Table of contents
 
     Installation <installation>
     Plugin development <plugins>
+    Embedding bs <embedded>
 
 
 Indices and tables
