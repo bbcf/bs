@@ -7,6 +7,7 @@
 #*#
 *.log.*
 /production.ini
+/setup.ini
 /pygdv/public/data/*
 /*ctl
 *.class
