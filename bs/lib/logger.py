@@ -20,7 +20,7 @@ def log_connection(fn):
         conn.content_length = request.content_length
         conn.content_type = request.content_type
         conn.query_string = request.query_string
-        conn.body = request.body
+        conn.body = ','.join(['%s:%s' % (k, v) for k, v in request.params.iteritems()])
         model.DBSession.add(conn)
         return fn(self, *args, **kw)
     return wrapped

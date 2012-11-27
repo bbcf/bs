@@ -32,6 +32,12 @@ Then start the worker(s)::
     celeryd --loglevel=DEBUG
 
 
+''''''''
+Database
+''''''''
+By default, bs works on a SQLite database which is good for development,
+you must use another backend to use it i production.
+
 '''''''''''''
 Customization
 '''''''''''''
