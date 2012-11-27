@@ -54,6 +54,9 @@ ul#banner li a {
   text-decoration: none;
   color: #e6f1f5; }
 
+ul#banner li:first-child a {
+  color: black; }
+
 ul#banner li a:hover {
   color: #4b4e50; }
 
