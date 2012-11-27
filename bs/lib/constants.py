@@ -1,7 +1,7 @@
 from pkg_resources import resource_filename
 import os
 import tg
-
+from bs import PROJECT_ROOT
 
 SERVICE_SHARED_KEY = 'shared_key'
 SERVICE_HTTP_REFERER = 'http.referer'
@@ -13,16 +13,29 @@ SERVICE_CALLBACK_URL_PARAMETER = 'callback.url'
 date_format = "%d. %b %Y %Hh%M"
 
 
+paths = {
+    'plugins': os.path.join(PROJECT_ROOT, 'operations', 'plugins'),
+    'services': os.path.normpath(os.path.join(PROJECT_ROOT, os.path.pardir, 'services.ini')),
+
+}
+
+files = {
+    'services': {
+        'ini': os.path.normpath(os.path.join(PROJECT_ROOT, os.path.pardir, 'services.ini')),
+        'cfg': os.path.normpath(os.path.join(PROJECT_ROOT, os.path.pardir, 'services.cfg')),
+    }
+}
+
 def plugin_directory():
-    return os.path.join(resource_filename('bs', 'operations'), 'plugins')
+    return paths['plugins']
 
 
 def services_directory():
-    return os.path.normpath(os.path.join(resource_filename('bs', os.path.pardir), 'services.ini'))
+    return files['services']['ini']
 
 
 def services_config_file():
-    return os.path.normpath(os.path.join(resource_filename('bs', os.path.pardir), 'services.cfg'))
+    return files['services']['cfg']
 
 
 def service_name(service):

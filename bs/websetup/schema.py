@@ -20,8 +20,10 @@ def setup_schema(command, conf, vars):
     # <websetup.websetup.schema.after.metadata.create_all>
     transaction.commit()
     from migrate.versioning.shell import main
-    from migrate.exceptions import DatabaseAlreadyControlledError
+    from migrate import exceptions
     try:
         main(argv=['version_control'], url=config['sqlalchemy.url'], repository='migration', name='migration')
-    except DatabaseAlreadyControlledError:
-        print '[bs-error] Database already under version control'
+    except exceptions.DatabaseAlreadyControlledError:
+        print '[bs-ignore-error] Database already under version control'
+    except exceptions.InvalidRepositoryError:
+        print '[bs-ignore-error] Invalid repository'
