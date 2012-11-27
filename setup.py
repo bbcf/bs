@@ -38,6 +38,7 @@ install_requires=[
     "sqlalchemy",
     "sqlalchemy-migrate",
     "tw2.forms",
+    "tw2.dynforms",
     "celery",
     ]
 
