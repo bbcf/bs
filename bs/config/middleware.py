@@ -3,7 +3,8 @@
 
 from bs.config.app_cfg import base_config
 from bs.config.environment import load_environment
-
+import tw2.core
+import os
 
 __all__ = ['make_app']
 
@@ -32,7 +33,12 @@ def make_app(global_conf, full_stack=True, **app_conf):
     
    
     """
-    app = make_base_app(global_conf, full_stack=True, **app_conf)
+    if 'prefix' in app_conf:
+        custom = lambda app: tw2.core.make_middleware(app, res_prefix=app_conf['prefix'] + '/tw2/resources/' , default_engine='mako')
+    else:
+        custom = lambda app: tw2.core.make_middleware(app, default_engine='mako')
+    app = make_base_app(global_conf, wrap_app=custom, full_stack=True, **app_conf)
+    #app = make_base_app(global_conf, full_stack=True, **app_conf)
     
     # Wrap your base TurboGears 2 application with custom middleware here
     
