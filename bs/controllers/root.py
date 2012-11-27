@@ -7,7 +7,8 @@ from bs.model import DBSession, metadata
 
 from bs.lib.base import BaseController
 from bs.controllers.error import ErrorController
-from bs.controllers import DirectController, PluginController, JobController
+from bs.controllers import DirectController, PluginController, JobController, DevController
+
 __all__ = ['RootController']
 
 
@@ -26,6 +27,7 @@ class RootController(BaseController):
 
     """
     direct = DirectController()
+    devs = DevController()
     jobs = JobController()
     plugins = PluginController()
     error = ErrorController()

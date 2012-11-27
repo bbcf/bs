@@ -3,17 +3,17 @@
     var bs_namespace = 'bioscript';
     /* default settings */
     var settings = {
-        operation_list : {},
-        root_name : 'BioScript operations',
-        bs_server_url : 'http://localhost:8080/',
-        form_selector : 'div.bs_form',
-        show_plugin : function(plugin_id){
-            alert('Click on plugin ' + plugin_id + ' .');
-        },
-        validation_successful : function(plugin_id, task_id){
-            alert('Validation passed on plugin ' + plugin_id + '. Task launched with id ' + task_id + '.');
-        }
+        operation_list: {},
+        root_name: 'BioScript operations',
+        bs_server_url: 'http://localhost:8080/',
+        form_selector: 'div.bs_form',
+        validation_url: 'htpp://localhost:8080/validation',
+        get_url: 'htpp://localhost:8080/get',
+        bs_form_container_selector: '#bs_form_container',
+        show_plugin: false,
+        validation_successful: false
     };
+
     /* inside call */
     var _incall = function(that, method, args){
         if (!(args instanceof Array)){
@@ -37,7 +37,10 @@
                         plugin : settings.show_plugin,
                         bsurl : settings.bs_server_url,
                         fselector : settings.form_selector,
-                        vsuccess : settings.validation_successful
+                        vsuccess : settings.validation_successful,
+                        vurl: settings.validation_url,
+                        geturl: settings.get_url,
+                        bsform: settings.bs_form_container_selector
                     });
                     data = $this.data(bs_namespace);
                 }
@@ -86,9 +89,14 @@
         },
 
         _bind_child : function(el){
-            var data = $(this).data(bs_namespace);
+            var $this = $(this);
+            var data = $this.data(bs_namespace);
             $(el).click(function(){
-                data.plugin(el.id);
+                if (data.plugin){
+                    data.plugin(el.id);
+                } else {
+                    _incall($this, 'show_plugin', el.id);
+                }
             });
         },
 
@@ -163,7 +171,12 @@
                         alert(jsonp.error);
                     } else {
                         var data = $(this).data(bs_namespace);
-                        data.vsuccess(jsonp.form_id, jsonp.task_id);
+                        if (data.vsuccess){
+                            data.vsuccess(jsonp.plugin_id, jsonp.task_id);
+                        } else {
+                            _incall($this, 'validation_success', [jsonp.plugin_id, jsonp.task_id]);
+                        }
+                        
                     }
 
                 } else {
@@ -173,8 +186,51 @@
             } else {
                 console.error("Callback with no data.");
             }
-        }
+        },
 
+        show_plugin: function(plugin_id){
+            var $this = $(this);
+            var data = $this.data(bs_namespace);
+            $.ajax({
+                'url' : data.geturl + '?id=' + plugin_id,
+                'dataType': 'html',
+                'success': function(data){
+                    _incall($this, 'toggle_bs_form',[plugin_id, data]);
+                    _incall($this, 'hack_submit');
+                   //$('body').bioscript(form_options).bioscript('hack_submit');
+                }
+            });
+         },
+
+         validation_success: function(plugin_id, task_id){
+            var $this = $(this);
+            var data = $this.data(bs_namespace);
+            $.ajax({
+                'url': data.vurl + '?task_id=' + task_id + '&plugin_id=' + plugin_id,
+                'success': function(data){
+                    console.log(data);
+                    _incall($this, 'toggle_bs_form', [plugin_id]);
+                }
+            });
+         },
+
+         toggle_bs_form: function(plugin_id, form_data){
+            var data = $(this).data(bs_namespace);
+            var $cont = $(data.bsform);
+            var showed = $cont.attr('showed');
+            if (showed == plugin_id){
+                $cont.html('');
+                $cont.hide('normal');
+                $cont.attr('showed', '');
+            } else if (showed){
+                $cont.html(form_data);
+                $cont.attr('showed', plugin_id);
+            } else {
+                $cont.html(form_data);
+                $cont.attr('showed', plugin_id);
+                $cont.show('slow');
+            }
+        }
     };
 
     $.fn[bs_namespace] = function(method){

@@ -3,3 +3,4 @@
 from bs.controllers.direct import DirectController
 from bs.controllers.job import JobController
 from bs.controllers.plugin import PluginController
+from bs.controllers.dev import DevController

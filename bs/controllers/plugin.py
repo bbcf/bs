@@ -164,7 +164,6 @@ class PluginController(base.BaseController):
 
         task_id = async_res.task_id
         _log_job_request(plugin_request.id, task_id)
-        print 'respond'
         return jsonp_response(**{'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback})
 
     @expose('json')
