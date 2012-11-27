@@ -87,6 +87,7 @@ def _update(url):
     plug_dir = constants.plugin_directory()
     for f in os.listdir(plug_dir):
         if f not in dont_touch:
+            print '\t[rm] %s' % os.path.join(plug_dir, f)
             os.remove(os.path.join(plug_dir, f))
 
     #move new files to plugin directory

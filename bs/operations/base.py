@@ -118,11 +118,5 @@ class BaseForm(tw2.forms.TableForm):
     up = tw2.forms.HiddenField()
 
 
-class DynForm(tw2.dynforms.HidingTableLayout):
-    pp = tw2.forms.HiddenField()
-    key = tw2.forms.HiddenField()
-    up = tw2.forms.HiddenField()
-
-
 class MultipleFileUpload(tw2.dynforms.GrowingGridLayout):
     file = tw2.forms.FileField()
