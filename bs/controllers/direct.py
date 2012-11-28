@@ -19,7 +19,7 @@ class DirectController(base.BaseController):
         Display a list of all plugins in BioScript
         """
         # get BioScript Server url (usually from config file)
-        bs_server_url = tg.config.get('main.proxy')
+        bs_server_url = tg.config.get('main.proxy') + '/'
         # build request to send to BioScript server
         bs_url = bs_server_url + 'plugins?ordered=true'
         # get the operation list back
