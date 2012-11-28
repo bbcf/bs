@@ -39,12 +39,14 @@ class ServiceManager(object):
         # store services on the database
         for service in self.services:
             contact = self.get(service, 'contact')
+            remote = self.get(service, 'remote')
             serv = model.DBSession.query(model.User).filter(model.User.email == contact).first()
             if serv is None:
                 serv = model.User()
                 serv.name = service
                 serv.email = contact
                 serv.is_service = True
+                serv.remote = remote
                 model.DBSession.add(serv)
         model.DBSession.flush()
         transaction.commit()
