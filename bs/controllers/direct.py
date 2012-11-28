@@ -38,7 +38,7 @@ class DirectController(base.BaseController):
         by it's id
         """
         # get BioScript server url
-        bs_server_url = tg.config.get('main.proxy') + url('/')
+        bs_server_url = tg.config.get('main.proxy') + '/'
         # construct request to send to bioscript server
         bs_url = bs_server_url + 'plugins/get?id=' + id
         # get the form back
