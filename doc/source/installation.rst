@@ -36,7 +36,7 @@ Then start the worker(s)::
 Database
 ''''''''
 By default, bs works on a SQLite database which is good for development,
-you must use another backend to use it i production.
+you must use another backend to use it in production, and install the requirements (easy_insall psycopg2 with postgresql for instance)
 
 '''''''''''''
 Customization
