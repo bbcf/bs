@@ -161,7 +161,6 @@ class PluginController(base.BaseController):
 
         async_res = tasks.plugin_job.delay(user.name, inputs_directory, outputs_directory, plugin_info,
             user_parameters, service_callback, bioscript_callback, **kw)
-
         task_id = async_res.task_id
         _log_job_request(plugin_request.id, task_id)
         return jsonp_response(**{'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback})
