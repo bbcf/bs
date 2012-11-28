@@ -92,8 +92,8 @@ class Job(DeclarativeBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     request_id = Column(Integer, ForeignKey("%splugin_request.id" % prefix, ondelete="CASCADE"), nullable=False)
     request = relationship("PluginRequest", backref="job", uselist=False)
-    task_id = Column(VARCHAR(255), ForeignKey('celery_taskmeta.task_id', ondelete="CASCADE"), nullable=False)
-    task = relationship("Task", backref=backref("job", uselist=False))
+    task_id = Column(VARCHAR(255), nullable=False)
+    task = relationship('Task', uselist=False, backref='job', primaryjoin='Input.task_id == Task.task_id', foreign_keys='Task.task_id')
 
     @property
     def status(self):
