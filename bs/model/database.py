@@ -93,7 +93,7 @@ class Job(DeclarativeBase):
     request_id = Column(Integer, ForeignKey("%splugin_request.id" % prefix, ondelete="CASCADE"), nullable=False)
     request = relationship("PluginRequest", backref="job", uselist=False)
     task_id = Column(VARCHAR(255), nullable=False)
-    task = relationship('Task', uselist=False, backref='job', primaryjoin='Input.task_id == Task.task_id', foreign_keys='Task.task_id')
+    task = relationship('Task', uselist=False, backref='job', primaryjoin='Job.task_id == Task.task_id', foreign_keys='Task.task_id')
 
     @property
     def status(self):
