@@ -25,11 +25,11 @@ You have an example of these 3 methods with the DevController in bs.controllers.
 '''''''''''''''''''''''
 Javascript an CSS files
 '''''''''''''''''''''''
-    note :: In order to be functionnal, bs javascript need JQuery.
+ 
 
 bs.js & bs.css (under the bs.public directory) also need to be served by your application, as in the dev controller.
 By default you just need to give some parameters to be fully functionnal:
-For instance, you can add this at the end of your HTML file where you want to deploy bs operations.
+For instance, you can add this at the end of your HTML file where you want to deploy bs operations::
 
     <script>
         window.onload = function(){
@@ -45,46 +45,47 @@ For instance, you can add this at the end of your HTML file where you want to de
         };
     </script>
 
-Explanation :
+Explanation
+-----------
+Tell bs to show the operations list under the HTML DOM element with the id 'bs_operations'. (JQuery selector)::
+     
      $('#bs_operations').bioscript(options).bioscript('operation_list');
 
-Tell bs to show the operations list under the HTML DOM element with the id 'bs_operations'. (JQuery selector)
-
+The options to give to bs::
+    
     var options = {
 
-The options to give to bs.
-
+The JSON you retrive by calling the list of plugins on bs webserver::
+    
     'operation_list': ${oplist|n},
 
-The JSON you retrive by calling the list of plugins on bs webserver.
-
+The "Index" route::
+    
     'get_url': ${gurl|se,n},
 
-The "Index" route.
+The "validation" route::
 
     'validation_url': ${validation_url|se,n},
-    
-The "validation" route.
-    
+        
+URl where bs webserver can be contacted::
+
     'bs_server_url': ${bs_serv_url|se,n},
-    
-URl where bs webserver can be contacted.
+
+Form will appears under this HTML DOM element::
 
     'bs_form_container_selector': '#bs_form_container',
 
-Form will appears under this HTML DOM element. 
-    
+The Display name::
+
     'root_name' : 'Operations'
 
-The Display name.
-
-
+.. note :: In order to be functionnal, bs javascript need JQuery (check the version `here <https://github.com/bbcf/bs/tree/master/bs/public/javascript/jslib>`_)
 
 ''''''''''
 Overriding
 ''''''''''
 If you don't want the 'default' functionnality, you can override some method to change the behaviour. You can have an example 
-in the direct controller (bs.controllers.direct).
+in the direct controller (bs.controllers.direct)::
 
     window.onload = function(){
         var options = {
@@ -101,7 +102,7 @@ When the user click on an operation, the form will not appears, but the user wil
 Use the method `show_plugin` to do that.
 
 
-On the second page, you will also need to override a function:
+On the second page, you will also need to override a function::
 
     window.onload = function(){
         var options = {
@@ -115,10 +116,10 @@ On the second page, you will also need to override a function:
     };
 
 The user will be redirected after a successful validation of the form.
+You need to tell bioscript to `hack` the default behaviour of the form to perform AJAX Cross browser requests::
      
      $('body').bioscript(options).bioscript('hack_submit');
 
-You need to tell bioscript to `hack` the default behaviour of the form to perform AJAX Cross browser requests.
 
 
 ''''''''''''''''''''
@@ -129,7 +130,7 @@ If you want to customize your access to bioscript (access to only a subset of op
 In the root directory, there is a file called `services.ini` which define how a service have access to `bs`.
 There is no restrictions by default, and a service have full access to `bs`.
 
-If you want to configure your access, define your service :
+If you want to configure your access, define your service::
 
     [GDV]
     contact = amail.contact@somewhere.ch   # a contact email (required)
@@ -144,7 +145,7 @@ If you want to configure your access, define your service :
     url.root = http://someserver.ch/something  # a url to reference a file
     result.root = //absolute/path/of/some/shared/directory  # where result files will be written
 
-For instance, if you want to give a file to `bs` that have this path : /srv/files/projects/Rap1/coverage.bed, you don't want to give the full path of that file via a POST request, so you have defined the parameters :
+For instance, if you want to give a file to `bs` that have this path : /srv/files/projects/Rap1/coverage.bed, you don't want to give the full path of that file via a POST request, so you have defined the parameters::
 
    file.root = /srv/files/projects
    url.root = http://myserver.ch/somedata
