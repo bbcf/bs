@@ -2,22 +2,129 @@
 BioScript Embedded
 ##################
 
-`bs` can without to much work be embedded in a third party application. We call it a service.
+`bs` can be embedded in a third party application that uses HTTP request. So any web application could use bs.
 
-As so, a service can provide it's own files to the `bs` system.
+The purpose of such a thing is that you doesn't loose the user with a different interface in your application, or you don't redirect him on another website. 
+Moreover you can, instead of letting the user choose some file on his filesystem, you can directly provide to bs the file that are in your service.
+One other great advantage of bs in terms of computing power management is to run scripts from different applications on a dedicated machine with adapted features (available number of CPUs and memory). 
+
+All you have to do is to design 3 HTTP controllers and insert 1 JS & 1 CSS file into your application.
 
 
-bs application itself is embedded. Direct access is provided by the `direct` controller. To
-do the same in your service, you must reproduce the methods that are in this controller.
+''''''''''''''''''''''
+Design the controller
+''''''''''''''''''''''
+bs new at least 3 HTTP routes to be functionnal:
+ * Index : Where the user will go and see the list of operations availables
+ * Get : Method that will fetch the operations 'form' from bs webserver
+ * Validation : Method get called once a form is submitted & validated by bs webserver. 
 
-Your service will need also to serve a javascript file : `bs.js` that is located under `javascript` under the `public` directory.
+You have an example of these 3 methods with the DevController in bs.controllers.dev.py.
 
-`bs` also need latest javascript from jquery.
+
+'''''''''''''''''''''''
+Javascript an CSS files
+'''''''''''''''''''''''
+    note :: In order to be functionnal, bs javascript need JQuery.
+
+bs.js & bs.css (under the bs.public directory) also need to be served by your application, as in the dev controller.
+By default you just need to give some parameters to be fully functionnal:
+For instance, you can add this at the end of your HTML file where you want to deploy bs operations.
+
+    <script>
+        window.onload = function(){
+            var options = {
+                'operation_list': ${oplist|n},
+                'get_url': ${gurl|se,n},
+                'validation_url': ${validation_url|se,n},
+                'bs_server_url': ${bs_serv_url|se,n},
+                'bs_form_container_selector': '#bs_form_container',
+                'root_name' : 'Operations'
+            }
+            $('#bs_operations').bioscript(options).bioscript('operation_list');
+        };
+    </script>
+
+Explanation :
+     $('#bs_operations').bioscript(options).bioscript('operation_list');
+
+Tell bs to show the operations list under the HTML DOM element with the id 'bs_operations'. (JQuery selector)
+
+    var options = {
+
+The options to give to bs.
+
+    'operation_list': ${oplist|n},
+
+The JSON you retrive by calling the list of plugins on bs webserver.
+
+    'get_url': ${gurl|se,n},
+
+The "Index" route.
+
+    'validation_url': ${validation_url|se,n},
+    
+The "validation" route.
+    
+    'bs_server_url': ${bs_serv_url|se,n},
+    
+URl where bs webserver can be contacted.
+
+    'bs_form_container_selector': '#bs_form_container',
+
+Form will appears under this HTML DOM element. 
+    
+    'root_name' : 'Operations'
+
+The Display name.
+
+
+
+''''''''''
+Overriding
+''''''''''
+If you don't want the 'default' functionnality, you can override some method to change the behaviour. You can have an example 
+in the direct controller (bs.controllers.direct).
+
+    window.onload = function(){
+        var options = {
+            operation_list : ${oplist|n},
+            show_plugin : function(plugin_id){
+                window.location = ${serv|se,n} + 'direct/' + ${method|se,n}+ '?id=' + plugin_id;
+            },
+            'root_name' : 'Operations'
+        }
+        $('#bs_operations').bioscript(options).bioscript('operation_list');
+    };
+
+When the user click on an operation, the form will not appears, but the user will be redirected (window.location).
+Use the method `show_plugin` to do that.
+
+
+On the second page, you will also need to override a function:
+
+    window.onload = function(){
+        var options = {
+            'bs_server_url' : ${bs_server_url|se,n},
+            'validation_successful' : function(plugin_id, task_id){
+                window.location = ${bs_server_url|se,n} + 'jobs?task_id=' + task_id;
+            }
+        };
+
+        $('body').bioscript(options).bioscript('hack_submit');
+    };
+
+The user will be redirected after a successful validation of the form.
+     
+     $('body').bioscript(options).bioscript('hack_submit');
+
+You need to tell bioscript to `hack` the default behaviour of the form to perform AJAX Cross browser requests.
 
 
 ''''''''''''''''''''
 Register the service
 ''''''''''''''''''''
+If you want to customize your access to bioscript (access to only a subset of operations, control how file are fetched from your service, ....) you can register the service in a bs configuration file.
 
 In the root directory, there is a file called `services.ini` which define how a service have access to `bs`.
 There is no restrictions by default, and a service have full access to `bs`.
@@ -43,66 +150,3 @@ For instance, if you want to give a file to `bs` that have this path : /srv/file
    url.root = http://myserver.ch/somedata
 
 You will give to `bs` the URL : http://myserver.ch/somedata/Rap1/coverage.bed and `bs` will know that it will have to fetch the file from /srv/files/projects/Rap1/coverage.bed instead of trying to fetch it from URL (it will not even try, so the url doesn't have to be valid).
-
-
-''''''''''
-Index page
-''''''''''
-This is a page on your application where you want to display `bs` operations.
-
-Serve two javascript files :
-
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-<script type="text/javascript" src="${tg.url('/javascript/bs.js')}"></script>
- and one CSS file :
-
-<link href="/css/bs.css" media="screen" type="text/css" rel="stylesheet">
-
-Put in your HTML file a div where the available operations will be displayed and remember the id
-
-
-=> display operations
-Call some javascript to display the operations.
-    <script>
-        window.onload = function(){
-            var options = {
-                show_plugin : function(plugin_id){
-                    window.location = 'http://myserver.ch/plugin?id=' + plugin_id;  # when the user click on this button
-                                                                                    # he will be redirected on that url
-                },
-                'root_name' : 'Operations'                                         
-            }
-            $('#bs_operations').bioscript(options).bioscript('operation_list');    # call this to initialize the rendering of
-                                                                                   # the operations
-        };
-    </script>
-
-get the operation list back
- bs_url = bs_server_url + 'plugins?ordered=true'
-        # get the operation list back
-        operation_list = urllib2.urlopen(bs_url).read()
-
-
-
-
-=> TARGET FROM OPERATION CLICK
-''''''
-Plugin
-''''''
- req['_up']
-  req['key']
-   req['prefill']
-=> serve bs javascript
-
-
-=> hack submit
-var options = {
-            'bs_server_url' : ${bs_server_url|se,n},
-            'validation_successful' : function(plugin_id, task_id){
-                window.location = ${bs_server_url|se,n} + 'jobs?task_id=' + task_id;
-            }
-        };
-
-        $('body').bioscript(options).bioscript('hack_submit');
-
-
