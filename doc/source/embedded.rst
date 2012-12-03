@@ -59,7 +59,7 @@ The JSON you retrive by calling the list of plugins on bs webserver::
     
     'operation_list': ${oplist|n},
 
-The "Index" route::
+The "Get" route::
     
     'get_url': ${gurl|se,n},
 
