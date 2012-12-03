@@ -52,7 +52,7 @@ class DirectController(base.BaseController):
         The same method as 'get' but here we want
         to pre-fill 'file' fields with data.
         """
-        bs_server_url = tg.config.get('main.proxy') + url('/')
+        bs_server_url = tg.config.get('main.proxy') + '/'
         bs_url = bs_server_url + 'plugins/get?id=' + id
 
         # we want to prefill 'file' some fields in the form
@@ -60,7 +60,7 @@ class DirectController(base.BaseController):
         # files from our application
         # here we generate test data
         # data is formatted like that : [(file_url, file_name), (file_url, file_name), ...]
-        file_url = tg.config.get('main.proxy') + url('/test')
+        file_url = tg.config.get('main.proxy') + '/test'
         prefill_data = [(file_url + '/' + fname, fname) for fname in ('file1.txt', 'file2.txt', 'file3.txt')]
         # as we don't really which form will be displayed
         # we tell to prefill "file" field type.
