@@ -16,6 +16,13 @@ from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
 
+DEBUG_LEVEL = 0
+
+
+def debug(s, t=0):
+    if DEBUG_LEVEL > 0:
+        print '[plugin controller] %s%s' % ('\t' * t, s)
+
 
 class PluginController(base.BaseController):
     """
@@ -80,7 +87,7 @@ class PluginController(base.BaseController):
         plugin parameters validation
         """
         user = util.get_user(tg.request)
-
+        debug('Validate')
         # check parameters
         pp = kw.get('pp', None)
         if pp is None:
@@ -283,7 +290,7 @@ def get_formparameters(params):
         if k not in PRIVATE_BS_PARAMS:
             if not isinstance(v, basestring):
                 value = v.filename
-            elif not isinstance(v, list, set):
+            elif not isinstance(v, (list, set)):
                 value = str(v)
             else:
                 value = v
