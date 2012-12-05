@@ -67,7 +67,7 @@ class PluginController(base.BaseController):
 
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
-        widget = form(action=main_proxy + tg.url('/plugin/validate', {'id': id})).req()
+        widget = form(action=main_proxy + tg.url('/plugins/validate', {'id': id})).req()
         widget.value = value
 
         return {'page': 'plugin', 'desc': desc, 'title': info.get('title'), 'widget': widget}
@@ -283,6 +283,8 @@ def get_formparameters(params):
         if k not in PRIVATE_BS_PARAMS:
             if not isinstance(v, basestring):
                 value = v.filename
+            elif not isinstance(v, list, set):
+                value = str(v)
             else:
                 value = v
             d[k] = value

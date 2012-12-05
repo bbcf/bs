@@ -45,27 +45,27 @@ for line in definition.split('\n'):
             parent_types.append(word_stripped)
             count = 0
 
-        else :
+        else:
             c = word.count('+')
-            if c > count :                                   # we have a deeper child element
+            if c > count:                                   # we have a deeper child element
 
                 cur_parent = parents[-1]
-                if not inclusions.has_key(cur_parent) : inclusions[cur_parent] = []
+                if not inclusions.has_key(cur_parent): inclusions[cur_parent] = []
                 inclusions[cur_parent].append(word_stripped)
                 parents.append(word_stripped)
                 count += 1
 
-            elif c == count :                                 # we have a child for same previous parent
-                if len(parents) > count : parents.pop()
+            elif c == count:                                 # we have a child for same previous parent
+                if len(parents) > count: parents.pop()
                 cur_parent = parents[-1]
                 inclusions[cur_parent].append(word_stripped)
                 parents.append(word_stripped)
 
-            else :                                            # (c < count) we go back one step
+            else:                                            # (c < count) we go back one step
                 parents.pop()
                 parents.pop()
                 cur_parent = parents[-1]
-                if not inclusions.has_key(cur_parent) : inclusions[cur_parent] = []
+                if not inclusions.has_key(cur_parent): inclusions[cur_parent] = []
                 inclusions[cur_parent].append(word_stripped)
                 parents.append(word_stripped)
                 count -= 1
@@ -77,12 +77,12 @@ def is_of_type(obj, oftype):
     """
     Look if obj is of type "oftype":
     """
-    if obj == oftype : return True
-    if not inclusions.has_key(oftype) : return False
+    if obj == oftype: return True
+    if not inclusions.has_key(oftype): return False
     types = inclusions.get(oftype)
-    if obj in types : return True
-    for ty in types :
-        if is_of_type(obj, ty) : return True
+    if obj in types: return True
+    for ty in types:
+        if is_of_type(obj, ty): return True
     return False
 
 def parent_type(t):
