@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 """Main Controller"""
 
-from tg import expose, flash, require, url, lurl, request, redirect, tmpl_context
-from tg.i18n import ugettext as _, lazy_ugettext as l_
-from bs.model import DBSession, metadata
+from tg import expose, response
 
 from bs.lib.base import BaseController
 from bs.controllers.error import ErrorController
 from bs.controllers import DirectController, PluginController, JobController, DevController
-
+from bs.operations import wordlist
 __all__ = ['RootController']
 
 

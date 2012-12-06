@@ -87,7 +87,6 @@ class PluginController(base.BaseController):
         plugin parameters validation
         """
         user = util.get_user(tg.request)
-        debug('Validate')
         # check parameters
         pp = kw.get('pp', None)
         if pp is None:
