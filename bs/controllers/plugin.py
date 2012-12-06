@@ -136,7 +136,7 @@ class PluginController(base.BaseController):
             DBSession.add(plugin_request)
             return jsonp_response(**{'validation': 'failed', 'desc': info.get('description'),
                     'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
-
+        debug('Validation pass')
         #if the validation passes, remove private parameters from the request
         del kw['bs_private']
         if 'key' in kw:
@@ -154,14 +154,16 @@ class PluginController(base.BaseController):
             traceback.print_exception(etype, value, tb)
             return jsonp_response(**{'validation': 'success', 'desc': info.get('description'),
                                     'title':  info.get('title'), 'error': 'error while fetching files : ' + str(e), 'callback': callback})
-
+        debug('Files fetched')
         # get output directory to write results
         outputs_directory = filemanager.temporary_directory()
         service_callback = None
         if user.is_service:
+            debug('is service', 1)
             outputs_directory = services.io.out_path(user.name)
             service_callback = services.service_manager.get(user.name, constants.SERVICE_CALLBACK_URL_PARAMETER)
 
+        debug('Output dir = %s' % outputs_directory)
         # get user parameters from the request
         user_parameters = bs_private.get('app', "{}")
         debug('get user parameters : %s' % user_parameters, 1)

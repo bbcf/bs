@@ -9,7 +9,7 @@ import urllib2
 block_sz = 2048 * 4
 
 
-DEBUG_LEVEL = 0
+DEBUG_LEVEL = 1
 
 
 def debug(s, t=0):

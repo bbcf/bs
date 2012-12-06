@@ -11,6 +11,13 @@ import errno
 import shutil
 from bs.lib import io
 
+DEBUG_LEVEL = 1
+
+
+def debug(s, t=0):
+    if DEBUG_LEVEL > 0:
+        print '[tasks] %s%s' % ('\t' * t, s)
+
 
 @task()
 def plugin_job(username, inputs_directory, outputs_directory, plugin_info,

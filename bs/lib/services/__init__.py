@@ -35,7 +35,6 @@ class ServiceManager(object):
                     os.mkdir(os.path.join(self.in_path, service))
                 except OSError:
                     pass
-
         # store services on the database
         for service in self.services:
             contact = self.get(service, 'contact')
@@ -65,7 +64,7 @@ class ServiceManager(object):
         If yes, it return the service.
         """
         for service in self.services:
-            if self.get(service, param) == value:
+            if self.get(service, param) == str(value):
                 return service
         return False
 
