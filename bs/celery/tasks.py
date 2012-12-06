@@ -62,7 +62,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     # callback
     if service_callback is not None:
         callback_service(service_callback, plugin_info['id'], task_id, 'SUCCESS',
-            results=json.dumps(results), additional=user_parameters)
+            results=json.dumps(results), additional=user_parameters, resp_config=resp_config)
 
 
 # @task()

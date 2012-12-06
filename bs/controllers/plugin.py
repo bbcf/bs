@@ -5,6 +5,7 @@ import tg
 import os
 from formencode import Invalid
 from tg import expose
+import copy
 
 from bs.lib import base, services, constants, logger, util, filemanager
 
@@ -16,7 +17,7 @@ from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
 
-DEBUG_LEVEL = 0
+DEBUG_LEVEL = 1
 
 
 def debug(s, t=0):
@@ -57,26 +58,33 @@ class PluginController(base.BaseController):
         except:
             tg.abort(400, "Bad plugin identifier")
 
+        debug('get plugin %s' % id)
         # get the plugin
         obj = plug
         info = obj.info
         form = info.get('output')
         desc = info.get('description')
+        debug('params =  %s' % kw, 1)
+        # bioscript parameters
+        bs_private = {}
+        if 'bs_private' in kw:
+            bs_private = json.loads(kw['bs_private'])
+            debug("get bs private parameters %s" % bs_private, 2)
 
-        # parse request parameters
-        prefill_fields(info.get('in'), form, **kw)
-        #value = parse_parameters(user, id, form, info.get('in'), **kw)
-        value = {}
+        if 'prefill' in bs_private:
+            #prefill_fields(info.get('in'), form, bs_private['prefill'])
+            del bs_private['prefill']
+        # {'bs_private': {'app': pp, 'cfg': handler.job.bioscript_config, 'prefill': prefill}})
 
-        # private parameters from BioScript application to pass to the form
-        pp = {'id': id}
-        value = {'pp': json.dumps(pp)}
+        # add some private parameters from BioScript
+        bs_private['pp'] = {'id': id}
 
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
         widget = form(action=main_proxy + tg.url('/plugins/validate', {'id': id})).req()
-        widget.value = value
-
+        widget.value = {'bs_private': json.dumps(bs_private)}
+        debug('display plugin with bs_private : %s' % bs_private)
+        debug('vaaalue : %s' % widget.value)
         return {'page': 'plugin', 'desc': desc, 'title': info.get('title'), 'widget': widget}
 
     @expose()
@@ -87,13 +95,13 @@ class PluginController(base.BaseController):
         plugin parameters validation
         """
         user = util.get_user(tg.request)
-        # check parameters
-        pp = kw.get('pp', None)
-        if pp is None:
+        if not 'bs_private' in kw:
             tg.abort(400, "Plugin identifier not found in the request.")
+        debug('params %s' % kw, 1)
 
-        pp = json.loads(pp)
-        plugin_id = pp.get('id', None)
+        bs_private = copy.deepcopy(json.loads(kw['bs_private']))
+        debug('private %s' % bs_private, 1)
+        plugin_id = bs_private['pp']['id']
         if plugin_id is None:
             tg.abort(400, "Plugin identifier not found in the request.")
 
@@ -107,28 +115,33 @@ class PluginController(base.BaseController):
         info = obj.info
         form = info.get('output')(action='validation')
 
-        # callback
+        # callback for jsonP
         callback = kw.get('callback', 'callback')
         # get the plugin from the database
         plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == obj.unique_id()).first()
         plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
 
+        # validation
         try:
             form.validate(kw)
         except (tw2.core.ValidationError, Invalid) as e:
             main_proxy = tg.config.get('main.proxy')
             e.widget.action = main_proxy + tg.url('plugins/index', {'id': plugin_id})
-            modified = prefill_fields(info.get('in'), form, **kw)
-            pp = {'id': plugin_id, 'modified': json.dumps(modified)}
-            value = {'pp': json.dumps(pp)}
-
-            e.widget.value = value
-
+            debug('private after validation failed %s' % bs_private, 1)
+            #value = {'bs_private': json.dumps(bs_private)}
+            #debug('value %s' % value)
+            #e.widget.value = value
             plugin_request.status = 'FAILED'
             plugin_request.error = str(e)
             DBSession.add(plugin_request)
             return jsonp_response(**{'validation': 'failed', 'desc': info.get('description'),
                     'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
+
+        #if the validation passes, remove private parameters from the request
+        del kw['bs_private']
+        if 'key' in kw:
+            del kw['key']
+        # fetch form files
         try:
             inputs_directory = filemanager.fetch(user, obj, kw)
         except Exception as e:
@@ -149,12 +162,11 @@ class PluginController(base.BaseController):
             outputs_directory = services.io.out_path(user.name)
             service_callback = services.service_manager.get(user.name, constants.SERVICE_CALLBACK_URL_PARAMETER)
 
-        # call plugin process
-        user_parameters = kw.get('_up', None)
-        if user_parameters:
-            user_parameters = json.loads(user_parameters)
-
-        bioscript_callback = tg.config.get('main.proxy') + '/' + tg.url('plugins/callback_results')
+        # get user parameters from the request
+        user_parameters = bs_private.get('app', "{}")
+        debug('get user parameters : %s' % user_parameters, 1)
+        # get response config from the request
+        resp_config = bs_private.get('cfg', None)
 
         plugin_info = {'title': info['title'],
                         'plugin_id': plugin_db.id,
@@ -165,11 +177,26 @@ class PluginController(base.BaseController):
                         'out': info['out'],
                         'meta': info['meta']}
 
+        # call plugin process
+        bioscript_callback = tg.config.get('main.proxy') + '/' + tg.url('plugins/callback_results')
         async_res = tasks.plugin_job.delay(user.name, inputs_directory, outputs_directory, plugin_info,
             user_parameters, service_callback, bioscript_callback, **kw)
         task_id = async_res.task_id
         _log_job_request(plugin_request.id, task_id)
-        return jsonp_response(**{'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback})
+        if resp_config and resp_config.get('plugin_info', '') == 'min':
+            return jsonp_response(**{'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback, 'app': user_parameters})
+        return jsonp_response(**{
+                'validation': 'success',
+                'plugin_id': plugin_id,
+                'task_id': task_id,
+                'plugin_info': json.dumps(
+                    {'title': info['title'],
+                    'description': info['description'],
+                    'path': info['path'],
+                    'in': info['in'],
+                    'out': info['out'],
+                    'meta': info['meta']}),
+                'callback': callback, 'app': user_parameters})
 
     @expose('json')
     def callback_results(self, task_id, results):
@@ -263,6 +290,7 @@ def _change_file_field(form, field, cls, value):
 
 
 def jsonp_response(**kw):
+    debug('JSONP response %s' % kw, 3)
     # encode in JSONP here cauz there is a problem with custom renderer
     tg.response.headers['Content-Type'] = 'text/javascript'
     return '%s(%s)' % (kw.get('callback', 'callback'), tg.json_encode(kw))

@@ -57,6 +57,7 @@ class DevController(base.BaseController):
         return req.read()
 
     @expose()
-    def validation(self, task_id, plugin_id):
-        message = 'got validation %s on plugin %s' % (task_id, plugin_id)
+    def validation(self, task_id, plugin_id, plugin_info):
+        message = 'got validation %s on plugin %s with plugin info : %s' % (task_id, plugin_id, plugin_info)
+        # you can remove 'plugin_info' parameter if you pass {'cfg': {'plugin_info': 'min'}} in bs_private parameters
         return message
