@@ -34,6 +34,7 @@ def identify(fn):
         if 'bs-uid' in request.environ:
             return fn(*args, **kw)
         # SERVICE DEFINED
+        k = None
         if 'key' in request.str_POST or 'key' in request.str_GET:
             k = request.str_POST.get('key', request.str_GET.get('key'))
             service = services.service_manager.check(constants.SERVICE_SHARED_KEY, k)
@@ -43,6 +44,10 @@ def identify(fn):
                         model.User.is_service == True)).first()
                 request.environ['bs-uid'] = user.id
                 return fn(self, *args, **kw)
+        if k:
+            user = model.DBSession.query(model.User).filter(model.User.key == k).first()
+            request.environ['bs-uid'] = user.id
+            return fn(self, *args, **kw)
 
         if 'REMOTE_ADDR' in request.environ:
             remote = request.environ['REMOTE_ADDR']
@@ -54,8 +59,8 @@ def identify(fn):
                 user.remote = remote
                 model.DBSession.add(user)
                 model.DBSession.flush()
-                # toto create user
             request.environ['bs-uid'] = user.id
             return fn(self, *args, **kw)
+
         raise Exception('Not identified')
     return wrapped

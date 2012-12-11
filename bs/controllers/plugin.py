@@ -17,7 +17,7 @@ from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
 
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 0
 
 
 def debug(s, t=0):
@@ -77,14 +77,22 @@ class PluginController(base.BaseController):
         # {'bs_private': {'app': pp, 'cfg': handler.job.bioscript_config, 'prefill': prefill}})
 
         # add some private parameters from BioScript
-        bs_private['pp'] = {'id': id}
+        pp = {'id': id}
+        # if user is a serviec, add the key & the mail in the authentication
+        user = util.get_user(tg.request)
+        if user.is_service:
+            pp['mail'] = user.email
+            pp['key'] = user.key
+        bs_private['pp'] = pp
 
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
         widget = form(action=main_proxy + tg.url('/plugins/validate', {'id': id})).req()
-        widget.value = {'bs_private': json.dumps(bs_private)}
+        widget.value = {'bs_private': json.dumps(bs_private), 'key': user.key}
         debug('display plugin with bs_private : %s' % bs_private)
         debug('vaaalue : %s' % widget.value)
+
+        debug(user)
         return {'page': 'plugin', 'desc': desc, 'title': info.get('title'), 'widget': widget}
 
     @expose()
@@ -158,9 +166,13 @@ class PluginController(base.BaseController):
         # get output directory to write results
         outputs_directory = filemanager.temporary_directory()
         service_callback = None
+        debug(user)
         if user.is_service:
             debug('is service', 1)
-            outputs_directory = services.io.out_path(user.name)
+            # def out_path(service_name):
+            o = services.service_manager.get(user.name, constants.SERVICE_RESULT_ROOT_PARAMETER)
+            if o:
+                outputs_directory = o
             service_callback = services.service_manager.get(user.name, constants.SERVICE_CALLBACK_URL_PARAMETER)
 
         debug('Output dir = %s' % outputs_directory)
@@ -184,7 +196,9 @@ class PluginController(base.BaseController):
         async_res = tasks.plugin_job.delay(user.name, inputs_directory, outputs_directory, plugin_info,
             user_parameters, service_callback, bioscript_callback, **kw)
         task_id = async_res.task_id
+
         _log_job_request(plugin_request.id, task_id)
+        
         if resp_config and resp_config.get('plugin_info', '') == 'min':
             return jsonp_response(**{'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback, 'app': user_parameters})
         return jsonp_response(**{
@@ -310,7 +324,7 @@ def _log_form_request(plugin_id, user, parameters):
     DBSession.flush()
     return pl
 
-PRIVATE_BS_PARAMS = ['pp', 'up', 'callback', 'key']
+PRIVATE_BS_PARAMS = ['bs_private', 'callback', 'key']
 
 
 def get_formparameters(params):
