@@ -62,9 +62,11 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         shutil.rmtree(todel)
 
     # updating bioscript with the results
-    print 'bioscript callback'
-    print bioscript_callback
-    URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results))
+    URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results), retry=True, retry_policy={
+                                                                                    'max_retries': 5,
+                                                                                    'interval_start': 5,
+                                                                                    'interval_step': 10
+                                                                                                })
 
     # callback
     if service_callback is not None:
