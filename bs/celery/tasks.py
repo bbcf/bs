@@ -41,36 +41,47 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         callback_service(service_callback, plugin_info['generated_id'], task_id,
             'RUNNING', additional=user_parameters)
 
+    debug('task launched')
     # get plugin class
     plugin = util.get_plugin_byId(plugin_info['generated_id'])
     if plugin is None:
         raise Exception('Plugin not found by the worker.')
 
+    debug('plugin operation start')
     plugin._start_timer()
+    results = []
     # call plugin with form parameters
-    ret = plugin(**form_parameters)
-    results = [{'is_file': False,
-                'value': ret
-    }]
+    try:
+        ret = plugin(**form_parameters)
+        results = [{'is_file': False,
+                    'value': ret
+        }]
+    except Exception as e:
+        if service_callback is not None:
+            user_parameters.update({'error': e})
+            callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=user_parameters)
+        raise e
 
     # mkdir output directory
     out = os.path.join(outputs_directory, task_id)
+    debug('mkdir out path : %s' % out)
     try:
         os.mkdir(out)
     except OSError, e:
         if e.errno == errno.EEXIST:
             io.rm(out)
             os.mkdir(out)
-
+    debug('moving files')
     # moving files to the output directory
     for output_file, output_type in plugin.output_files:
+        debug('f: %s' % output_file, 1)
         out_path = os.path.join(out, os.path.split(output_file)[1])
         io.mv(output_file, out)
         results.append({'is_file': True, 'path': out_path, 'type': output_type})
 
     # deleting plugin temporary files
     for todel in plugin.tmp_files:
-        print 'deleting %s' % todel
+        debug('deleting %s' % todel)
         shutil.rmtree(todel)
 
     # updating bioscript with the results
