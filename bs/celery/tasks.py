@@ -204,7 +204,7 @@ def callback_service(url, plugin_id, task_id, status, results=None, additional=N
     if additional is not None:
         params.update(additional)
     try:
-        debug('Callback on URL %s with parameters %s : ' % (url, ', '.join(['%s : %s' % (k, v) for k, v in params.iteritems()]), t))
+        debug('Callback on URL %s with parameters %s : ' % (url, ', '.join(['%s : %s' % (k, v) for k, v in params.iteritems()])))
         urllib2.urlopen(url, data=urllib.urlencode(params))
     except Exception:
         import sys
