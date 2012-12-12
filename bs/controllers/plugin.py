@@ -164,7 +164,7 @@ class PluginController(base.BaseController):
                                     'title':  info.get('title'), 'error': 'error while fetching files : ' + str(e), 'callback': callback})
         debug('Files fetched')
         # get output directory to write results
-        outputs_directory = filemanager.temporary_directory()
+        outputs_directory = filemanager.temporary_directory(constants.paths['data'])
         service_callback = None
         debug(user)
         if user.is_service:

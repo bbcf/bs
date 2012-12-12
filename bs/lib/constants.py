@@ -16,7 +16,8 @@ date_format = "%d. %b %Y %Hh%M"
 paths = {
     'plugins': os.path.join(PROJECT_ROOT, 'operations', 'plugins'),
     'services': os.path.normpath(os.path.join(PROJECT_ROOT, os.path.pardir, 'services.ini')),
-
+    'tmp': os.path.normpath(os.path.join(PROJECT_ROOT, 'tmp')),
+    'data': os.path.normpath(os.path.join(PROJECT_ROOT, 'bioscript_data'))
 }
 
 files = {

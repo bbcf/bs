@@ -19,6 +19,18 @@ def debug(s, t=0):
         print '[tasks] %s%s' % ('\t' * t, s)
 
 
+@task
+def delete_task_results(dirpath, bs_path):
+    if file_is_in_bs(bs_path, dirpath):
+        shutil.rmtree(dirpath, ignore_errors=True)
+
+
+def file_is_in_bs(bs_path, filepath):
+    bs_path = os.path.normpath(bs_path)
+    filepath = os.path.normpath(filepath)
+    return filepath.startswith(bs_path)
+
+
 @task()
 def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     user_parameters, service_callback, bioscript_callback, **form_parameters):
@@ -62,11 +74,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         shutil.rmtree(todel)
 
     # updating bioscript with the results
-    URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results), retry=True, retry_policy={
-                                                                                    'max_retries': 5,
-                                                                                    'interval_start': 5,
-                                                                                    'interval_step': 10
-                                                                                                })
+    URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results))
 
     # callback
     if service_callback is not None:

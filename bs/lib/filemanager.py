@@ -28,7 +28,7 @@ def fetch(user, plugin, form_parameters):
     """
     file_ids = [file_parameter.get('id') for file_parameter in plugin.in_params_typeof(wordlist.FILE)]
     debug(form_parameters)
-    root_directory = temporary_directory()
+    root_directory = temporary_directory(constants.paths['tmp'])
     debug('FETCH')
     for fid in file_ids:
         form_value = form_parameters.get(fid, None)
