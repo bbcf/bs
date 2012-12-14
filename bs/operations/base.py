@@ -2,7 +2,6 @@ import hashlib
 import os
 import wordlist
 from pkg_resources import resource_filename
-#from yapsy.IPlugin import IPlugin
 
 import time
 import string
@@ -110,6 +109,7 @@ class OperationPlugin(object):
 import tw2.core
 import tw2.forms
 import tw2.dynforms
+import formencode
 
 
 class BaseForm(tw2.forms.TableForm):
@@ -122,5 +122,31 @@ class DynForm(tw2.dynforms.CustomisedTableForm):
     key = tw2.forms.HiddenField()
 
 
-class MultipleFileUpload(tw2.dynforms.GrowingGridLayout):
-    file = tw2.forms.FileField()
+class MultipleFileValidator(formencode.FancyValidator):
+
+    nb = 1
+    messages = {
+         'm': 'File(s) missing, you need to input at least %(nb)i '
+         ' file(s) '
+         }
+
+    def _to_python(self, value, state):
+        print '_to_python : %s, %s' % (value, state)
+        # _to_python gets run before validate_python.  Here we
+        # strip whitespace off the password, because leading and
+        # trailing whitespace in a password is too elite.
+        return value
+
+    def validate_python(self, value, state):
+        print 'validate python %s, %s' % (value, state)
+        raise formencode.Invalid(self.message("m", state,
+                                         nb=self.nb), value, state)
+
+
+class MultipleFileUpload(tw2.forms.TableFieldSet):
+
+    nb = 1
+    #validator = MultipleFileValidator(nb=nb)
+
+    class files(tw2.dynforms.GrowingGridLayout):
+        f = tw2.forms.FileField()
