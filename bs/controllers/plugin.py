@@ -17,7 +17,7 @@ from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
 
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 0
 
 
 def debug(s, t=0):
@@ -131,12 +131,7 @@ class PluginController(base.BaseController):
         plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
 
         if 'prefill' in bs_private:
-            print '**********************************************************'
-            print kw
             prefill_fields(info.get('in'), form, bs_private['prefill'], kw, replace_value=False)
-            print '**********************************************************'
-            print kw
-            print '**********************************************************'
             debug('prefill in validation', 3)
             del bs_private['prefill']
 
@@ -145,13 +140,6 @@ class PluginController(base.BaseController):
             form = form().req()
             form.validate(kw)
         except (tw2.core.ValidationError, Invalid) as e:
-            import sys
-            import traceback
-            etype, value, tb = sys.exc_info()
-            traceback.print_exception(etype, value, tb)
-
-            print '=================================='
-
             main_proxy = tg.config.get('main.proxy')
             e.widget.action = main_proxy + tg.url('plugins/index', {'id': plugin_id})
             debug('private after validation failed %s' % bs_private, 1)
@@ -314,7 +302,7 @@ def _change_file_field(form, field, clazz, value):
     else:
         tmp.options = []
     # replace
-    print 'replace %s with %s' % (field, clazz)
+    #print 'replace %s with %s' % (field, clazz)
     tmp_parent = field.parent
     parent_deep = 1
     tmp_form = form
