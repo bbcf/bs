@@ -44,9 +44,10 @@ def fetch(user, plugin, form_parameters):
             else:
                 if user.is_service:
                     debug('is service', 2)
-                    parameters = service.service_manager.get(user.name)
-                    file_root = parameters.get(constants.SERVICE_FILE_ROOT_PARAMETER, None)
-                    url_root = parameters.get(constants.SERVICE_URL_ROOT_PARAMETER, None)
+                    file_root = services.service_manager.get(user.name, constants.SERVICE_FILE_ROOT_PARAMETER)
+                    debug('got file_root : %s' % file_root, 4)
+                    url_root = services.service_manager.get(user.name, constants.SERVICE_URL_ROOT_PARAMETER)
+                    debug('got url_root : %s' % url_root, 4)
                     # remove //. Servide defined a directory where to take & put files
                     # so the urls are fakes
                     form_value = form_value.replace('//', '/').replace(':/', '://')

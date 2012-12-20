@@ -161,7 +161,7 @@ class User(DeclarativeBase):
     email = synonym('_email', descriptor=property(_get_email, _set_email))
 
     def __repr__(self):
-        return '<User: id=%r, name=%r, email=%r, key=%r>' % (self.id, self.name, self.email, self.key)
+        return '<User: id=%r, name=%r, email=%r, key=%r, service=%s>' % (self.id, self.name, self.email, self.key, self.is_service)
 
     def __unicode__(self):
         return self.name

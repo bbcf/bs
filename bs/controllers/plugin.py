@@ -17,7 +17,7 @@ from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
 
-DEBUG_LEVEL = 0
+DEBUG_LEVEL = 1
 
 
 def debug(s, t=0):
@@ -62,7 +62,7 @@ class PluginController(base.BaseController):
         # get the plugin
         obj = plug
         info = obj.info
-        form = info.get('output')
+        form = info.get('output')()
         desc = info.get('description')
         debug('params =  %s' % kw, 1)
         # bioscript parameters
@@ -72,8 +72,8 @@ class PluginController(base.BaseController):
             debug("get bs private parameters %s" % bs_private, 2)
 
         if 'prefill' in bs_private:
-            #prefill_fields(info.get('in'), form, bs_private['prefill'])
-            del bs_private['prefill']
+            prefill_fields(info.get('in'), form, bs_private['prefill'], kw)
+
         # {'bs_private': {'app': pp, 'cfg': handler.job.bioscript_config, 'prefill': prefill}})
 
         # add some private parameters from BioScript
@@ -103,6 +103,7 @@ class PluginController(base.BaseController):
         plugin parameters validation
         """
         user = util.get_user(tg.request)
+        debug('Got request validation from user %s' % user)
         if not 'bs_private' in kw:
             tg.abort(400, "Plugin identifier not found in the request.")
         debug('params %s' % kw, 1)
@@ -121,7 +122,7 @@ class PluginController(base.BaseController):
         # get plugin form output
         obj = plug
         info = obj.info
-        form = info.get('output')(action='validation')
+        form = info.get('output')()
 
         # callback for jsonP
         callback = kw.get('callback', 'callback')
@@ -129,10 +130,28 @@ class PluginController(base.BaseController):
         plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == obj.unique_id()).first()
         plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
 
+        if 'prefill' in bs_private:
+            print '**********************************************************'
+            print kw
+            prefill_fields(info.get('in'), form, bs_private['prefill'], kw, replace_value=False)
+            print '**********************************************************'
+            print kw
+            print '**********************************************************'
+            debug('prefill in validation', 3)
+            del bs_private['prefill']
+
         # validation
         try:
+            form = form().req()
             form.validate(kw)
         except (tw2.core.ValidationError, Invalid) as e:
+            import sys
+            import traceback
+            etype, value, tb = sys.exc_info()
+            traceback.print_exception(etype, value, tb)
+
+            print '=================================='
+
             main_proxy = tg.config.get('main.proxy')
             e.widget.action = main_proxy + tg.url('plugins/index', {'id': plugin_id})
             debug('private after validation failed %s' % bs_private, 1)
@@ -198,7 +217,7 @@ class PluginController(base.BaseController):
         task_id = async_res.task_id
 
         _log_job_request(plugin_request.id, task_id)
-        
+
         if resp_config and resp_config.get('plugin_info', '') == 'min':
             return jsonp_response(**{'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback, 'app': user_parameters})
         return jsonp_response(**{
@@ -232,7 +251,7 @@ class PluginController(base.BaseController):
         return {'status': 'success', 'retval': 1}
 
 
-def prefill_fields(form_parameters, form, **kw):
+def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True):
     """
     If prefill key is in the request,
     we must pre-fill some fields and perhaps change their definition
@@ -243,41 +262,45 @@ def prefill_fields(form_parameters, form, **kw):
     """
 
     modified = []   # list of modified fields
-    if 'prefill' in kw:
-        prefill = json.loads(kw.get('prefill'))
-        for type_to_prefill, prefill_with in prefill.iteritems():
-            for fparam in form_parameters:
-                # check which "type" to prefill
-                if wordlist.is_of_type(fparam.get('type'), type_to_prefill):
-
-                    fid = fparam.get('id')
+    prefill = json.loads(prefill_params)
+    debug('PREFILL %s' % prefill_params)
+    for type_to_prefill, prefill_with in prefill.iteritems():
+        debug('Trying type %s' % type_to_prefill, 1)
+        for fparam in form_parameters:
+            debug('Trying on parameter %s' % fparam, 2)
+            # check which "type" to prefill
+            if wordlist.is_of_type(fparam.get('type'), type_to_prefill):
+                debug('%s is of type %s' % (type_to_prefill, fparam.get('type')))
+                fid = fparam.get('id')
+                if replace_value:
                     kw[fid] = prefill_with
-                    # if fparam is of `file` type, we need to modify it
-                    if wordlist.is_of_type(fparam.get('type'), wordlist.FILE):
-                        multiple = fparam.get('multiple', False)
-                        #TODO utility method to get all children
-                        for field in form.children_deep():
-                            if field.id == fid:
-                                if multiple:
-                                    mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, prefill_with)
-                                else:
-                                    mod = _change_file_field(form, field, tw2.forms.SingleSelectField, prefill_with)
-                                modified.append(mod)
+                # if fparam is of `file` type, we need to modify it
+                if wordlist.is_of_type(fparam.get('type'), wordlist.FILE):
+                    debug('CHANGE FILEFIELD ##############################################')
+                    multiple = fparam.get('multiple', False)
+                    #TODO utility method to get all children
+                    for field in form.children_deep():
+                        if field.id == fid:
+                            if multiple:
+                                mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, prefill_with)
+                            else:
+                                mod = _change_file_field(form, field, tw2.forms.SingleSelectField, prefill_with)
+                            modified.append(mod)
         return modified
 
 
-def _change_file_field(form, field, cls, value):
+def _change_file_field(form, field, clazz, value):
     """
     Modify field type
     :param form: the 'form widget'
     :param field: the field to modify
-    :param cls: the cls to replace the field with
+    :param clazz: the clazz to replace the field with
     :param index: the position of the field in the form
     :param value: fill the new field with "value"
     """
 
     # prepare
-    tmp = cls()
+    tmp = clazz()
     tmp.id = field.id
     if field.validator is not None:
         tmp.validator = twc.Validator(required=True)
@@ -291,12 +314,14 @@ def _change_file_field(form, field, cls, value):
     else:
         tmp.options = []
     # replace
-
+    print 'replace %s with %s' % (field, clazz)
     tmp_parent = field.parent
     parent_deep = 1
     tmp_form = form
+    #print tmp_parent
     while(tmp_parent != form):
         tmp_parent = tmp_parent.parent
+        #print tmp_parent
         parent_deep += 1
         tmp_form = tmp_form.child
     for index, f in enumerate(tmp_form.children):
