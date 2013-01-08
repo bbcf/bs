@@ -60,7 +60,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         if service_callback is not None:
             user_parameters.update({'error': e})
             callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=user_parameters)
-        raise e
+        raise
 
     # mkdir output directory
     out = os.path.join(outputs_directory, task_id)
