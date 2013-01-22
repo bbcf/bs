@@ -122,31 +122,13 @@ class DynForm(tw2.dynforms.CustomisedTableForm):
     key = tw2.forms.HiddenField()
 
 
-class MultipleFileValidator(formencode.FancyValidator):
+import tw2.core as twc
+import tw2.forms as twf
 
-    nb = 1
-    messages = {
-         'm': 'File(s) missing, you need to input at least %(nb)i '
-         ' file(s) '
-         }
 
-    def _to_python(self, value, state):
-        print '_to_python : %s, %s' % (value, state)
-        # _to_python gets run before validate_python.  Here we
-        # strip whitespace off the password, because leading and
-        # trailing whitespace in a password is too elite.
+class Multi(tw2.dynforms.GrowingGridLayout):
+    """A modified GridLayout that is centered on multifile upload"""
+
+    def _validate(self, value, state=None):
+        value = [v for v in value if not ('del.x' in v and 'del.y' in v)]
         return value
-
-    def validate_python(self, value, state):
-        print 'validate python %s, %s' % (value, state)
-        raise formencode.Invalid(self.message("m", state,
-                                         nb=self.nb), value, state)
-
-
-class MultipleFileUpload(tw2.forms.TableFieldSet):
-
-    nb = 1
-    #validator = MultipleFileValidator(nb=nb)
-
-    class files(tw2.dynforms.GrowingGridLayout):
-        f = tw2.forms.FileField()

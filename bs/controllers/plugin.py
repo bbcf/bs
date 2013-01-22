@@ -137,7 +137,8 @@ class PluginController(base.BaseController):
 
         # validation
         try:
-            form = form().req()
+            debug('Validating parameters %s' % kw, 1)
+            # form = form().req()
             form.validate(kw)
         except (tw2.core.ValidationError, Invalid) as e:
             main_proxy = tg.config.get('main.proxy')
@@ -268,7 +269,8 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
                     multiple = fparam.get('multiple', False)
                     #TODO utility method to get all children
                     for field in form.children_deep():
-                        if field.id == fid:
+                        if field.id == fid or fid.startswith('%s:' % field.id):
+                            debug('XXXXXXXXXXXXXXXXXXX', 1)
                             if multiple:
                                 mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, prefill_with)
                             else:
