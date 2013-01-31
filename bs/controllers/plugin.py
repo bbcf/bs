@@ -152,8 +152,10 @@ class PluginController(base.BaseController):
             plugin_request.status = 'FAILED'
             plugin_request.error = str(e)
             DBSession.add(plugin_request)
-            return jsonp_response(**{'validation': 'failed', 'desc': info.get('description'),
+            return json.dumps({'validation': 'failed', 'desc': info.get('description'),
                     'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
+            # return jsonp_response(**{'validation': 'failed', 'desc': info.get('description'),
+            #         'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
         debug('Validation pass')
         #if the validation passes, remove private parameters from the request
         del kw['bs_private']
@@ -170,7 +172,7 @@ class PluginController(base.BaseController):
             import traceback
             etype, value, tb = sys.exc_info()
             traceback.print_exception(etype, value, tb)
-            return jsonp_response(**{'validation': 'success', 'desc': info.get('description'),
+            return json.dumps({'validation': 'success', 'desc': info.get('description'),
                                     'title':  info.get('title'), 'error': 'error while fetching files : ' + str(e), 'callback': callback})
         debug('Files fetched')
         # get output directory to write results
@@ -211,7 +213,7 @@ class PluginController(base.BaseController):
 
         if resp_config and resp_config.get('plugin_info', '') == 'min':
             return jsonp_response(**{'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback, 'app': user_parameters})
-        return jsonp_response(**{
+        return json.dumps({
                 'validation': 'success',
                 'plugin_id': plugin_id,
                 'task_id': task_id,

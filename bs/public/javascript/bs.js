@@ -45,6 +45,10 @@
                         app: settings.app
                     });
                     data = $this.data(bs_namespace);
+                    // $.ajaxSetup({
+                    //     beforeSend: function(xhr) {
+                    //     xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+                    // }});
                 }
             });
         },
@@ -107,7 +111,8 @@
          * form to perform a JSONP query instead
          */
         hack_submit : function(){
-            var data = $(this).data(bs_namespace);
+            var $this = $(this);
+            var data = $this.data(bs_namespace);
             var bs_url = data.bsurl;
             var fselector = data.fselector;
             $(fselector).children('form').submit(function(e){
@@ -143,26 +148,40 @@
             $.ajax({
                     url: bs_url + 'plugins/validate?' + pdata,
                     type : 'POST',
-                    datatype:'jsonp',
+                    datatype:'json',
                     data : formData,
                     processData:false,
                     contentType:false
+                    }).done(function(d) {
+                        console.log("kkkk");
+                        console.log(data);
+                        _incall($this, 'jsonp_callback', [d, data]);
+                    }).error(function(error){
+                        console.error(error);
                     });
-                    return false;
+                    return true;
                 });
+            // $.getJSON(
+            //     bs_url + 'plugins/validate?' + pdata,
+            //     {},
+            //     function(data){
+            //         console.log(data);
+            //         _incall($this, 'jsonp_callback', [data]);
+            //     });
+            // });
         },
 
         /**
          * After form submit, a json is sent back from
          * BioScript server
          */
-        jsonp_callback : function(jsonp){
+        jsonp_callback : function(jsonp, data){
             var $this = $(this);
             if (jsonp){
+                jsonp = $.parseJSON(jsonp);
                 var val = jsonp.validation;
                 if (val == 'failed'){
                     // validation failed : display the form with errors
-                   var data = $(this).data(bs_namespace);
                     var fselector = data.fselector;
                     $(fselector).children('form').replaceWith(jsonp.widget);
                     _incall($this, 'hack_submit');
@@ -172,7 +191,6 @@
                         // but there is an error
                         alert(jsonp.error);
                     } else {
-                        var data = $(this).data(bs_namespace);
                         if (data.vsuccess){
                             data.vsuccess(jsonp.plugin_id, jsonp.task_id, jsonp.plugin_info);
                         } else {
