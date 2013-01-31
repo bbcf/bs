@@ -4,7 +4,7 @@ import tw2
 import tg
 import os
 from formencode import Invalid
-from tg import expose
+from tg import expose, response
 import copy
 
 from bs.lib import base, services, constants, logger, util, filemanager
@@ -134,6 +134,8 @@ class PluginController(base.BaseController):
             prefill_fields(info.get('in'), form, bs_private['prefill'], kw, replace_value=False)
             debug('prefill in validation', 3)
             del bs_private['prefill']
+
+        response.headerlist.append(('Access-Control-Allow-Origin', '*'))
 
         # validation
         try:
