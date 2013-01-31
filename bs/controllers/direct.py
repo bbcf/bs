@@ -40,7 +40,7 @@ class DirectController(base.BaseController):
         # get BioScript server url
         bs_server_url = tg.config.get('main.proxy') + '/'
         # construct request to send to bioscript server
-        bs_url = bs_server_url + 'plugins/get?id=' + id
+        bs_url = bs_server_url + 'plugins/fetch?oid=' + id
         # get the form back
         form = urllib2.urlopen(bs_url).read()
         # display the form in template
@@ -53,7 +53,7 @@ class DirectController(base.BaseController):
         to pre-fill 'file' fields with data.
         """
         bs_server_url = tg.config.get('main.proxy') + '/'
-        bs_url = bs_server_url + 'plugins/get?id=' + id
+        bs_url = bs_server_url + 'plugins/fetch?oid=' + id
 
         # we want to prefill 'file' some fields in the form
         # aka we want to prefill FileField with SingleSelectField with

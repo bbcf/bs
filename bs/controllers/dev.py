@@ -29,16 +29,17 @@ class DevController(base.BaseController):
         # define other parameters
         # bs_server url
         validation_url = url('/devs/validation')
-        get_url = url('/devs/get')
-        return {'oplist': operation_list, 'bs_serv_url': bs_server_url, 'validation_url': validation_url, 'gurl': get_url}
+        get_url = url('/devs/fetch')
+        return {'oplist': operation_list, 'bs_serv_url': bs_server_url,
+        'validation_url': validation_url, 'gurl': get_url}
 
     @expose()
-    def get(self, id, *args, **kw):
+    def fetch(self, oid, *args, **kw):
         """
         The method to get the form from BioScript server.
         """
         bs_server_url = tg.config.get('main.proxy') + '/'
-        bs_url = bs_server_url + 'plugins/get?id=' + id
+        bs_url = bs_server_url + 'plugins/fetch?oid=' + oid
 
         # we want to prefill 'file' some fields in the form
         # aka we want to prefill FileField with SingleSelectField with
@@ -55,6 +56,7 @@ class DevController(base.BaseController):
         req = urllib2.urlopen(url=bs_url, data=post_data)
         # display the form in template
         return req.read()
+
 
     @expose()
     def validation(self, task_id, plugin_id, plugin_info):

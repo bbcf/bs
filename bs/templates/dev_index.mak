@@ -35,7 +35,7 @@
             'validation_url': ${validation_url|se,n},
             'bs_server_url': ${bs_serv_url|se,n},
             'bs_form_container_selector': '#bs_form_container',
-            'get_url': ${gurl|se,n},
+            'fetch_url': ${gurl|se,n},
             'root_name' : 'Operations'
         }
         $('#bs_operations').bioscript(options).bioscript('operation_list');

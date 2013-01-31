@@ -47,18 +47,18 @@ class PluginController(base.BaseController):
     @expose('mako:bs.templates.plugin_form')
     @logger.identify
     @logger.log_connection
-    def get(self, id, *args, **kw):
+    def fetch(self, oid, *args, **kw):
         """
         Display the form by it's id
         """
         # check plugin id
         plug = None
         try:
-            plug = putil.get_plugin_byId(id)
+            plug = putil.get_plugin_byId(oid)
         except:
             tg.abort(400, "Bad plugin identifier")
 
-        debug('get plugin %s' % id)
+        debug('get plugin %s' % oid)
         # get the plugin
         obj = plug
         info = obj.info
@@ -77,7 +77,7 @@ class PluginController(base.BaseController):
         # {'bs_private': {'app': pp, 'cfg': handler.job.bioscript_config, 'prefill': prefill}})
 
         # add some private parameters from BioScript
-        pp = {'id': id}
+        pp = {'id': oid}
         # if user is a serviec, add the key & the mail in the authentication
         user = util.get_user(tg.request)
         if user.is_service:
@@ -87,7 +87,7 @@ class PluginController(base.BaseController):
 
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
-        widget = form(action=main_proxy + tg.url('/plugins/validate', {'id': id})).req()
+        widget = form(action=main_proxy + tg.url('/plugins/validate', {'id': oid})).req()
         widget.value = {'bs_private': json.dumps(bs_private), 'key': user.key}
         debug('display plugin with bs_private : %s' % bs_private)
         debug('vaaalue : %s' % widget.value)
