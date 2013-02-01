@@ -123,7 +123,6 @@ class PluginController(base.BaseController):
         obj = plug
         info = obj.info
         form = info.get('output')()
-
         # callback for jsonP
         callback = kw.get('callback', 'callback')
         # get the plugin from the database
@@ -135,12 +134,13 @@ class PluginController(base.BaseController):
             debug('prefill in validation', 3)
             del bs_private['prefill']
 
-        response.headerlist.append(('Access-Control-Allow-Origin', '*'))
+        form = form().req()
+        response.headers['Access-Control-Allow-Origin'] = '*'
 
         # validation
         try:
             debug('Validating parameters %s' % kw, 1)
-            # form = form().req()
+
             form.validate(kw)
         except (tw2.core.ValidationError, Invalid) as e:
             main_proxy = tg.config.get('main.proxy')
@@ -212,7 +212,7 @@ class PluginController(base.BaseController):
         _log_job_request(plugin_request.id, task_id)
 
         if resp_config and resp_config.get('plugin_info', '') == 'min':
-            return jsonp_response(**{'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback, 'app': user_parameters})
+            return json.dumps({'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback, 'app': user_parameters})
         return json.dumps({
                 'validation': 'success',
                 'plugin_id': plugin_id,
@@ -255,9 +255,8 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
     """
 
     modified = []   # list of modified fields
-    prefill = json.loads(prefill_params)
     debug('PREFILL %s' % prefill_params)
-    for type_to_prefill, prefill_with in prefill.iteritems():
+    for type_to_prefill, prefill_with in prefill_params.iteritems():
         debug('Trying type %s' % type_to_prefill, 1)
         for fparam in form_parameters:
             debug('Trying on parameter %s' % fparam, 2)
@@ -296,6 +295,10 @@ def _change_file_field(form, field, clazz, value):
     # prepare
     tmp = clazz()
     tmp.id = field.id
+    # if hasattr(field, 'label'):
+    #     tmp.label = field.label
+    # else:
+    #     tmp.label = field.id
     if field.validator is not None:
         tmp.validator = twc.Validator(required=True)
     tmp.name = field.name
@@ -310,6 +313,7 @@ def _change_file_field(form, field, clazz, value):
     # replace
     #print 'replace %s with %s' % (field, clazz)
     tmp_parent = field.parent
+    debug(tmp_parent)
     parent_deep = 1
     tmp_form = form
     #print tmp_parent

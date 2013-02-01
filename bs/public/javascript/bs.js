@@ -113,8 +113,6 @@
         hack_submit : function(){
             var $this = $(this);
             var data = $this.data(bs_namespace);
-            console.log("HACK SUBMIT");
-            console.log(data);
             var bs_url = data.bsurl;
             var fselector = data.fselector;
             $(fselector).children('form').submit(function(e){
@@ -148,11 +146,9 @@
             /* get data from form */
 
             var pdata = $(this).serializeArray();
-            console.log(pdata);
             $.each(pdata, function(i, v){
                 formData.append(v.name, v.value);
             });
-            console.log(formData);
             /* submit query */
             $.ajax({
                     url: bs_url + 'plugins/validate',
@@ -161,8 +157,6 @@
                     processData:false,
                     contentType:false
                     }).done(function(d) {
-                        console.log("POST DONE");
-                        console.log(data);
                         _incall($this, 'jsonp_callback', [d]);
                     }).error(function(error){
                         console.log("POST ERROR");
@@ -187,8 +181,6 @@
         jsonp_callback : function(jsonp){
             var $this = $(this);
             var data = $this.data(bs_namespace);
-            console.log("JSONP CALLBACK");
-            console.log(data);
             if (jsonp){
                 jsonp = $.parseJSON(jsonp);
                 var val = jsonp.validation;
@@ -223,8 +215,6 @@
         show_plugin: function(plugin_id){
             var $this = $(this);
             var data = $this.data(bs_namespace);
-            console.log("SHOW PLUGIN");
-            console.log(data);
             var pdata = data.app;
             $.ajax({
                 'url' : data.geturl + '?oid=' + plugin_id,
@@ -243,8 +233,6 @@
          validation_success: function(plugin_id, task_id, plugin_info, app){
             var $this = $(this);
             var data = $this.data(bs_namespace);
-            console.log("VAL SUCCESS");
-            console.log(data);
             u = data.vurl + '?task_id=' + task_id + '&plugin_id=' + plugin_id;
             var pdata = app;
             if (plugin_info){
@@ -256,7 +244,6 @@
                 datatype: 'json',
                 data: pdata,
                 'success': function(r){
-                    console.log(r);
                     _incall($this, 'toggle_bs_form', [plugin_id]);
                 }
             });
