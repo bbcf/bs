@@ -195,10 +195,11 @@ def callback_service(url, plugin_id, task_id, status, results=None, additional=N
     :param additional : a dict with some additional parameters that can be needed
     ('error' : when an error occurs, 'result' when a task finish with success)
     """
+
     params = {'plugin_id': plugin_id,
               'task_id': task_id,
               'status': status}
-
+    debug('callback %s with params %s & results %s & additionnals %s' % (url, params, results, additional))
     if results is not None:
         params.update({'results': results})
     if additional is not None:

@@ -23,6 +23,8 @@ file                         #a simple file
 + + bed                      #a bed file
 + + wig                      #a wig file
 + + bam                      #a BAM file
++ + bw                       #a BigWig file
++ + sql                      #a sql file
 
 assembly                     #a list of assemblies
 """

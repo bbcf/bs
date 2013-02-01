@@ -144,7 +144,6 @@
             }
             
             /* get data from form */
-
             var pdata = $(this).serializeArray();
             $.each(pdata, function(i, v){
                 formData.append(v.name, v.value);
@@ -219,6 +218,9 @@
             $.ajax({
                 'url' : data.geturl + '?oid=' + plugin_id,
                 'dataType': 'html',
+                'beforeSend': function(xhr) {
+                    xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+                },
                 type : 'POST',
                 datatype:'json',
                 data : pdata,

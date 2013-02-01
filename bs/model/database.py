@@ -125,6 +125,7 @@ class User(DeclarativeBase):
     User definition.
     This is the user definition used by :mod:`repoze.who`, which requires at
     least the ``user_name`` column.
+    
     """
     __tablename__ = 'User'
 
@@ -141,7 +142,7 @@ class User(DeclarativeBase):
     _created = Column(DateTime, default=datetime.now)
     key = Column(Unicode(255), unique=True, default=setdefaultkey)
     is_service = Column(Boolean, default=False)
-    remote = Column(Unicode(255), unique=True, nullable=True)
+    remote = Column(Unicode(255), unique=False, nullable=True)
 
     def _get_date(self):
         return self._created.strftime(date_format)

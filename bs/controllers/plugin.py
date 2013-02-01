@@ -17,7 +17,7 @@ from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
 
-DEBUG_LEVEL = 0
+DEBUG_LEVEL = 1
 
 
 def debug(s, t=0):
@@ -98,13 +98,60 @@ class PluginController(base.BaseController):
     @expose()
     @logger.identify
     @logger.log_connection
+    def validate2(self, **kw):
+        debug('params %s' % kw)
+        #debug(tg.request)
+        user = util.get_user(tg.request)
+        debug('Got request validation from user %s' % (user))
+
+        if not 'bs_private' in kw:
+            debug('bs_private not found')
+            tg.abort(400, "Plugin identifier not found in the request.")
+        debug('params %s' % kw, 1)
+
+        # bs_private = copy.deepcopy(json.loads(kw['bs_private']))
+        # debug('private %s' % bs_private, 1)
+        # plugin_id = bs_private['pp']['id']
+        # if plugin_id is None:
+        #     tg.abort(400, "Plugin identifier not found in the request.")
+
+        # # check plugin id
+        # plug = putil.get_plugin_byId(plugin_id)
+        # if plug is None:
+        #     tg.abort(400, "Bad plugin identifier")
+
+        # get plugin form output
+        # obj = plug
+        # info = obj.info
+        # form = info.get('output')()
+        # # callback for jsonP
+        # callback = kw.get('callback', 'callback')
+        # # get the plugin from the database
+        # plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == obj.unique_id()).first()
+        # plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
+
+        # if 'prefill' in bs_private:
+        #     prefill_fields(info.get('in'), form, bs_private['prefill'], kw, replace_value=False)
+        #     debug('prefill in validation', 3)
+        #     del bs_private['prefill']
+
+        response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        #form = form().req()
+        return ''
+
+    @expose()
+    @logger.identify
+    @logger.log_connection
     def validate(self, **kw):
         """
         plugin parameters validation
         """
+        debug('params %s' % kw)
         user = util.get_user(tg.request)
-        debug('Got request validation from user %s' % user)
+        debug('Got request validation from user %s' % (user))
         if not 'bs_private' in kw:
+            debug('bs_private not found')
             tg.abort(400, "Plugin identifier not found in the request.")
         debug('params %s' % kw, 1)
 
@@ -134,8 +181,9 @@ class PluginController(base.BaseController):
             debug('prefill in validation', 3)
             del bs_private['prefill']
 
-        form = form().req()
+        response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
         response.headers['Access-Control-Allow-Origin'] = '*'
+        form = form().req()
 
         # validation
         try:
