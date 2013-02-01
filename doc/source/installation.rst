@@ -19,7 +19,7 @@ Once you have the source code, and on the right python environment (virtualenv) 
     cd bs
     python setup.py develop
 
-Then setup the application (build thee database)
+Then setup the application (build the database)
 
     paster setup-app development.ini
 
@@ -42,11 +42,11 @@ you must use another backend to use it in production, and install the requiremen
 Customization
 '''''''''''''
 
-Webserver onfiguration can be found in 'development.ini' file.
+Webserver configuration can be found in 'development.ini'.
 
-Worker configuration is under 'celeryconfig.py' file.
+Worker configuration is in 'celeryconfig.py'.
 
-By default, bs use SQlite as backend & message broker. if you want to use other:
+By default, bs uses SQlite as backend & message broker. if you want to use another:
 
     - webserver & worker backends can be changed to any backend supported by SQLalchemy.
     - Message broker : can be upgraded with any message broker supported by Celery.

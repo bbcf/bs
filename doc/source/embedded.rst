@@ -4,9 +4,9 @@ BioScript Embedded
 
 `bs` can be embedded in a third party application that uses HTTP request. So any web application could use bs.
 
-The purpose of such a thing is that you doesn't loose the user with a different interface in your application, or you don't redirect him on another website. 
-Moreover you can, instead of letting the user choose some file on his filesystem, you can directly provide to bs the file that are in your service.
-One other great advantage of bs in terms of computing power management is to run scripts from different applications on a dedicated machine with adapted features (available number of CPUs and memory). 
+The purpose of such a thing is that you don't lose the user with a different interface in your application, or you don't redirect him on another website.
+Moreover, instead of letting the user choose some file on his file system, you can directly provide to bs the files that are in your service.
+Another great advantage of bs in terms of computing power management is the ability to run scripts from different applications on a dedicated machine with adapted features (available number of CPUs and memory).
 
 All you have to do is to design 3 HTTP controllers and insert 1 JS & 1 CSS file into your application.
 
@@ -15,9 +15,9 @@ All you have to do is to design 3 HTTP controllers and insert 1 JS & 1 CSS file 
 Design the controller
 ''''''''''''''''''''''
 bs new at least 3 HTTP routes to be functionnal:
- * Index : Where the user will go and see the list of operations availables
- * Get : Method that will fetch the operations 'form' from bs webserver
- * Validation : Method get called once a form is submitted & validated by bs webserver. 
+ * Index : Where the user will go and see the list of available operations.
+ * Get : Method that will fetch the operations 'form' from bs webserver.
+ * Validation : Method called once a form is submitted & validated by bs webserver.
 
 You have an example of these 3 methods with the DevController in bs.controllers.dev.py.
 
@@ -25,7 +25,7 @@ You have an example of these 3 methods with the DevController in bs.controllers.
 '''''''''''''''''''''''
 Javascript an CSS files
 '''''''''''''''''''''''
- 
+
 
 bs.js & bs.css (under the bs.public directory) also need to be served by your application, as in the dev controller.
 By default you just need to give some parameters to be fully functionnal:
@@ -48,25 +48,25 @@ For instance, you can add this at the end of your HTML file where you want to de
 Explanation
 -----------
 Tell bs to show the operations list under the HTML DOM element with the id 'bs_operations'. (JQuery selector)::
-     
+
      $('#bs_operations').bioscript(options).bioscript('operation_list');
 
 The options to give to bs::
-    
+
     var options = {
 
 The JSON you retrive by calling the list of plugins on bs webserver::
-    
+
     'operation_list': ${oplist|n},
 
 The "Get" route::
-    
+
     'get_url': ${gurl|se,n},
 
 The "validation" route::
 
     'validation_url': ${validation_url|se,n},
-        
+
 URl where bs webserver can be contacted::
 
     'bs_server_url': ${bs_serv_url|se,n},
@@ -84,7 +84,7 @@ The Display name::
 ''''''''''
 Overriding
 ''''''''''
-If you don't want the 'default' functionnality, you can override some method to change the behaviour. You can have an example 
+If you don't want the 'default' functionnality, you can override some method to change the behaviour. You can have an example
 in the direct controller (bs.controllers.direct)::
 
     window.onload = function(){
@@ -98,7 +98,7 @@ in the direct controller (bs.controllers.direct)::
         $('#bs_operations').bioscript(options).bioscript('operation_list');
     };
 
-When the user click on an operation, the form will not appears, but the user will be redirected (window.location).
+When the user clicks on an operation, the form will not appear, but the user will be redirected (window.location).
 Use the method `show_plugin` to do that.
 
 
@@ -117,7 +117,7 @@ On the second page, you will also need to override a function::
 
 The user will be redirected after a successful validation of the form.
 You need to tell bioscript to `hack` the default behaviour of the form to perform AJAX Cross browser requests::
-     
+
      $('body').bioscript(options).bioscript('hack_submit');
 
 
@@ -128,15 +128,15 @@ Register the service
 If you want to customize your access to bioscript (access to only a subset of operations, control how file are fetched from your service, ....) you can register the service in a bs configuration file.
 
 In the root directory, there is a file called `services.ini` which define how a service have access to `bs`.
-There is no restrictions by default, and a service have full access to `bs`.
+There is no restriction by default, and a service have full access to `bs`.
 
 If you want to configure your access, define your service::
 
     [GDV]
     contact = amail.contact@somewhere.ch   # a contact email (required)
     shared_key = 626dbfb70438367c01e1ee09bd4046b6cd0e6b6a  # a secret key to identify your service (required)
-    
-    # all others parameters are optionnals    
+
+    # all other parameters are optional
     callback.url = http://ptbbpc2.epfl.ch/pygdv/plugins/callback  # a url where `bs` can callback about jobs statuses
 
     # now, if your service & bs will be served and have access to the same filsystem

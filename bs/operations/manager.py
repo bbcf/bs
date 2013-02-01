@@ -124,17 +124,17 @@ def _check_plugin_info(plug):
         raise Exception('You must provide info about your plugin.')
         # check if needed parameters are here
     if not plug.info.has_key('title'):
-        raise Exception('you must provide a title for your plugin.')
+        raise Exception('You must provide a title for your plugin.')
     if not plug.info.has_key('description'):
-        raise Exception('you must provide a description for your plugin.')
+        raise Exception('You must provide a description for your plugin.')
     if not plug.info.has_key('path'):
-        raise Exception('you must an unique path for your plugin.')
+        raise Exception('You must provide a unique path for your plugin.')
     if not plug.info.has_key('in'):
-        raise Exception('you must provide a description about input parameters used in your plugin.')
+        raise Exception('You must provide a description about input parameters used in your plugin.')
     if not plug.info.has_key('output'):
         _check_plugin_output(plug)
     if not plug.info.has_key('out'):
-        raise Exception('you must provide a description about out parameters used in your plugin.')
+        raise Exception('You must provide a description about out parameters used in your plugin.')
 
     # check if parameters are well described
     for param in plug.info.get('in') +  plug.info.get('out'):

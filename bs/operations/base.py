@@ -81,8 +81,7 @@ class OperationPlugin(object):
     def temporary_path(self, fname=None, ext=None):
         """
         Get a temporary path to write a file.
-        File will be automatically deleted at the end of the plugin
-        process.
+        The file will be automatically deleted at the end of the plugin process.
         :param fname: the file name
         :return: a path
         """
