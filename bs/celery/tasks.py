@@ -34,7 +34,10 @@ def file_is_in_bs(bs_path, filepath):
 @task()
 def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     user_parameters, service_callback, bioscript_callback, **form_parameters):
-
+    try:
+        user_parameters = json.loads(user_parameters)
+    except TypeError:
+        pass
     task_id = plugin_job.request.id
 
     if service_callback is not None:
