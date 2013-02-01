@@ -202,7 +202,7 @@ def callback_service(url, plugin_id, task_id, status, results=None, additional=N
     debug('callback %s with params %s & results %s & additionnals %s' % (url, params, results, additional))
     if results is not None:
         params.update({'results': results})
-    if additional is not None:
+    if additional is not None and not isinstance(additional, basestring):
         params.update(additional)
     try:
         debug('Callback on URL %s with parameters %s : ' % (url, ', '.join(['%s : %s' % (k, v) for k, v in params.iteritems()])))
