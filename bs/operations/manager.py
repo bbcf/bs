@@ -137,8 +137,8 @@ def _check_plugin_info(plug):
         raise Exception('You must provide a description about out parameters used in your plugin.')
 
     # check if parameters are well described
-    for param in plug.info.get('in') +  plug.info.get('out'):
-        if param.get('type') not in wordlist.wordlist.keys() :
+    for param in plug.info.get('in') + plug.info.get('out'):
+        if param.get('type') not in wordlist.wordlist.keys():
             raise Exception('Param of type `%s` does not exist in %s' % (param.get('type'), wordlist.wordlist.keys()))
 
 
