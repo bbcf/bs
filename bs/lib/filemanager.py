@@ -33,7 +33,6 @@ def fetch(user, plugin, form_parameters):
     debug('FETCH')
     for fid in file_ids:
         form_value = form_parameters.get(fid, None)
-
         if form_value is None:
             # it can be a multi - upload so we regroup all parameters starting with `fid`
             # under `fid` parameter
@@ -47,16 +46,16 @@ def fetch(user, plugin, form_parameters):
                 del form_parameters[k]
             form_value = files
         debug("download '%s' ? " % fid, 1)
-        debug(form_value, 2)
-        if form_value:
-
+        debug(form_value)
+        # check if form_value contains a value or is not an empty list
+        if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0):
             # check if we have file fields or urls
             is_file_field = False
             is_list = False
             test = form_value
-            if isinstance(test, (list, tuple)):
-                debug('is list', 3)
+            if isinstance(form_value, (list, tuple)):
                 is_list = True
+                debug('is list', 3)
                 test = form_value[0]
 
             if not isinstance(test, basestring):
