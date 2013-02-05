@@ -1,8 +1,9 @@
 from bs.lib import base
 from tg import expose, response, url
-from bs.model import DBSession, Job, Result
+from bs.model import DBSession, Job, Result, PluginRequest
 import os
 from datetime import datetime
+from sqlalchemy.sql import expression
 
 
 class JobController(base.BaseController):
@@ -31,7 +32,7 @@ class JobController(base.BaseController):
 
     @expose('mako:bs.templates.job_all')
     def alls(self):
-        jobs = DBSession.query(Job).all()
+        jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done)).all()
         return {'jobs': jobs}
 
     @expose('mako:bs.templates.job_result')
