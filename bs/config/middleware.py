@@ -32,6 +32,7 @@ def make_app(global_conf, full_stack=True, **app_conf):
 
 
     """
+
     if 'prefix' in app_conf:
         custom = lambda app: tw2.core.make_middleware(app, res_prefix=app_conf['prefix'] + '/tw2/resources/', default_engine='mako')
     else:

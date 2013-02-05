@@ -67,7 +67,7 @@ class OperationPlugin(object):
         """
         added = False
         for p in self.out_parameters:
-            if p.get('id') == fparam:
+            if p.get('id') == fparam or p.get('id').startswith('%s:' % fparam):
                 added = True
                 ftype = p.get('type')
                 self.output_files.append([fpath, ftype])
