@@ -66,6 +66,7 @@ class OperationPlugin(object):
         Append a file to the result
         """
         added = False
+        print 'NEW FILE %s %s' % (fpath, fparam)
         for p in self.out_parameters:
             if p.get('id') == fparam or p.get('id').startswith('%s:' % fparam):
                 added = True
