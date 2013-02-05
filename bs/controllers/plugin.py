@@ -330,6 +330,21 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
         return modified
 
 
+def set_validator(validator, field):
+    required = False
+    strip = False
+    try:
+        required = validator.required
+    except AttributeError:
+        pass
+    try:
+        strip = validator.strip
+    except AttributeError:
+        pass
+    debug('validator = %s' % (validator), 2)
+    field.validator = twc.Validator(required=required, strip=strip)
+
+
 def _change_file_field(form, field, clazz, value):
     """
     Modify field type
@@ -347,8 +362,9 @@ def _change_file_field(form, field, clazz, value):
     #     tmp.label = field.label
     # else:
     #     tmp.label = field.id
+    debug('change file field', 1)
     if field.validator is not None:
-        tmp.validator = twc.Validator(required=True)
+        set_validator(field.validator, tmp)
     try:
         tmp.name = field.name
     except AttributeError:
