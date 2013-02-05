@@ -6,8 +6,7 @@
      <ul id="banner">
        <li><a class="text" href="${tg.url('/')}">Bioscript</a></li>
        <li><a href="${tg.url('/direct/')}">Operations</a></li>
-       <li><a href="http://bbcf.epfl.ch/bs">Documentation</a></li>
-        <li><a href="${tg.url('/developers')}">Developers</a></li>
+        <li><a href="${tg.url('/documentation')}">Documentation</a></li>
      </ul>
 </%def>
 
@@ -27,6 +26,6 @@
 <%def name="footer()">
     <div id="footer"><div class="foottext">
         <p>BioScript is a <a href="http://bbcf.epfl.ch/">BBCF</a> application hosted on <a href="https:///github.com/bbcf/bs">github</a>.</p>
-        <p><a href="http://www.turbogears.org/2.1/">Powered by TurboGears 2</a></p>
+        <p><a href="http://www.turbogears.org/">Powered by TurboGears</a></p>
     </div></div>
 </%def>

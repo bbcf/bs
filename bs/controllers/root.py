@@ -55,3 +55,7 @@ class RootController(BaseController):
     @expose('bs.templates.dev')
     def developers(self):
         return {}
+
+    @expose('bs.templates.doc')
+    def documentation(self):
+        return {}
