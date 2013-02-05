@@ -349,7 +349,10 @@ def _change_file_field(form, field, clazz, value):
     #     tmp.label = field.id
     if field.validator is not None:
         tmp.validator = twc.Validator(required=True)
-    tmp.name = field.name
+    try:
+        tmp.name = field.name
+    except AttributeError:
+        tmp.name = field.key
     # fill
     if len(value) > 0:
         if isinstance(value[0], (list, tuple)):
@@ -402,12 +405,12 @@ def get_formparameters(params):
     d = {}
     for k, v in params.iteritems():
         if k not in PRIVATE_BS_PARAMS:
-            if not isinstance(v, basestring):
-                value = v.filename
-            elif not isinstance(v, (list, set)):
-                value = str(v)
-            else:
+            if isinstance(v, (list, tuple)):
                 value = v
+            elif not isinstance(v, basestring):
+                value = v.filename
+            else:
+                value = str(v)
             d[k] = value
     return d
 

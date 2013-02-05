@@ -47,8 +47,9 @@ def fetch(user, plugin, form_parameters):
             form_value = files
         debug("download '%s' ? " % fid, 1)
         debug(form_value)
+        debug(type(form_value))
         # check if form_value contains a value or is not an empty list
-        if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0):
+        if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0) and form_value != '':
             # check if we have file fields or urls
             is_file_field = False
             is_list = False

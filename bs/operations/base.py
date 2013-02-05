@@ -73,7 +73,7 @@ class OperationPlugin(object):
                 self.output_files.append([fpath, ftype])
                 break
         if not added:
-            raise Exception('You must give the same id as one of the out parameters.')
+            raise Exception("You're trying to add an output file but you did not specify it as an output in the plugin : you gave %s and the parameters allowed are %s" % (fparam, ', '.join([o['id'] for o in self.out_parameters])))
 
     def in_params_typeof(self, typeof):
         return [param for param in self.in_parameters if wordlist.is_of_type(param.get('type'), typeof)]
