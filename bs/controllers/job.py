@@ -41,6 +41,13 @@ class JobController(base.BaseController):
                     return {'result': result.result}
         return {'error': "Job identifier & result identifier doesn't correspond."}
 
+    @expose('json')
+    def info(self, task_id):
+        job = DBSession.query(Job).filter(Job.task_id == task_id).first()
+        req = job.request
+        results = [{'id': r.id, 'result': r.result, 'is_file': r.is_file} for r in job.results]
+        return {'results': results, 'status': job.status, 'plugin_id': req.plugin.id, 'parameters': req.parameters}
+
 
 def get_result_url(result, task_id):
     if not result.is_file:
