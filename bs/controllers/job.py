@@ -29,6 +29,11 @@ class JobController(base.BaseController):
         'traceback': trace, 'date': datedone, 'plugin_id': plugin_id, 'plugin_info': plugin_info,
          'parameters': parameters}
 
+    @expose('mako:bs.templates.job_all')
+    def alls(self):
+        jobs = DBSession.query(Job).all()
+        return {'jobs': jobs}
+
     @expose('mako:bs.templates.job_result')
     def get(self, task_id, result_id):
         result_id = int(result_id)
