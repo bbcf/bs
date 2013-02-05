@@ -5,6 +5,7 @@ import os
 import shutil
 import urlparse
 import urllib2
+import json
 
 block_sz = 2048 * 4
 
@@ -82,18 +83,19 @@ def fetch(user, plugin, form_parameters):
 
                     if is_list:
                         input_files = []
-                        for fvalue in form_value:
+                        for fname, fvalue in take_filename_and_path(form_value):
                             fvalue = fvalue.replace('//', '/').replace(':/', '://')
                             _from = fvalue.replace(url_root, file_root)
-                            _to = os.path.join(temporary_directory(root_directory), os.path.split(file_root)[1])
+                            _to = os.path.join(temporary_directory(root_directory), fname)
                             shutil.copy2(_from, _to)
                             input_files.append(_to)
                     else:
                         # remove //. Servide defined a directory where to take & put files
                         # so the urls are fakes
-                        form_value = form_value.replace('//', '/').replace(':/', '://')
-                        _from = form_value.replace(url_root, file_root)
-                        _to = os.path.join(temporary_directory(root_directory), os.path.split(file_root)[1])
+                        fname, fvalue = take_filename_and_path(form_value)
+                        fvalue = fvalue.replace('//', '/').replace(':/', '://')
+                        _from = fvalue.replace(url_root, file_root)
+                        _to = os.path.join(temporary_directory(root_directory), fname)
                         shutil.copy2(_from, _to)
                         input_files = [_to]
 
@@ -102,8 +104,8 @@ def fetch(user, plugin, form_parameters):
                     debug('is user', 2)
                     if is_list:
                         input_files = []
-                        for fvalue in form_value:
-                            _to = os.path.join(temporary_directory(root_directory), os.path.split(fvalue)[1].split('?')[0])
+                        for fname, fvalue in take_filename_and_path(form_value):
+                            _to = os.path.join(temporary_directory(root_directory), fname)
                             download_from_url(fvalue, _to)
                             input_files.append(_to)
                     else:
@@ -130,6 +132,16 @@ def download_file_field(ff, to):
     with open(to, 'w') as tmp_file:
         tmp_file.write(ff.value)
     return to
+
+
+def take_filename_and_path(value):
+    try:
+        loaded = json.loads(value)
+        fname = loaded['n']
+        path = loaded['p']
+        return fname, path
+    except ValueError, KeyError:
+        return os.path.split(value)[1].split('?')[0], value
 
 
 def download_from_url(_from, _to):

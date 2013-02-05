@@ -59,3 +59,10 @@ class RootController(BaseController):
     @expose('bs.templates.doc')
     def documentation(self):
         return {}
+
+    @expose()
+    def test(self, *a, **kw):
+        print '%s, %s' % (a, kw)
+
+        return ''
+
