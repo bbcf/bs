@@ -19,7 +19,7 @@
         </p>
 
         <p> 
-        All plugin are hosted on github at <a href="https://github.com/bbcf/bs.operations">bbcf/bs.operations</a>.
+        All plugins are hosted by github at <a href="https://github.com/bbcf/bs.operations">bbcf/bs.operations</a>.
         </p>
         
         <p>
@@ -27,7 +27,7 @@
         </p>
 
         <p> 
-        If you want to embed BioScript in your application, all you need is 3 HTTP routes, 1 javascript file & 1 CSS file.
+        If you want to embed BioScript in your application, all you need to do is 3 HTTP routes, 1 javascript file & 1 CSS file.
         There is a simulated example of such an application <a href="${tg.url('/devs/')}">this way</a>. You can browse the code of this 
         controller <a href="https://github.com/bbcf/bs/blob/master/bs/controllers/dev.py">on github</a>.
         </p>
