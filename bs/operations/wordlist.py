@@ -26,6 +26,7 @@ file                         #a simple file
 + + bw                       #a BigWig file
 + + sql                      #a sql file
 
++ userfile                   #a file that always need to be inputed by th user
 assembly                     #a list of assemblies
 """
 
