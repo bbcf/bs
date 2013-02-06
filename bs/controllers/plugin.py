@@ -17,7 +17,7 @@ from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
 
-DEBUG_LEVEL = 0
+DEBUG_LEVEL = 1
 
 
 def debug(s, t=0):

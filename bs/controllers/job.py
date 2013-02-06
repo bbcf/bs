@@ -31,7 +31,7 @@ class JobController(base.BaseController):
          'parameters': parameters}
 
     @expose('mako:bs.templates.job_all')
-    def all(self):
+    def all(self, limit=None):
         jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done)).all()
         return {'jobs': jobs}
 

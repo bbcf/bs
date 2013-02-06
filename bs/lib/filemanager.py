@@ -18,7 +18,7 @@ def debug(s, t=0):
         print '[filemanager] %s%s' % ('\t' * t, s)
 
 
-def temporary_directory(directory=None):
+def temporary_directory(directory=constants.paths['tmp']):
     return tempfile.mkdtemp(dir=directory)
 
 
@@ -30,7 +30,7 @@ def fetch(user, plugin, form_parameters):
     """
     file_ids = [file_parameter.get('id') for file_parameter in plugin.in_params_typeof(wordlist.FILE)]
     debug(form_parameters)
-    root_directory = temporary_directory(constants.paths['tmp'])
+    root_directory = temporary_directory()
     debug('FETCH')
     for fid in file_ids:
         form_value = form_parameters.get(fid, None)

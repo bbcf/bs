@@ -8,6 +8,8 @@ import string
 import random
 import tempfile
 random_name = lambda x: ''.join(random.choice(string.ascii_lowercase + string.digits) for i in xrange(x))
+BASE = os.path.dirname(__file__)
+TMP_DIR = os.path.normpath(os.path.join(BASE, os.path.pardir, 'tmp'))
 
 
 class OperationPlugin(object):
@@ -86,14 +88,7 @@ class OperationPlugin(object):
         :param fname: the file name
         :return: a path
         """
-        try:
-            import tg
-            tmp_dir = tg.config.get('temporary.directory',
-                resource_filename('bs', 'tmp'))
-        except:
-            tmp_dir = resource_filename('bs', 'tmp')
-
-        tmp_dir = tempfile.mkdtemp(dir=tmp_dir)
+        tmp_dir = tempfile.mkdtemp(dir=TMP_DIR)
         if fname is None or fname == '':
             fname = random_name(6)
         if ext is not None:

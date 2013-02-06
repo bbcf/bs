@@ -11,7 +11,9 @@ import errno
 import shutil
 from bs.lib import io
 
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 0
+BASE = os.path.dirname(__file__)
+TMP_DIR = os.path.normpath(os.path.join(BASE, os.path.pardir, 'tmp'))
 
 
 def debug(s, t=0):
@@ -44,7 +46,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         callback_service(service_callback, plugin_info['generated_id'], task_id,
             'RUNNING', additional=user_parameters)
 
-    debug('task launched')
+    debug('task launched username: %s, indir: %s, oudir: %s' % (username, inputs_directory, outputs_directory))
     # get plugin class
     plugin = util.get_plugin_byId(plugin_info['generated_id'])
     if plugin is None:
@@ -63,6 +65,15 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         if service_callback is not None:
             user_parameters.update({'error': e})
             callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=user_parameters)
+        # deleting plugin temporary files
+        for todel in plugin.tmp_files:
+            debug('deleting %s' % todel)
+            shutil.rmtree(todel)
+        debug('deleting %s' % outputs_directory)
+        shutil.rmtree(outputs_directory)
+        if file_is_in_bs(TMP_DIR, inputs_directory):
+            debug('deleting %s' % inputs_directory)
+            shutil.rmtree(inputs_directory)
         raise
 
     # mkdir output directory
@@ -86,6 +97,9 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     for todel in plugin.tmp_files:
         debug('deleting %s' % todel)
         shutil.rmtree(todel)
+    if file_is_in_bs(TMP_DIR, inputs_directory):
+            debug('deleting %s' % inputs_directory)
+            shutil.rmtree(inputs_directory)
 
     # updating bioscript with the results
     URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results))
@@ -94,7 +108,6 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     if service_callback is not None:
         callback_service(service_callback, plugin_info['generated_id'], task_id, 'SUCCESS',
             results=json.dumps(results), additional=user_parameters)
-
 
 # @task()
 # def plugin_process(_id, service_name, tmp_dir, out_path, name, description, callback_url=None, **kw):
@@ -186,7 +199,6 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
 #         fname = io.mv(_f[0], out)
 #         _f[0] = os.path.join(out, fname)
 #     return True
-
 
 def callback_service(url, plugin_id, task_id, status, results=None, additional=None):
     """

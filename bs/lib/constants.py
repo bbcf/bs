@@ -27,6 +27,7 @@ files = {
     }
 }
 
+
 def plugin_directory():
     return paths['plugins']
 
@@ -52,7 +53,4 @@ def service_email(service):
 
 
 def temporary_directory():
-    if 'temporary.directory' in tg.config:
-        return tg.config.get('temporary.directory')
-    else:
-        return os.path.join(resource_filename('bs', 'tmp'))
+    return paths['tmp']
