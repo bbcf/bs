@@ -10,7 +10,7 @@ import json
 block_sz = 2048 * 4
 
 
-DEBUG_LEVEL = 0
+DEBUG_LEVEL = 1
 
 
 def debug(s, t=0):
@@ -48,7 +48,6 @@ def fetch(user, plugin, form_parameters):
             form_value = files
         debug("download '%s' ? " % fid, 1)
         debug(form_value)
-        debug(type(form_value))
         # check if form_value contains a value or is not an empty list
         if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0) and form_value != '':
             # check if we have file fields or urls
@@ -62,7 +61,7 @@ def fetch(user, plugin, form_parameters):
 
             if not isinstance(test, basestring):
                     is_file_field = True
-                    debug('file field', 3)
+                    debug('is file field', 3)
 
             # download file field(s)
             if is_file_field:
@@ -83,7 +82,8 @@ def fetch(user, plugin, form_parameters):
 
                     if is_list:
                         input_files = []
-                        for fname, fvalue in take_filename_and_path(form_value):
+                        for fvalue in form_value:
+                            fname, fvalue = take_filename_and_path(fvalue)
                             fvalue = fvalue.replace('//', '/').replace(':/', '://')
                             _from = fvalue.replace(url_root, file_root)
                             _to = os.path.join(temporary_directory(root_directory), fname)
@@ -104,7 +104,8 @@ def fetch(user, plugin, form_parameters):
                     debug('is user', 2)
                     if is_list:
                         input_files = []
-                        for fname, fvalue in take_filename_and_path(form_value):
+                        for fvalue in form_value:
+                            fname, fvalue = take_filename_and_path(fvalue)
                             _to = os.path.join(temporary_directory(root_directory), fname)
                             download_from_url(fvalue, _to)
                             input_files.append(_to)
