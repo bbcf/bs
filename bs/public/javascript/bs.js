@@ -12,6 +12,7 @@
         bs_form_container_selector: '#bs_form_container',
         show_plugin: false,
         validation_successful: false,
+        fsizemax: 100,
         app: ''
     };
 
@@ -42,6 +43,7 @@
                         vsuccess : settings.validation_successful,
                         geturl: settings.fetch_url,
                         bsform: settings.bs_form_container_selector,
+                        fsizemax: settings.fsizemax,
                         app: settings.app
                     });
                     data = $this.data(bs_namespace);
@@ -115,6 +117,7 @@
             var data = $this.data(bs_namespace);
             var bs_url = data.bsurl;
             var fselector = data.fselector;
+            var fsizemax = data.fsizemax;
             $(fselector).children('form').submit(function(e){
                 e.preventDefault();
                 /* fetch form id from form */
@@ -131,7 +134,6 @@
             waitdiv.css('left', $(this).find('input').width() + 'px');
             waitdiv.css('top', -$(this).find('input').height() + 'px');
             $(this).append(waitdiv);
-            return false;
 
 
 
@@ -144,11 +146,16 @@
                 for(var j=0;j<fs.length;j++){
                     var f = fs[j];
                     if(f){
+                        // file size max
+                        if (f.size > fsizemax * 1000000 ){
+                            alert('File is too big. You cannot upload files greater than '+ fsizemax + ' Mo.');
+                            $('.loading-wrap').remove();
+                            return false;
+                        }
                         formData.append(fid, f);
                     }
                 }
             }
-            
             /* get data from form */
             var pdata = $(this).serializeArray();
             $.each(pdata, function(i, v){
@@ -168,12 +175,12 @@
                     contentType:false
                     }).done(function(d) {
                         fo.attr('disabled', false);
-                        fo.removeClass('waiting');
+                        $('.loading-wrap').remove();
                         _incall($this, 'jsonp_callback', [d]);
                         
                     }).error(function(error){
                         fo.attr('disabled', false);
-                        fo.removeClass('waiting');
+                        $('.loading-wrap').remove();
                         console.error("POST ERROR");
                         console.error(error);
                     });
