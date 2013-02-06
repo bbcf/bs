@@ -5,10 +5,8 @@
 // inspired from http://www.red-team-design.com/css3-animated-dropdown-menu
 //
 
-
 .error
   color: $col-error
-
 
 /* FORM */
 .bs_container
@@ -173,3 +171,30 @@ ul#bs_menubar ul ul li:first-child a:hover:after
 
 ul#bs_menubar ul li:last-child > a 
   border-radius: 0 0 3px 3px
+
+.loading-wrap
+  @include loading-wrap($loading-value)
+  position: relative
+
+.triangle1, .triangle2, .triangle3
+  @include loading-child($loading-value)
+
+.triangle2, .triangle3
+  @include loading-childX($loading-value)
+
+.triangle3
+  @include loading-childY($loading-value)
+
+@include keyframes(rotation)
+  0%
+    transform: rotate(0deg)
+  20%
+    transform: rotate(360deg)
+  100%
+    transform: rotate(360deg)
+
+@include keyframes(fadecolor)
+  0%
+    border-bottom-color: $col-1
+  100%
+    border-bottom-color: $col-2

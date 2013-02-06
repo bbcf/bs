@@ -127,8 +127,14 @@
 //        type = file.type;
 //        //your validation
 //    });
+            var waitdiv = $('<div class="loading-wrap"><span class="triangle1"></span><span class="triangle2"></span><span class="triangle3"></span></div>');
+            waitdiv.css('left', $(this).find('input').width() + 'px');
+            waitdiv.css('top', -$(this).find('input').height() + 'px');
+            $(this).append(waitdiv);
+            return false;
 
-            
+
+
             /* build form data objet to upload files if any */
             var formData = new FormData();
             var files = $(':file');
@@ -148,6 +154,11 @@
             $.each(pdata, function(i, v){
                 formData.append(v.name, v.value);
             });
+            /* disable the form button and show waiting stuff */
+            var fo = $(this).find('#submit');
+            fo.attr('disabled', true);
+            fo.addClass('waiting');
+
             /* submit query */
             $.ajax({
                     url: bs_url + 'plugins/validate',
@@ -156,21 +167,18 @@
                     processData:false,
                     contentType:false
                     }).done(function(d) {
+                        fo.attr('disabled', false);
+                        fo.removeClass('waiting');
                         _incall($this, 'jsonp_callback', [d]);
+                        
                     }).error(function(error){
-                        console.log("POST ERROR");
+                        fo.attr('disabled', false);
+                        fo.removeClass('waiting');
+                        console.error("POST ERROR");
                         console.error(error);
                     });
                     return true;
                 });
-            // $.getJSON(
-            //     bs_url + 'plugins/validate?' + pdata,
-            //     {},
-            //     function(data){
-            //         console.log(data);
-            //         _incall($this, 'jsonp_callback', [data]);
-            //     });
-            // });
         },
 
         /**

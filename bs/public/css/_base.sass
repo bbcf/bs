@@ -16,6 +16,8 @@ $margin-dst :30px
 $padding-dst: 30px
 $banner-height: 40px
 
+$loading-value: 3
+
 @mixin bshadow
   box-shadow: 10px 10px 5px $col-4
 
@@ -36,3 +38,46 @@ $banner-height: 40px
 @mixin note
   font-weight: lighter
   font-style: italic
+
+// taken from http://www.red-team-design.com/css3-loading-animation-experiment
+@mixin loading-wrap($x)
+  width: 60px/$x
+  height: 60px/$x
+  position: relative
+  margin: -30/$x 0 0 30/$x
+  background: $col-3  
+  animation: rotation ease-in-out 2s infinite
+  border-radius: 60px/$x      
+  
+@mixin loading-child($x) 
+  border-width: 0 20px/$x 30px/$x 20px/$x
+  border-style: solid
+  border-color: transparent
+  border-bottom-color: $col-2
+  height: 0
+  width: 0
+  position: absolute
+  left: 10px/$x
+  top: -10px/$x
+  animation: fadecolor 2s 1s infinite
+
+
+@mixin loading-childX($x)
+  content: ''
+  top: 20px/$x
+  left: 30px/$x
+  animation-delay: 0.5s
+
+@mixin loading-childY($x)
+  left: -10px/$x
+  animation-delay: 0.8s
+
+@mixin keyframes($name)
+  @-webkit-keyframes #{$name}
+    @content
+  @-moz-keyframes #{$name}
+    @content
+  @-ms-keyframes #{$name}
+    @content
+  @keyframes #{$name}
+    @content
