@@ -73,6 +73,7 @@ def fetch(user, plugin, form_parameters):
             # download url(s)
             else:
                 # take file from filesystem because these are fakes urls
+                input_files = []
                 if user.is_service:
                     debug('is service', 2)
                     file_root = services.service_manager.get(user.name, constants.SERVICE_FILE_ROOT_PARAMETER)
@@ -81,7 +82,6 @@ def fetch(user, plugin, form_parameters):
                     debug('got url_root : %s' % url_root, 4)
 
                     if is_list:
-                        input_files = []
                         for fvalue in form_value:
                             fname, fvalue = take_filename_and_path(fvalue)
                             fvalue = fvalue.replace('//', '/').replace(':/', '://')
@@ -97,13 +97,12 @@ def fetch(user, plugin, form_parameters):
                         _from = fvalue.replace(url_root, file_root)
                         _to = os.path.join(temporary_directory(root_directory), fname)
                         shutil.copy2(_from, _to)
-                        input_files = [_to]
+                        input_files.append(_to)
 
                 # take files from urls
                 else:
                     debug('is user', 2)
                     if is_list:
-                        input_files = []
                         for fvalue in form_value:
                             fname, fvalue = take_filename_and_path(fvalue)
                             _to = os.path.join(temporary_directory(root_directory), fname)
@@ -112,7 +111,7 @@ def fetch(user, plugin, form_parameters):
                     else:
                         _to = os.path.join(temporary_directory(root_directory), os.path.split(form_value)[1].split('?')[0])
                         download_from_url(form_value, _to)
-                        input_files = [_to]
+                        input_files.append(_to)
 
             if len(input_files) == 1:
                 input_files = input_files[0]
