@@ -15,7 +15,7 @@
 
             % for job in jobs:
             <p>
-                Job <b>${job.task_id}</b> is <i>${job.status}</i>
+                Job <a href="${tg.url('/jobs')}?task_id=${job.task_id}" >${job.task_id}</a> is <i>${job.status}</i>
                  at ${job.request.date_done}.
                 <br/>
 
@@ -26,7 +26,11 @@
                         ${r.result}
                     % endif
                 % endfor
-                
+
+                % if job.simple_error:
+                    ${job.simple_error}
+                % endif
+
             </p>
             % endfor
     <!-- </table>           

@@ -1,6 +1,6 @@
 from bs.lib import base
 from tg import expose, response, url
-from bs.model import DBSession, Job, Result, PluginRequest
+from bs.model import DBSession, Job, PluginRequest
 import os
 from datetime import datetime
 from sqlalchemy.sql import expression
@@ -18,7 +18,8 @@ class JobController(base.BaseController):
         results = [{'is_file': result.is_file, 'result': result.result, 'path':get_result_url(result, task_id), 'fname': result.fname} for result in job.results]
 
         # additionnal information
-        trace = job.error or ''
+        trace = job.simple_error or ''
+        complete = job.error or ''
         req = job.request
         plug = req.plugin
         datedone = datetime.strftime(req.date_done, '%a %d %b %Y at %H:%M:%S')
@@ -27,11 +28,18 @@ class JobController(base.BaseController):
         parameters = req.parameters
 
         return {'status': job.status, 'task_id': task_id, 'job_id': job.id, 'results': results,
-        'traceback': trace, 'date': datedone, 'plugin_id': plugin_id, 'plugin_info': plugin_info,
+        'traceback': trace, 'full_traceback': complete, 'date': datedone, 'plugin_id': plugin_id, 'plugin_info': plugin_info,
          'parameters': parameters}
 
     @expose('mako:bs.templates.job_all')
     def all(self, limit=None):
+        if limit:
+            try:
+                limit = int(limit)
+                jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done))[:limit]
+                return {'jobs': jobs}
+            except ValueError:
+                pass
         jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done)).all()
         return {'jobs': jobs}
 

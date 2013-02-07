@@ -10,8 +10,11 @@ from bs.model import DeclarativeBase, DBSession
 import json
 from datetime import datetime
 import uuid
+import re
 
 prefix = "jl_"
+
+TB_PATTERN = re.compile("\w*Error.*|\w*Exception.*")
 
 
 class JSONEncodedDict(TypeDecorator):
@@ -106,6 +109,15 @@ class Job(DeclarativeBase):
         if not self.task:
             return ''
         return self.task.traceback
+
+    @property
+    def simple_error(self):
+        if self.error:
+            try:
+                return re.findall(TB_PATTERN, self.error)[-1]
+            except:
+                return self.error
+        return ''
 
 
 class Result(DeclarativeBase):

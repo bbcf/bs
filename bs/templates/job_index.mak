@@ -9,7 +9,6 @@
 
 
 <body>
-
     ${d.banner()}
     <div id="content">
         % if not job_id:
@@ -30,7 +29,8 @@
 
             <!-- DISPLAY TRACEBACK -->
             % if traceback != '':
-                <p>${traceback}</p>
+                <p>${traceback}     <a class='full_traceback'>full traceback</a><br/> 
+                <span class='full_traceback'>${full_traceback}</span></p>
             % endif
             <!-- DISPLAY JOB INFORMATION -->
             <div class="belement">
@@ -66,4 +66,5 @@
 
 
 </body>
+${d.full_traceback_js()}
 </html>

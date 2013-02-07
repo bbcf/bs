@@ -29,3 +29,12 @@
         <p><a href="http://www.turbogears.org/">Powered by TurboGears</a></p>
     </div></div>
 </%def>
+
+
+<%def name="full_traceback_js()">
+    <script>
+        $('a.full_traceback').click(function(){
+            $('span.full_traceback').toggle();
+        });
+    </script>
+</%def>

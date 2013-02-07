@@ -92,3 +92,9 @@ div#content p {
   box-shadow: 10px 10px 5px #4b4e50;
   border: 1px solid #4b4e50;
   border-radius: 5px; }
+
+span.full_traceback {
+  display: none; }
+
+.show {
+  display: block; }
