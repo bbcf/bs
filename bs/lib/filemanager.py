@@ -23,7 +23,15 @@ def temporary_directory(directory=constants.paths['tmp']):
 
 import re
 
-MULTIPLE_PARAMS_PATTERN = re.compile('^\w+:\d+:(?P<param>\w+)$')
+MULTIPLE_PARAMS_PATTERN = re.compile('^\w+:(?P<nb>\d+):(?P<param>\w+)$')
+
+
+class SparseList(list):
+    def __setitem__(self, index, value):
+        missing = index - len(self) + 1
+        if missing > 0:
+            self.extend([None] * missing)
+        list.__setitem__(self, index, value)
 
 
 def regoup_multiple_field_in_list(form_parameters):
@@ -33,10 +41,11 @@ def regoup_multiple_field_in_list(form_parameters):
         m = MULTIPLE_PARAMS_PATTERN.match(k)
         if m:
             param = m.group('param')
+            index = int(m.group('nb')) - 1
             todel.append(k)
             if param not in paramlist:
-                paramlist[param] = []
-            paramlist[param].append(v)
+                paramlist[param] = SparseList()
+            paramlist[param][index] = v
     for p in todel:
         del form_parameters[p]
     form_parameters.update(paramlist)
