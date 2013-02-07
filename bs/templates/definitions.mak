@@ -31,10 +31,10 @@
 </%def>
 
 
-<%def name="full_traceback_js()">
+<%def name="enable_a_showhide()">
     <script>
-        $('a.full_traceback').click(function(){
-            $('span.full_traceback').toggle();
+        $('.a_hideshow').click(function(){
+            $(this).nextAll('.span_hidden').toggle();
         });
     </script>
 </%def>

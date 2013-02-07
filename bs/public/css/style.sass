@@ -93,10 +93,37 @@ div#content p
 .belement
   @include belement
 
-span.full_traceback
+.span_hidden
   display: none
-  
+ 
+#plugin_presentation
+  @include belement
+
+#plugin_presentation li
+  list-style-type: none
+  margin: $margin-dst / 2
+  padding: $padding-dst / 2
+  @include bshadow
+
+.plugin_description
+  position: relative
+
 .show
   display: block
+
+.jstatus
+  font-style: bold
+
+.jrunning
+  color: $col-1
+
+.jpending
+  color: $col-3
+
+.jtotal
+  color: $col-4
+
+.jfailed
+  color: $col-4
 
 

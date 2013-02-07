@@ -29,8 +29,8 @@
 
             <!-- DISPLAY TRACEBACK -->
             % if traceback != '':
-                <p>${traceback}     <a class='full_traceback'>full traceback</a><br/> 
-                <span class='full_traceback'>${full_traceback}</span></p>
+                <p>${traceback}     <a class='a_hideshow'>full traceback</a><br/> 
+                <span class='span_hidden'>${full_traceback}</span></p>
             % endif
             <!-- DISPLAY JOB INFORMATION -->
             <div class="belement">
@@ -66,5 +66,5 @@
 
 
 </body>
-${d.full_traceback_js()}
+${d.enable_a_showhide()}
 </html>

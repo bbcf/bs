@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-from tg import expose, url
+from tg import expose
 from bs.lib import base
 import urllib2
 import urllib
 import tg
 import json
+from bs.operations import util as putil
+from bs.model import DBSession, Job
 
 
 class DirectController(base.BaseController):
@@ -91,3 +93,15 @@ class DirectController(base.BaseController):
         form = urllib2.urlopen(url=bs_url, data=post_data).read()
         # display the form in template
         return {'bs': form,  'bs_server_url': bs_server_url}
+
+    @expose('mako:bs.templates.visual_status')
+    def status(self):
+        jobs = DBSession.query(Job).all()
+        plugins = putil.get_plugins_path()
+        mapping = {'plugins': plugins, 'nbplugins': len(plugins), 'total': len(jobs), 'running': 0, 'failure': 0, 'pending': 0, 'success': 0}
+        for job in jobs:
+            mapping[job.status.lower()] += 1
+
+        print mapping
+        print plugins
+        return mapping
