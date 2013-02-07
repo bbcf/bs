@@ -21,6 +21,26 @@ def debug(s, t=0):
 def temporary_directory(directory=constants.paths['tmp']):
     return tempfile.mkdtemp(dir=directory)
 
+import re
+
+MULTIPLE_PARAMS_PATTERN = re.compile('^\w+:\d+:(?P<param>\w+)$')
+
+
+def regoup_multiple_field_in_list(form_parameters):
+    todel = []
+    paramlist = {}
+    for k, v in form_parameters.iteritems():
+        m = MULTIPLE_PARAMS_PATTERN.match(k)
+        if m:
+            param = m.group('param')
+            todel.append(k)
+            if param not in paramlist:
+                paramlist[param] = []
+            paramlist[param].append(v)
+    for p in todel:
+        del form_parameters[p]
+    form_parameters.update(paramlist)
+
 
 def fetch(user, plugin, form_parameters):
     """
@@ -29,23 +49,12 @@ def fetch(user, plugin, form_parameters):
     TODO : it's not elegent cause of multiple refactoring but it's working
     """
     file_ids = [file_parameter.get('id') for file_parameter in plugin.in_params_typeof(wordlist.FILE)]
-    debug(form_parameters)
+    regoup_multiple_field_in_list(form_parameters)
+
     root_directory = temporary_directory()
-    debug('FETCH')
+    debug('FETCH %s' % form_parameters)
     for fid in file_ids:
         form_value = form_parameters.get(fid, None)
-        if form_value is None:
-            # it can be a multi - upload so we regroup all parameters starting with `fid`
-            # under `fid` parameter
-            files = []
-            todel = []
-            for k, v in form_parameters.iteritems():
-                if k.startswith('%s:' % fid):
-                    files.append(v)
-                    todel.append(k)
-            for k in todel:
-                del form_parameters[k]
-            form_value = files
         debug("download '%s' ? " % fid, 1)
         debug(form_value)
         # check if form_value contains a value or is not an empty list
@@ -63,16 +72,16 @@ def fetch(user, plugin, form_parameters):
                     is_file_field = True
                     debug('is file field', 3)
 
-            # download file field(s)
+            # download FILE FIELD
             if is_file_field:
                 if is_list:
                     input_files = [download_file_field(v, os.path.join(temporary_directory(root_directory), v.filename)) for v in form_value]
                 else:
                     input_files = [download_file_field(form_value, os.path.join(temporary_directory(root_directory), form_value.filename))]
 
-            # download url(s)
+            # download URL
             else:
-                # take file from filesystem because these are fakes urls
+                # fake urls
                 input_files = []
                 if user.is_service:
                     debug('is service', 2)
@@ -99,7 +108,7 @@ def fetch(user, plugin, form_parameters):
                         shutil.copy2(_from, _to)
                         input_files.append(_to)
 
-                # take files from urls
+                # real urls
                 else:
                     debug('is user', 2)
                     if is_list:
