@@ -1,12 +1,12 @@
-import wordlist
 from bs.model import DBSession, Plugin
 import inspect
 import sys
 import imp
 import os
 import traceback
+from base import TMP_DIR
 
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 0
 
 
 def debug(s, t=0):
@@ -37,7 +37,10 @@ class PluginManager(object):
         self.loaded = True
         self.module = __import__(self.modname)
         self.modpath = os.path.split(self.module.__file__)[0]
-        debug('Loading plugins from %s.' % self.modpath)
+
+        debug('Loading plugins from "%s".' % self.module)
+        debug('Set TMP_DIR to "%s".' % TMP_DIR)
+        self.module.base.TMP_DIR = TMP_DIR
         for pfile in self.module.PLUGINS_FILES:
             try:
                 fp, pathname, description = imp.find_module(pfile, [self.modpath])
@@ -46,7 +49,6 @@ class PluginManager(object):
                     clsmembers = inspect.getmembers(p, inspect.isclass)
                     for name, clz in clsmembers:
                         if clz.__module__ == p.__name__ and hasattr(clz, 'bs_plugin') and getattr(clz, 'bs_plugin') == 'bs-operation':
-                            debug('loading %s' % pfile, 1)
                             if p.__name__ in self.plugs:
                                 raise PluginError('Plugin with the same name : %s (%s) is already loaded : %s.' % (p.__name__, clz, self.plugs[p.__name__]))
                             self.plugs[p.__name__] = clz
@@ -61,6 +63,12 @@ class PluginManager(object):
             except ImportError as e:
                 print '[e][plugin manager] Module %s not found.' % pfile
         debug('loaded : %s' % ', '.join([k for k, v in self.plugs.iteritems()]))
+
+    @property
+    def wordlist(self):
+        if not self.loaded:
+            self.load()
+        return self.module.base.wordlist
 
 
 def load_plugins():
@@ -89,6 +97,7 @@ def _check_in_database(plug):
 
 
 def _check_plugin_info(plug):
+    from bs.lib.operations import wordlist
     if plug.info is None:
         raise PluginError('You must provide info about your plugin.')
         # check if needed parameters are here

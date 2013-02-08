@@ -6,7 +6,8 @@ from tg import expose, response
 from bs.lib.base import BaseController
 from bs.controllers.error import ErrorController
 from bs.controllers import DirectController, PluginController, JobController, DevController
-from bs.operations import wordlist
+from bs.lib.operations import wordlist
+
 __all__ = ['RootController']
 
 

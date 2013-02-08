@@ -7,3 +7,4 @@ CELERY_RESULT_DBURI = 'sqlite:///bs-database.sqlite'
 # Transport URL
 BROKER_URL = 'sqla+sqlite:///celery-transport.sqlite'
 
+CELERYD_CONCURRENCY = 1

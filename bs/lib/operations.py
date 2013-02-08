@@ -1,6 +1,7 @@
 from bs.operations import manager as plmng
 
 manager = plmng.load_plugins()
+wordlist = manager.wordlist
 
 
 def get_plugins_path(service=None, ordered=False):

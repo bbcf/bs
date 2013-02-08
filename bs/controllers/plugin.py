@@ -7,10 +7,14 @@ from formencode import Invalid
 from tg import expose, response
 import copy
 
-from bs.lib import base, services, constants, logger, util, filemanager
-
+from bs.lib import base
+from bs.lib import services
+from bs.lib import constants
+from bs.lib import logger
+from bs.lib import util
+from bs.lib import filemanager
 from bs.lib import operations
-from bs.operations import wordlist
+from bs.lib.operations import wordlist
 
 from bs.celery import tasks
 from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task

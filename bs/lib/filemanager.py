@@ -1,4 +1,4 @@
-from bs.operations import wordlist
+from bs.lib.operations import wordlist
 from bs.lib import constants, services
 import tempfile
 import os
