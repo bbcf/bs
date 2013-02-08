@@ -13,11 +13,11 @@
     <div id="content">
     
         <p>BioScript is a python library aiming at regrouping & running bioinformatics scripts
-        through common and a simple interfaces. It can be used at the command line or using a web service. Bioinformatics scripts
+        through a common and simple interface. It can be used at the command line or using a web service. Bioinformatics scripts
         are displayed and used as a traditional `form` way.</p>
 
         <p>
-        The addition of new scripts does not require advance computational skills and is facilitated
+        The addition of new scripts does not require advanced computational skills and is facilitated
         by the plugin system in the application. It is designed to be simple and fast.
         </p>
 
