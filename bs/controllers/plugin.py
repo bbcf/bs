@@ -9,7 +9,7 @@ import copy
 
 from bs.lib import base, services, constants, logger, util, filemanager
 
-from bs.operations import util as putil
+from bs.lib import operations
 from bs.operations import wordlist
 
 from bs.celery import tasks
@@ -39,9 +39,9 @@ class PluginController(base.BaseController):
         """
         user = util.get_user(tg.request)
         if user.is_service:
-            d = {'plugins': putil.get_plugins_path(service=user, ordered=ordered)}
+            d = {'plugins': operations.get_plugins_path(service=user, ordered=ordered)}
         else:
-            d = {'plugins': putil.get_plugins_path(ordered=ordered)}
+            d = {'plugins': operations.get_plugins_path(ordered=ordered)}
         return d
 
     @expose('mako:bs.templates.plugin_form')
@@ -54,7 +54,7 @@ class PluginController(base.BaseController):
         # check plugin id
         plug = None
         try:
-            plug = putil.get_plugin_byId(oid)
+            plug = operations.get_plugin_byId(oid)
         except:
             tg.abort(400, "Bad plugin identifier")
 
@@ -116,7 +116,7 @@ class PluginController(base.BaseController):
         #     tg.abort(400, "Plugin identifier not found in the request.")
 
         # # check plugin id
-        # plug = putil.get_plugin_byId(plugin_id)
+        # plug = operations.get_plugin_byId(plugin_id)
         # if plug is None:
         #     tg.abort(400, "Bad plugin identifier")
 
@@ -162,7 +162,7 @@ class PluginController(base.BaseController):
             tg.abort(400, "Plugin identifier not found in the request.")
 
         # check plugin id
-        plug = putil.get_plugin_byId(plugin_id)
+        plug = operations.get_plugin_byId(plugin_id)
         if plug is None:
             tg.abort(400, "Bad plugin identifier")
 

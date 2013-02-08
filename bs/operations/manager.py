@@ -1,103 +1,72 @@
-from bs.lib import constants
-import wordlist, os, urllib2, tempfile, shutil, tg
-from bs.operations.base import OperationPlugin
+import wordlist
 from bs.model import DBSession, Plugin
-from bs.lib.plugin_manager import PluginManager
+import inspect
+import sys
+import imp
+import os
+import traceback
 
-_loaded = False
+DEBUG_LEVEL = 1
+
+
+def debug(s, t=0):
+    if DEBUG_LEVEL > 0:
+        print '[plugin manager] %s%s' % ('\t' * t, s)
+
+
+class PluginError(Exception):
+    pass
+
+
+class PluginManager(object):
+
+    def __init__(self, modulename):
+        self.plugs = {}
+        self.modname = modulename
+        self.module = None
+        self.loaded = False
+
+    def plugins(self):
+        if not self.loaded:
+            self.load()
+        return self.plugs
+
+    def load(self):
+        if self.loaded:
+            return
+        self.loaded = True
+        self.module = __import__(self.modname)
+        self.modpath = os.path.split(self.module.__file__)[0]
+        debug('Loading plugins from %s.' % self.modpath)
+        for pfile in self.module.PLUGINS_FILES:
+            try:
+                fp, pathname, description = imp.find_module(pfile, [self.modpath])
+                try:
+                    p = imp.load_module(pfile, fp, pathname, description)
+                    clsmembers = inspect.getmembers(p, inspect.isclass)
+                    for name, clz in clsmembers:
+                        if clz.__module__ == p.__name__ and hasattr(clz, 'bs_plugin') and getattr(clz, 'bs_plugin') == 'bs-operation':
+                            debug('loading %s' % pfile, 1)
+                            if p.__name__ in self.plugs:
+                                raise PluginError('Plugin with the same name : %s (%s) is already loaded : %s.' % (p.__name__, clz, self.plugs[p.__name__]))
+                            self.plugs[p.__name__] = clz
+
+                except Exception as e:
+                    print '[e][plugin manager] Module %s not loaded cause : %s' % (pfile, str(e))
+                    if DEBUG_LEVEL > 0:
+                        exc_type, exc_value, exc_traceback = sys.exc_info()
+                        print '\n'.join(traceback.format_tb(exc_traceback))
+                finally:
+                    fp.close()
+            except ImportError as e:
+                print '[e][plugin manager] Module %s not found.' % pfile
+        debug('loaded : %s' % ', '.join([k for k, v in self.plugs.iteritems()]))
 
 
 def load_plugins():
-    """
-    Load the plugin into BioScript application
-    """
-    # update plugins from github
-    do_update = tg.config.get('plugins.update')
-    if do_update and do_update.lower() in ['1', 'true', 't']:
-        _update(tg.config.get('plugins.github.url'))
-
-    # initialize plugin manager with yapsy
-    plug_dir = constants.plugin_directory()
-
-    manager = PluginManager(restrict='bs-operation')
-    manager.add_plugin_path(plug_dir)
-
-    print ' --- init plugins located in %s ---' % plug_dir
-    # from yapsy.PluginManager import PluginManager
-    # manager = PluginManager()
-    # manager.setPluginPlaces([plug_dir])
-    # manager.setCategoriesFilter({
-    #     "Operations": OperationPlugin,
-    #     })
-
-    # manager.collectPlugins()
-    # check plugins and add in db if not already
-    plugids = []
-    for name, clazz in manager.plugins().iteritems():
-        plug = clazz()
-        #p = plug.plugin_object
-        _check_plugin_info(plug)
-        if tg.config['pylons.app_globals']:
-            _check_in_database(plug)
-        plugids.append(plug.unique_id())
-
-    # check deprecated plugins
-    if tg.config['pylons.app_globals']:
-        for p in DBSession.query(Plugin).all():
-            if p.generated_id not in plugids:
-                p.deprecated = True
-                DBSession.add(p)
-        DBSession.flush()
+    manager = PluginManager('bsPlugins')
+    manager.load()
     return manager
-
-
-def _update(url):
-    """
-    Update plugins from a repository
-    :param url: the url of the repository
-    """
-    dont_touch = ['', 'README', '.gitignore']
-    print ' --- updating plugins from %s ---' % url
-    from zipfile import ZipFile as zip
-
-    # download
-    req = urllib2.urlopen(url)
-    tmp_file = tempfile.NamedTemporaryFile(mode='wb', suffix='.zip', delete=False)
-    tmp_file.write(req.read())
-    tmp_file.close()
-    #extract
-    tmp_dir = tempfile.mkdtemp()
-    z = zip(tmp_file.name)
-    for info in z.infolist():
-        f = info.filename
-        p = os.path.sep.join(f.split(os.path.sep)[1:])
-        directory, filename = os.path.split(p)
-        if filename not in dont_touch:
-            data = z.read(f)
-            out_path = os.path.join(tmp_dir, filename)
-            if os.path.isdir(f):
-                print '\t[mkdir] %s to %s' % (f, out_path)
-                os.mkdir(out_path)
-            else:
-                print '\t[cp] %s to %s' % (f, out_path)
-                with open(out_path, 'wb') as out:
-                    out.write(data)
-
-    #removing files from plugins directory
-    plug_dir = constants.plugin_directory()
-    for f in os.listdir(plug_dir):
-        if f not in dont_touch:
-            print '\t[rm] %s' % os.path.join(plug_dir, f)
-            os.remove(os.path.join(plug_dir, f))
-
-    #move new files to plugin directory
-    for plug in os.listdir(tmp_dir):
-        print '\t[mv] %s to %s' % (os.path.join(tmp_dir, plug), plug_dir)
-        shutil.move(os.path.join(tmp_dir, plug), plug_dir)
-
-    #removing tmp files
-    shutil.rmtree(tmp_dir)
-    os.remove(tmp_file.name)
 
 
 def _check_in_database(plug):
@@ -121,25 +90,25 @@ def _check_in_database(plug):
 
 def _check_plugin_info(plug):
     if plug.info is None:
-        raise Exception('You must provide info about your plugin.')
+        raise PluginError('You must provide info about your plugin.')
         # check if needed parameters are here
-    if not plug.info.has_key('title'):
-        raise Exception('You must provide a title for your plugin.')
-    if not plug.info.has_key('description'):
-        raise Exception('You must provide a description for your plugin.')
-    if not plug.info.has_key('path'):
-        raise Exception('You must provide a unique path for your plugin.')
-    if not plug.info.has_key('in'):
-        raise Exception('You must provide a description about input parameters used in your plugin.')
-    if not plug.info.has_key('output'):
+    if not 'title' in plug.info:
+        raise PluginError('You must provide a title for your plugin.')
+    if not 'description' in plug.info:
+        raise PluginError('You must provide a description for your plugin.')
+    if not 'path' in plug.info:
+        raise PluginError('You must provide a unique path for your plugin.')
+    if not 'in' in plug.info:
+        raise PluginError('You must provide a description about input parameters used in your plugin.')
+    if not 'output' in plug.info:
         _check_plugin_output(plug)
-    if not plug.info.has_key('out'):
-        raise Exception('You must provide a description about out parameters used in your plugin.')
+    if not 'out' in plug.info:
+        raise PluginError('You must provide a description about out parameters used in your plugin.')
 
     # check if parameters are well described
     for param in plug.info.get('in') + plug.info.get('out'):
         if param.get('type') not in wordlist.wordlist.keys():
-            raise Exception('Param of type `%s` does not exist in %s' % (param.get('type'), wordlist.wordlist.keys()))
+            raise PluginError('Param of type `%s` does not exist in %s' % (param.get('type'), wordlist.wordlist.keys()))
 
 
 def _check_plugin_output(plug):

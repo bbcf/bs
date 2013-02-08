@@ -1,12 +1,12 @@
 import hashlib
 import os
 import wordlist
-from pkg_resources import resource_filename
-
 import time
 import string
 import random
 import tempfile
+
+
 random_name = lambda x: ''.join(random.choice(string.ascii_lowercase + string.digits) for i in xrange(x))
 BASE = os.path.dirname(__file__)
 TMP_DIR = os.path.normpath(os.path.join(BASE, os.path.pardir, 'tmp'))
@@ -104,7 +104,6 @@ class OperationPlugin(object):
 import tw2.core
 import tw2.forms
 import tw2.dynforms
-import formencode
 
 
 class BaseForm(tw2.forms.TableForm):
@@ -115,10 +114,6 @@ class BaseForm(tw2.forms.TableForm):
 class DynForm(tw2.dynforms.CustomisedTableForm):
     bs_private = tw2.forms.HiddenField()
     key = tw2.forms.HiddenField()
-
-
-import tw2.core as twc
-import tw2.forms as twf
 
 
 class Multi(tw2.dynforms.GrowingGridLayout):

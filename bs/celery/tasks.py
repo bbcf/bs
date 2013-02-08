@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from celery.task import task
 from celery.task.http import URL
 
-from bs.operations import util
+from bs.lib import operations
 import os
 import urllib
 import urllib2
@@ -48,7 +48,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
 
     debug('task launched username: %s, indir: %s, oudir: %s' % (username, inputs_directory, outputs_directory))
     # get plugin class
-    plugin = util.get_plugin_byId(plugin_info['generated_id'])
+    plugin = operations.get_plugin_byId(plugin_info['generated_id'])
     if plugin is None:
         raise Exception('Plugin not found by the worker.')
 

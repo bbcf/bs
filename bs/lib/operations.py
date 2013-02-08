@@ -1,8 +1,13 @@
+from bs.operations import manager as plmng
+
+manager = plmng.load_plugins()
+
+
 def get_plugins_path(service=None, ordered=False):
     """
     Get the paths of the plugins
     """
-    plugs = plugin_manager.plugins()
+    plugs = manager.plugins()
     if ordered in [True, 'T', 1, '1', 'true', 'True', 'ok', 't']:
         paths = _mix_plugin_paths(plugs, service)
         paths = paths._serialize()
@@ -22,25 +27,12 @@ def get_plugin_byId(_id):
     '''
     Get a plugin by it's id
     '''
-    plugs = plugin_manager.plugins()
+    plugs = manager.plugins()
     for pname, pclazz in plugs.iteritems():
         plug = pclazz()
         if plug.unique_id() == _id:
             return plug
     raise Exception('Plugin with id %s not found' % _id)
-
-
-
-import hashlib, os, json, wordlist
-from bs.lib import util
-
-
-
-import string, random
-from bs.operations import plugin_manager
-
-
-
 
 
 def _mix_plugin_paths(plugins, service=None):
@@ -96,17 +88,22 @@ class Node(object):
         Method that serialize a node object
         """
         d = {}
-        if self.key is not None: d['key'] = self.key
-        if self.id is not None: d['id'] = self.id
-        if self.childs : d['childs'] = [child._serialize() for child in self.childs]
-        if self.id is not None: d['info'] = self._serialize_info()
+        if self.key is not None:
+            d['key'] = self.key
+        if self.id is not None:
+            d['id'] = self.id
+        if self.childs:
+            d['childs'] = [child._serialize() for child in self.childs]
+        if self.id is not None:
+            d['info'] = self._serialize_info()
         return d
 
     def _serialize_info(self):
         """
         Serialize the info parameter of a plugin
         """
-        return dict((k, v) for k, v in self.info.iteritems() if k!='output' and v is not None)
+        return dict((k, v) for k, v in self.info.iteritems() if k != 'output' and v is not None)
+
 
 def encode_tree(obj):
     '''
@@ -126,14 +123,14 @@ def _mix(node, path, index, uid=None, info=None):
         p = Node(path[index])
         if node.has_child(p):
             new = node.get_child(p)
-        else :
+        else:
             new = p
             node.add(p)
         _mix(new, path, index + 1, uid, info)
-
-    else :
+    else:
         node.id = uid
         node.info = info
+
 
 def _pathify(nodes):
     '''
@@ -143,6 +140,3 @@ def _pathify(nodes):
     for n in nodes:
         _mix(root, n.info['path'], 0, n.unique_id(), n.info)
     return root
-
-
-

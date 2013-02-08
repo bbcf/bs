@@ -5,7 +5,7 @@ import urllib2
 import urllib
 import tg
 import json
-from bs.operations import util as putil
+from bs.lib import operations
 from bs.model import DBSession, Job
 
 
@@ -97,7 +97,7 @@ class DirectController(base.BaseController):
     @expose('mako:bs.templates.visual_status')
     def status(self):
         jobs = DBSession.query(Job).all()
-        plugins = putil.get_plugins_path()
+        plugins = operations.get_plugins_path()
         mapping = {'plugins': plugins, 'nbplugins': len(plugins), 'total': len(jobs), 'running': 0, 'failure': 0, 'pending': 0, 'success': 0}
         for job in jobs:
             mapping[job.status.lower()] += 1

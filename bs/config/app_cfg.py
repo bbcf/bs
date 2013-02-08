@@ -53,7 +53,7 @@ def on_shutdown():
 
 def start_app(app):
     print ' --- import operations --- '
-    import bs.operations
+    import bs.lib.operations
     print ' --- import services --- '
     import bs.lib.services
     return app
