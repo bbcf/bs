@@ -53,7 +53,7 @@ class PluginManager(object):
 
                 except Exception as e:
                     print '[e][plugin manager] Module %s not loaded cause : %s' % (pfile, str(e))
-                    if DEBUG_LEVEL > 0:
+                    if DEBUG_LEVEL > 1:
                         exc_type, exc_value, exc_traceback = sys.exc_info()
                         print '\n'.join(traceback.format_tb(exc_traceback))
                 finally:

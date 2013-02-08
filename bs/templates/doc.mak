@@ -19,7 +19,7 @@
         </p>
 
         <p> 
-        All plugins are hosted by github at <a href="https://github.com/bbcf/bs.operations">bbcf/bs.operations</a>.
+        All plugins are hosted by github at <a href="https://github.com/bbcf/bsPlugins">bbcf/bsPlugins</a>.
         </p>
         
         <p>

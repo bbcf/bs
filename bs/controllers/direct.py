@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tg import expose
+from tg import expose, session, redirect
 from bs.lib import base
 import urllib2
 import urllib
@@ -30,8 +30,13 @@ class DirectController(base.BaseController):
         meth = 'get'
         if len(args) > 0 and args[0] == 'prefill':
             meth = 'get_prefill'
+        # get previous launched jobs taht are in the session
+        task_ids = session.get('task_ids', [])
+        jobs = []
+        if task_ids:
+            jobs = DBSession.query(Job).filter(Job.task_id.in_(task_ids)).all()
         # serve result on visual_index.mak template file
-        return {'oplist': operation_list, 'serv': bs_server_url, 'method': meth}
+        return {'oplist': operation_list, 'serv': bs_server_url, 'method': meth, 'jobs': jobs}
 
     @expose('mako:bs.templates.visual_get')
     def get(self, id, *args, **kw):
@@ -102,3 +107,11 @@ class DirectController(base.BaseController):
         for job in jobs:
             mapping[job.status.lower()] += 1
         return mapping
+
+    @expose()
+    def success(self, task_id):
+        task_ids = session.get('task_ids', [])
+        task_ids.append(task_id)
+        session['task_ids'] = task_ids
+        session.save()
+        raise redirect('/jobs?task_id=%s' % task_id)

@@ -129,3 +129,6 @@ div#content p {
 
 .jfailed {
   color: #4b4e50; }
+
+#bs_operations {
+  height: 75px; }

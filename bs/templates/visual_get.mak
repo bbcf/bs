@@ -28,7 +28,7 @@
         var options = {
             'bs_server_url' : ${bs_server_url|se,n},
             'validation_successful' : function(plugin_id, task_id){
-                window.location = ${bs_server_url|se,n} + 'jobs?task_id=' + task_id;
+                window.location = ${bs_server_url|se,n} + 'direct/success?task_id=' + task_id;
             }
         };
 
