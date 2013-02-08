@@ -101,7 +101,4 @@ class DirectController(base.BaseController):
         mapping = {'plugins': plugins, 'nbplugins': len(plugins), 'total': len(jobs), 'running': 0, 'failure': 0, 'pending': 0, 'success': 0}
         for job in jobs:
             mapping[job.status.lower()] += 1
-
-        print mapping
-        print plugins
         return mapping

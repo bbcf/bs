@@ -11,6 +11,7 @@ type2widget = {
     'text' : twf.TextField,
     'numeric' : twf.TextField,
     'file' : twf.FileField,
+    'radio': twf.RadioButton
 }
 
 
