@@ -16,7 +16,7 @@
     </p>
 
     <div id="plugin_presentation">
-        There is <span class="jstatus jrunning">${nbplugins}</span> plugins available: <br/>
+        There is <span class="jstatus jrunning">${nbplugins}</span> plugins availables: <br/>
         <ul>
         % for plugin in plugins:
             <li> 
