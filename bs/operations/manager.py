@@ -4,6 +4,7 @@ import sys
 import imp
 import os
 import traceback
+import tg
 from base import TMP_DIR
 
 DEBUG_LEVEL = 0
@@ -53,6 +54,7 @@ class PluginManager(object):
                                 raise PluginError('Plugin with the same name : %s (%s) is already loaded : %s.' % (p.__name__, clz, self.plugs[p.__name__]))
                             self.plugs[p.__name__] = clz
 
+
                 except Exception as e:
                     print '[e][plugin manager] Module %s not loaded cause : %s' % (pfile, str(e))
                     if DEBUG_LEVEL > 1:
@@ -62,6 +64,10 @@ class PluginManager(object):
                     fp.close()
             except ImportError as e:
                 print '[e][plugin manager] Module %s not found.' % pfile
+
+
+
+
         debug('loaded : %s' % ', '.join([k for k, v in self.plugs.iteritems()]))
 
     @property
@@ -74,6 +80,23 @@ class PluginManager(object):
 def load_plugins():
     manager = PluginManager('bsPlugins')
     manager.load()
+
+    plugids = []
+    for name, clazz in manager.plugins().iteritems():
+        plug = clazz()
+        #p = plug.plugin_object
+        #_check_plugin_info(plug)
+        if tg.config['pylons.app_globals']:
+            _check_in_database(plug)
+        plugids.append(plug.unique_id())
+
+    # check deprecated plugins
+    if tg.config['pylons.app_globals']:
+        for p in DBSession.query(Plugin).all():
+            if p.generated_id not in plugids:
+                p.deprecated = True
+                DBSession.add(p)
+        DBSession.flush()
     return manager
 
 
