@@ -96,7 +96,7 @@ def load_plugins():
             if p.generated_id not in plugids:
                 p.deprecated = True
                 DBSession.add(p)
-        DBSession.flush()
+    DBSession.flush()
     return manager
 
 
