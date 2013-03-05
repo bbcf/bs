@@ -10,10 +10,33 @@ import json
 import errno
 import shutil
 from bs.lib import io
+from celery import Celery
 
-DEBUG_LEVEL = 0
-BASE = os.path.dirname(__file__)
-TMP_DIR = os.path.normpath(os.path.join(BASE, os.path.pardir, 'tmp'))
+from celery import current_app
+
+ROOT_DIRECTORY = os.path.dirname(__file__)
+TMP_DIR = os.path.normpath(os.path.join(ROOT_DIRECTORY, os.path.pardir, 'tmp'))
+
+if 'ROOT_DIRECTORY' in current_app.conf:
+    ROOT_DIRECTORY = current_app.conf['ROOT_DIRECTORY']
+    TMP_DIR = os.path.normpath(os.path.join(ROOT_DIRECTORY, 'tmp'))
+
+print '[x] temporary data path is %s' % TMP_DIR
+
+
+def check_data_paths():
+    if not os.path.exists(ROOT_DIRECTORY):
+        print "Directory '%s' does not exist: trying to create it..." % ROOT_DIRECTORY
+        os.mkdir(ROOT_DIRECTORY)
+        print 'ok'
+    if not os.path.exists(TMP_DIR):
+        print "Directory '%s' does not exist: trying to create it..." % TMP_DIR
+        os.mkdir(TMP_DIR)
+        print 'ok'
+
+check_data_paths()
+
+DEBUG_LEVEL = 1
 
 
 def debug(s, t=0):
@@ -59,8 +82,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     try:
         ret = plugin(**form_parameters)
         results = [{'is_file': False,
-                    'value': ret
-        }]
+                    'value': ret}]
     except Exception as e:
         if service_callback is not None:
             user_parameters.update({'error': e})

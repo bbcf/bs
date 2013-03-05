@@ -21,11 +21,11 @@ from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
 
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 10
 
 
-def debug(s, t=0):
-    if DEBUG_LEVEL > 0:
+def debug(s, t=0, l=10):
+    if DEBUG_LEVEL > l:
         print '[plugin controller] %s%s' % ('\t' * t, s)
 
 
@@ -97,6 +97,7 @@ class PluginController(base.BaseController):
         debug('vaaalue : %s' % widget.value)
 
         debug(user)
+        debug('form fetched %s' % widget.child.children[2].resources, l=1)
         return {'page': 'plugin', 'desc': desc, 'title': info.get('title'), 'widget': widget}
 
     @expose()
@@ -188,7 +189,7 @@ class PluginController(base.BaseController):
         response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
         response.headers['Access-Control-Allow-Origin'] = '*'
         form = form().req()
-
+        debug('form before validation %s' % form.child.children[2].resources, l=1)
         # validation
         try:
             debug('Validating parameters %s' % kw, 1)
@@ -201,11 +202,18 @@ class PluginController(base.BaseController):
             #value = {'bs_private': json.dumps(bs_private)}
             #debug('value %s' % value)
             #e.widget.value = value
+            import sys
+            import traceback
+            traceback.print_exception(*sys.exc_info())
+            print e
             plugin_request.status = 'FAILED'
             plugin_request.error = str(e)
             DBSession.add(plugin_request)
+            debug('form validation failed %s' % e.widget.child.children[2].resources, l=1)
+            debug('widget validation failed %s' % e.widget, l=1)
+            debug('widget validation failed %s' % e.widget.display(), l=1)
             return json.dumps({'validation': 'failed', 'desc': info.get('description'),
-                    'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
+                'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
             # return jsonp_response(**{'validation': 'failed', 'desc': info.get('description'),
             #         'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
         debug('Validation pass')
@@ -225,7 +233,8 @@ class PluginController(base.BaseController):
             etype, value, tb = sys.exc_info()
             traceback.print_exception(etype, value, tb)
             return json.dumps({'validation': 'success', 'desc': info.get('description'),
-                                    'title':  info.get('title'), 'error': 'error while fetching files : ' + str(e), 'callback': callback})
+                'title':  info.get('title'), 'error': 'error while fetching files : ' + str(e), 'callback': callback})
+
         debug('Files fetched')
         # get output directory to write results
         outputs_directory = filemanager.temporary_directory(constants.paths['data'])
@@ -418,21 +427,25 @@ def _log_form_request(plugin_id, user, parameters):
     DBSession.flush()
     return pl
 
-PRIVATE_BS_PARAMS = ['bs_private', 'callback', 'key']
+PRIVATE_BS_PARAMS = ('bs_private', 'callback', 'key')
 
 
 def get_formparameters(params):
     d = {}
     for k, v in params.iteritems():
         if k not in PRIVATE_BS_PARAMS:
-            if isinstance(v, (list, tuple)):
-                value = v
-            elif not isinstance(v, basestring):
-                value = v.filename
-            else:
-                value = str(v)
-            d[k] = value
+            d[k] = _get_value(v)
     return d
+
+
+def _get_value(param):
+    if isinstance(param, (list, tuple)):
+        value = [_get_value(p) for p in param]
+    elif not isinstance(param, basestring):
+        value = param.filename
+    else:
+        value = str(param)
+    return value
 
 
 def _log_job_request(request_id, task_id):

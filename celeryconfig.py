@@ -8,3 +8,6 @@ CELERY_RESULT_DBURI = 'sqlite:///bs-database.sqlite'
 BROKER_URL = 'sqla+sqlite:///celery-transport.sqlite'
 
 CELERYD_CONCURRENCY = 1
+
+
+ROOT_DIRECTORY = '/data/dev/bs/rootdir'

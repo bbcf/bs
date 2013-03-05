@@ -12,20 +12,41 @@ SERVICE_CALLBACK_URL_PARAMETER = 'callback.url'
 
 date_format = "%d. %b %Y %Hh%M"
 
+ROOT_DIRECTORY = tg.config.get('root.directory')
+
 
 paths = {
     'plugins': os.path.join(PROJECT_ROOT, 'operations', 'plugins'),
-    'services': os.path.normpath(os.path.join(PROJECT_ROOT, os.path.pardir, 'services.ini')),
-    'tmp': os.path.normpath(os.path.join(PROJECT_ROOT, 'tmp')),
-    'data': os.path.normpath(os.path.join(PROJECT_ROOT, 'bioscript_data'))
+    'services': os.path.normpath(os.path.join(ROOT_DIRECTORY, os.path.pardir, 'services.ini')),
+    'tmp': os.path.normpath(os.path.join(ROOT_DIRECTORY, 'tmp')),
+    'data': os.path.normpath(os.path.join(ROOT_DIRECTORY, 'bioscript_data'))
 }
 
 files = {
     'services': {
-        'ini': os.path.normpath(os.path.join(PROJECT_ROOT, os.path.pardir, 'services.ini')),
-        'cfg': os.path.normpath(os.path.join(PROJECT_ROOT, os.path.pardir, 'services.cfg')),
+        'ini': os.path.normpath(os.path.join(ROOT_DIRECTORY, os.path.pardir, 'services.ini')),
+        'cfg': os.path.normpath(os.path.join(ROOT_DIRECTORY, os.path.pardir, 'services.cfg')),
     }
 }
+
+
+def check_data_paths():
+    if not os.path.exists(ROOT_DIRECTORY):
+        print "Directory '%s' does not exist: trying to create it..." % ROOT_DIRECTORY
+        os.mkdir(ROOT_DIRECTORY)
+        print 'ok'
+    if not os.path.exists(paths['tmp']):
+        print "Directory '%s' does not exist: trying to create it..." % paths['tmp']
+        os.mkdir(paths['tmp'])
+        print 'ok'
+    if not os.path.exists(paths['data']):
+        print "Directory '%s' does not exist: trying to create it..." % paths['data']
+        os.mkdir(paths['data'])
+        print 'ok'
+    if not os.path.exists(paths['services']):
+        raise IOError('You must define the service.ini file. It must be located at %s' % paths['services'])
+
+check_data_paths()
 
 
 def plugin_directory():

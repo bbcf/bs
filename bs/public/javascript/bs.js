@@ -12,7 +12,7 @@
         bs_form_container_selector: '#bs_form_container',
         show_plugin: false,
         validation_successful: false,
-        fsizemax: 100,
+        fsizemax: 255,
         app: ''
     };
 
@@ -141,7 +141,7 @@
             var formData = new FormData();
             var files = $(':file');
             for(var i = 0; i < files.length; i++) {
-                var fid = files[i].id;
+                var fid = files[i].name;
                 var fs = files[i].files;
                 for(var j=0;j<fs.length;j++){
                     var f = fs[j];
