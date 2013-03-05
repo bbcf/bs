@@ -1,7 +1,19 @@
 import os
 
-BASE = os.path.dirname(__file__)
-TMP_DIR = os.path.normpath(os.path.join(BASE, os.path.pardir, 'tmp'))
+
+
+
+
+
+import tg
+TMP_DIR = tg.config.get('root.directory')
+from celery import current_app
+if 'ROOT_DIRECTORY' in current_app.conf:
+    ROOT_DIRECTORY = current_app.conf['ROOT_DIRECTORY']
+    TMP_DIR = os.path.normpath(os.path.join(ROOT_DIRECTORY, 'tmp'))
+
+
+print TMP_DIR
 
 import tw2.core
 import tw2.forms
