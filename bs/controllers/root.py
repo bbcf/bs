@@ -64,6 +64,14 @@ class RootController(BaseController):
     @expose()
     def test(self, *a, **kw):
         print '%s, %s' % (a, kw)
-
         return ''
 
+    @expose('bs.templates.koopa')
+    def koopa(self):
+        return {'koopa': 'couac'}
+
+    @expose()
+    def troopa(self, *a, **kw):
+        html = self.koopa()
+        print html
+        return html

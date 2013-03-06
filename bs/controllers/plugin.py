@@ -3,6 +3,8 @@ import json
 import tw2
 import tg
 import os
+import urllib2
+import urllib
 from formencode import Invalid
 from tg import expose, response
 import copy
@@ -77,9 +79,6 @@ class PluginController(base.BaseController):
 
         if 'prefill' in bs_private:
             prefill_fields(info.get('in'), form, bs_private['prefill'], kw)
-
-        # {'bs_private': {'app': pp, 'cfg': handler.job.bioscript_config, 'prefill': prefill}})
-
         # add some private parameters from BioScript
         pp = {'id': oid}
         # if user is a serviec, add the key & the mail in the authentication
@@ -101,49 +100,33 @@ class PluginController(base.BaseController):
         return {'page': 'plugin', 'desc': desc, 'title': info.get('title'), 'widget': widget}
 
     @expose()
-    @logger.identify
-    @logger.log_connection
-    def validate2(self, **kw):
-        debug('params %s' % kw)
-        #debug(tg.request)
-        user = util.get_user(tg.request)
-        debug('Got request validation from user %s' % (user))
-
-        if not 'bs_private' in kw:
-            debug('bs_private not found')
-            tg.abort(400, "Plugin identifier not found in the request.")
+    @expose('mako:bs.templates.plugin_validate')
+    def _validate(self, **kw):
         debug('params %s' % kw, 1)
+        bs_private = copy.deepcopy(json.loads(kw['bs_private']))
+        plugin_id = bs_private['pp']['id']
+        plug = operations.get_plugin_byId(plugin_id)
+        obj = plug
+        info = obj.info
+        form = info.get('output')()
 
-        # bs_private = copy.deepcopy(json.loads(kw['bs_private']))
-        # debug('private %s' % bs_private, 1)
-        # plugin_id = bs_private['pp']['id']
-        # if plugin_id is None:
-        #     tg.abort(400, "Plugin identifier not found in the request.")
-
-        # # check plugin id
-        # plug = operations.get_plugin_byId(plugin_id)
-        # if plug is None:
-        #     tg.abort(400, "Bad plugin identifier")
-
-        # get plugin form output
-        # obj = plug
-        # info = obj.info
-        # form = info.get('output')()
-        # # callback for jsonP
-        # callback = kw.get('callback', 'callback')
-        # # get the plugin from the database
-        # plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == obj.unique_id()).first()
-        # plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
-
-        # if 'prefill' in bs_private:
-        #     prefill_fields(info.get('in'), form, bs_private['prefill'], kw, replace_value=False)
-        #     debug('prefill in validation', 3)
-        #     del bs_private['prefill']
+        if 'prefill' in bs_private:
+            prefill_fields(info.get('in'), form, bs_private['prefill'], kw, replace_value=False)
+            debug('prefill in validation', 3)
+            del bs_private['prefill']
 
         response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
         response.headers['Access-Control-Allow-Origin'] = '*'
-        #form = form().req()
-        return ''
+        form = form().req()
+        try:
+            debug('Validating parameters %s' % kw, 1)
+            form.validate(kw)
+        except (tw2.core.ValidationError, Invalid) as e:
+            main_proxy = tg.config.get('main.proxy')
+            e.widget.action = main_proxy + tg.url('plugins/fetch', {'oid': plugin_id})
+            util.print_traceback()
+            return {'page': 'plugin', 'desc': info.get('description'), 'title': info.get('title'), 'widget': e.widget}
+        return 'validated'
 
     @expose()
     @logger.identify
@@ -158,64 +141,35 @@ class PluginController(base.BaseController):
         if not 'bs_private' in kw:
             debug('bs_private not found')
             tg.abort(400, "Plugin identifier not found in the request.")
-        debug('params %s' % kw, 1)
-
         bs_private = copy.deepcopy(json.loads(kw['bs_private']))
         debug('private %s' % bs_private, 1)
-        plugin_id = bs_private['pp']['id']
-        if plugin_id is None:
+        plugin_id = 0
+        try:
+            plugin_id = bs_private['pp']['id']
+        except KeyError:
             tg.abort(400, "Plugin identifier not found in the request.")
-
-        # check plugin id
+        if plugin_id == 0:
+            tg.abort(400, "Plugin identifier not found in the request.")
         plug = operations.get_plugin_byId(plugin_id)
         if plug is None:
-            tg.abort(400, "Bad plugin identifier")
+            tg.abort(400, "Bad plugin identifier.")
 
-        # get plugin form output
-        obj = plug
-        info = obj.info
-        form = info.get('output')()
+        plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == plug.unique_id()).first()
+        plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
+
+        # call internal method to validate
+        request_url = tg.config.get('main.proxy') + '/plugins/_validate'
+        form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
         # callback for jsonP
         callback = kw.get('callback', 'callback')
         # get the plugin from the database
-        plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == obj.unique_id()).first()
-        plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
-
-        if 'prefill' in bs_private:
-            prefill_fields(info.get('in'), form, bs_private['prefill'], kw, replace_value=False)
-            debug('prefill in validation', 3)
-            del bs_private['prefill']
-
-        response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        form = form().req()
-        debug('form before validation %s' % form.child.children[2].resources, l=1)
-        # validation
-        try:
-            debug('Validating parameters %s' % kw, 1)
-
-            form.validate(kw)
-        except (tw2.core.ValidationError, Invalid) as e:
-            main_proxy = tg.config.get('main.proxy')
-            e.widget.action = main_proxy + tg.url('plugins/index', {'id': plugin_id})
-            debug('private after validation failed %s' % bs_private, 1)
-            #value = {'bs_private': json.dumps(bs_private)}
-            #debug('value %s' % value)
-            #e.widget.value = value
-            import sys
-            import traceback
-            traceback.print_exception(*sys.exc_info())
-            print e
+        if form != 'validated':
+            info = plug.info
             plugin_request.status = 'FAILED'
-            plugin_request.error = str(e)
             DBSession.add(plugin_request)
-            debug('form validation failed %s' % e.widget.child.children[2].resources, l=1)
-            debug('widget validation failed %s' % e.widget, l=1)
-            debug('widget validation failed %s' % e.widget.display(), l=1)
             return json.dumps({'validation': 'failed', 'desc': info.get('description'),
-                'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
-            # return jsonp_response(**{'validation': 'failed', 'desc': info.get('description'),
-            #         'title': info.get('title'), 'widget': e.widget.display(), 'callback': callback})
+                'title': info.get('title'), 'widget': form, 'callback': callback})
+
         debug('Validation pass')
         #if the validation passes, remove private parameters from the request
         del kw['bs_private']
