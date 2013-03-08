@@ -276,25 +276,28 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
     """
 
     modified = []   # list of modified fields
-    debug('PREFILL %s' % prefill_params)
+    debug('PREFILL FIELDS')
     for type_to_prefill, prefill_with in prefill_params.iteritems():
-        debug('Trying type %s' % type_to_prefill, 1)
+        debug('type, prefill: %s, %s' % type_to_prefill, prefill_with, 2)
         for fparam in form_parameters:
-            debug('Trying on parameter %s' % fparam, 2)
-            # check which "type" to prefill
+            debug('Checking parameter %s' % fparam, 2)
+
             if wordlist.is_of_type(fparam.get('type'), type_to_prefill):
-                debug('%s is of type %s' % (type_to_prefill, fparam.get('type')))
+                debug('prefilling ...', 3)
                 fid = fparam.get('id')
+
+                # when validation occurs, there no need to replace parameters
                 if replace_value:
                     kw[fid] = prefill_with
+
                 # if fparam is of `file` type, we need to modify it
                 if wordlist.is_of_type(fparam.get('type'), wordlist.FILE):
-                    debug('CHANGE FILEFIELD ##############################################')
+                    debug('change file field ...', 3)
+
                     multiple = fparam.get('multiple', False)
                     #TODO utility method to get all children
                     for field in form.children_deep():
                         if field.id == fid or fid.startswith('%s:' % field.id):
-                            debug('XXXXXXXXXXXXXXXXXXX', 1)
                             if multiple:
                                 mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, prefill_with)
                             else:
