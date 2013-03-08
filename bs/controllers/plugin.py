@@ -22,6 +22,7 @@ from bs.celery import tasks
 from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
+import tw2.bs as twb
 
 DEBUG_LEVEL = 10
 
@@ -102,7 +103,7 @@ class PluginController(base.BaseController):
     @expose()
     @expose('mako:bs.templates.plugin_validate')
     def _validate(self, **kw):
-        debug('params %s' % kw, 1)
+        debug('_validate %s' % kw, 4)
         bs_private = copy.deepcopy(json.loads(kw['bs_private']))
         plugin_id = bs_private['pp']['id']
         plug = operations.get_plugin_byId(plugin_id)
@@ -119,7 +120,6 @@ class PluginController(base.BaseController):
         response.headers['Access-Control-Allow-Origin'] = '*'
         form = form().req()
         try:
-            debug('Validating parameters %s' % kw, 1)
             form.validate(kw)
         except (tw2.core.ValidationError, Invalid) as e:
             main_proxy = tg.config.get('main.proxy')
@@ -135,9 +135,7 @@ class PluginController(base.BaseController):
         """
         plugin parameters validation
         """
-        debug('params %s' % kw)
         user = util.get_user(tg.request)
-        debug('Got request validation from user %s' % (user))
         if not 'bs_private' in kw:
             debug('bs_private not found')
             tg.abort(400, "Plugin identifier not found in the request.")
@@ -154,46 +152,55 @@ class PluginController(base.BaseController):
         if plug is None:
             tg.abort(400, "Bad plugin identifier.")
 
+        debug('VALIDATE')
+        info = plug.info
         plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == plug.unique_id()).first()
         plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
+        debug('User : %s on plugin: %s' % (user, plugin_id), 2)
 
         # call internal method to validate
         request_url = tg.config.get('main.proxy') + '/plugins/_validate'
         form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
-        # callback for jsonP
         callback = kw.get('callback', 'callback')
-        # get the plugin from the database
-        if form != 'validated':
-            info = plug.info
-            plugin_request.status = 'FAILED'
-            DBSession.add(plugin_request)
-            return json.dumps({'validation': 'failed', 'desc': info.get('description'),
-                'title': info.get('title'), 'widget': form, 'callback': callback})
 
-        debug('Validation pass')
-        #if the validation passes, remove private parameters from the request
+        if form != 'validated':
+            debug('validation failed', 2)
+            plugin_request.status = 'FAILED'
+            plugin_request.error = 'Validation failed'
+            DBSession.add(plugin_request)
+            return json.dumps({'validation': 'failed',
+                               'desc': info.get('description'),
+                               'title': info.get('title'),
+                               'widget': form,
+                               'callback': callback})
+
+        # validation passed
+        debug('validated', 2)
+        #remove private parameters from the request
         del kw['bs_private']
         if 'key' in kw:
             del kw['key']
-        # fetch form files
+
+        # fetch files if any
+        debug('fetching files ...', 2)
         try:
-            inputs_directory = filemanager.fetch(user, obj, kw)
+            inputs_directory = filemanager.fetch(user, plug, kw)
         except Exception as e:
+            debug('not ok', 3)
             plugin_request.status = 'FAILED'
             plugin_request.error = str(e)
             DBSession.add(plugin_request)
-            import sys
-            import traceback
-            etype, value, tb = sys.exc_info()
-            traceback.print_exception(etype, value, tb)
-            return json.dumps({'validation': 'success', 'desc': info.get('description'),
-                'title':  info.get('title'), 'error': 'error while fetching files : ' + str(e), 'callback': callback})
+            util.print_traceback()
+            return json.dumps({'validation': 'success',
+                               'desc': info.get('description'),
+                               'title':  info.get('title'),
+                               'error': 'error while fetching files : ' + str(e),
+                               'callback': callback})
+        debug('ok', 3)
 
-        debug('Files fetched')
         # get output directory to write results
         outputs_directory = filemanager.temporary_directory(constants.paths['data'])
         service_callback = None
-        debug(user)
         if user.is_service:
             debug('is service', 1)
             # def out_path(service_name):
@@ -202,44 +209,43 @@ class PluginController(base.BaseController):
                 outputs_directory = o
             service_callback = services.service_manager.get(user.name, constants.SERVICE_CALLBACK_URL_PARAMETER)
 
-        debug('Output dir = %s' % outputs_directory)
+        debug('Write result in %s' % outputs_directory, 2)
         # get user parameters from the request
         user_parameters = bs_private.get('app', "{}")
-        debug('get user parameters : %s' % user_parameters, 1)
+
         # get response config from the request
         resp_config = bs_private.get('cfg', None)
-
         plugin_info = {'title': info['title'],
-                        'plugin_id': plugin_db.id,
-                        'generated_id': plugin_db.generated_id,
-                        'description': info['description'],
-                        'path': info['path'],
-                        'in': info['in'],
-                        'out': info['out'],
-                        'meta': info['meta']}
+                       'plugin_id': plugin_db.id,
+                       'generated_id': plugin_db.generated_id,
+                       'description': info['description'],
+                       'path': info['path'],
+                       'in': info['in'],
+                       'out': info['out'],
+                       'meta': info['meta']}
 
         # call plugin process
         bioscript_callback = tg.config.get('main.proxy') + '/' + tg.url('plugins/callback_results')
         async_res = tasks.plugin_job.delay(user.name, inputs_directory, outputs_directory, plugin_info,
-            user_parameters, service_callback, bioscript_callback, **kw)
+                                           user_parameters, service_callback, bioscript_callback, **kw)
         task_id = async_res.task_id
+        debug('Launch task %s' % task_id, 2)
 
         _log_job_request(plugin_request.id, task_id)
 
-        if resp_config and resp_config.get('plugin_info', '') == 'min':
-            return json.dumps({'validation': 'success', 'plugin_id': plugin_id, 'task_id': task_id, 'callback': callback, 'app': user_parameters})
-        return json.dumps({
-                'validation': 'success',
+        resp = {'validation': 'success',
                 'plugin_id': plugin_id,
                 'task_id': task_id,
-                'plugin_info': json.dumps(
-                    {'title': info['title'],
-                    'description': info['description'],
-                    'path': info['path'],
-                    'in': info['in'],
-                    'out': info['out'],
-                    'meta': info['meta']}),
-                'callback': callback, 'app': user_parameters})
+                'callback': callback,
+                'app': user_parameters}
+        if resp_config and resp_config.get('plugin_info', '') == 'min':
+            resp.update({'plugin_info': json.dumps({'title': info['title'],
+                                                    'description': info['description'],
+                                                    'path': info['path'],
+                                                    'in': info['in'],
+                                                    'out': info['out'],
+                                                    'meta': info['meta']})})
+        return json.dumps(resp)
 
     @expose('json')
     def callback_results(self, task_id, results):
@@ -292,7 +298,7 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
                             if multiple:
                                 mod = _change_file_field(form, field, tw2.forms.MultipleSelectField, prefill_with)
                             else:
-                                mod = _change_file_field(form, field, tw2.forms.SingleSelectField, prefill_with)
+                                mod = _change_file_field(form, field, twb.BsTripleFileField, prefill_with)
                             modified.append(mod)
         return modified
 
