@@ -177,7 +177,6 @@
                         fo.attr('disabled', false);
                         $('.loading-wrap').remove();
                         _incall($this, 'jsonp_callback', [d]);
-                        
                     }).error(function(error){
                         fo.attr('disabled', false);
                         $('.loading-wrap').remove();
@@ -214,7 +213,6 @@
                         } else {
                             _incall($this, 'validation_success', [jsonp.plugin_id, jsonp.task_id, jsonp.plugin_info, jsonp.app]);
                         }
-                        
                     }
 
                 } else {

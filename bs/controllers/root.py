@@ -67,11 +67,11 @@ class RootController(BaseController):
         return ''
 
     @expose('bs.templates.koopa')
-    def koopa(self):
-        return {'koopa': 'couac'}
+    def koopa(self, **kw):
+        return {'koopa': kw.get('koopa', 'couac')}
 
     @expose()
     def troopa(self, *a, **kw):
-        html = self.koopa()
-        print html
-        return html
+        from pylons.templating import render_mako as render
+        print render('bs/templates/koopa.mak', kw)
+        return 'ok'

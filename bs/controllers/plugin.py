@@ -25,6 +25,7 @@ import tw2.core as twc
 import tw2.bs as twb
 
 DEBUG_LEVEL = 10
+TIME_IT = 1
 
 
 def debug(s, t=0, l=10):
@@ -54,6 +55,7 @@ class PluginController(base.BaseController):
     @expose('mako:bs.templates.plugin_form')
     @logger.identify
     @logger.log_connection
+    @logger.timeit(TIME_IT)
     def fetch(self, oid, *args, **kw):
         """
         Display the form by it's id
@@ -130,6 +132,7 @@ class PluginController(base.BaseController):
     @expose()
     @logger.identify
     @logger.log_connection
+    @logger.timeit(TIME_IT)
     def validate(self, **kw):
         """
         plugin parameters validation

@@ -3,6 +3,21 @@ from bs.lib import constants, services, util
 from bs import model
 from sqlalchemy import and_
 
+import time
+
+
+def timeit(n):
+    def wrapped(fn):
+        def wrapper(*args, **kw):
+            ts = time.time()
+            result = fn(*args, **kw)
+            te = time.time()
+            if n > 0:
+                print '[x] TIME [x] %r %2.2f sec [x]' % (fn.__name__, te-ts)
+            return result
+        return wrapper
+    return wrapped
+
 
 def log_connection(fn):
     """
