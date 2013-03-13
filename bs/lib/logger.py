@@ -42,10 +42,15 @@ def identify(fn):
                 user = model.DBSession.query(model.User).filter(
                     and_(model.User.name == service,
                         model.User.is_service == True)).first()
+                if not user:
+                    print '[x] service not found in the database.'
                 request.environ['bs-uid'] = user.id
                 return fn(self, *args, **kw)
+
         if k:
             user = model.DBSession.query(model.User).filter(model.User.key == k).first()
+            if not user:
+                print '[x] Key %s given but not found in the database. Perhaps the service needs to be declared in service.ini file.' % k
             request.environ['bs-uid'] = user.id
             return fn(self, *args, **kw)
 

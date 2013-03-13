@@ -97,7 +97,6 @@ class PluginController(base.BaseController):
         debug('vaaalue : %s' % widget.value)
 
         debug(user)
-        debug('form fetched %s' % widget.child.children[2].resources, l=1)
         return {'page': 'plugin', 'desc': desc, 'title': info.get('title'), 'widget': widget}
 
     @expose()
@@ -278,7 +277,7 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
     modified = []   # list of modified fields
     debug('PREFILL FIELDS')
     for type_to_prefill, prefill_with in prefill_params.iteritems():
-        debug('type, prefill: %s, %s' % type_to_prefill, prefill_with, 2)
+        debug('type, prefill: %s, %s' % (type_to_prefill, prefill_with), 2)
         for fparam in form_parameters:
             debug('Checking parameter %s' % fparam, 2)
 
