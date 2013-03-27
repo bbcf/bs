@@ -28,13 +28,13 @@
 
         <p> 
         If you want to embed BioScript in your application, all you need to do is 3 HTTP routes, 1 javascript file & 1 CSS file.
-        There is a simulated example of such an application <a href="${tg.url('/devs/')}">this way</a>. You can browse the code of this 
+        There is a simulated example of such an application <a href="${tg.url('/devs/')}">here</a>. You can browse the code of this 
         controller <a href="https://github.com/bbcf/bs/blob/master/bs/controllers/dev.py">on github</a>.
         </p>
       
         <p>
-        Embedded, you can prefill some field with the files provided by you application.
-        You have example <a href="${tg.url('/direct/index/prefill')}">here</a>.
+        Embedded, you can prefill some fields with the files provided by your application.
+        You have an example <a href="${tg.url('/direct/index/prefill')}">here</a>.
         </p>
 
     </div>

@@ -1,11 +1,7 @@
 import os
-
-
-
-
-
-
 import tg
+
+
 TMP_DIR = tg.config.get('root.directory')
 from celery import current_app
 if 'ROOT_DIRECTORY' in current_app.conf:
