@@ -30,7 +30,9 @@
                 $.extend(settings, options);
                 var $this = $(this),
                     data = $this.data(bs_namespace);
-
+                if (settings.bs_server_url.indexOf('/', settings.bs_server_url.length - 1) == -1){
+                    settings.bs_server_url += '/';
+                }
                 if(!data){
                     $(this).data(bs_namespace,{
                         target : $this,
