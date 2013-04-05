@@ -23,7 +23,7 @@ import tw2.core as twc
 import tw2.forms as twf
 import tw2.bs as twb
 
-DEBUG_LEVEL = 20
+DEBUG_LEVEL = 1
 TIME_IT = 1
 
 

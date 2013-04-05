@@ -232,8 +232,8 @@
                 'url' : data.geturl + '?oid=' + plugin_id,
                 'dataType': 'html',
                 'beforeSend': function(xhr) {
-                    xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-                },
+                    xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+                },
                 type : 'POST',
                 datatype:'json',
                 data : pdata,
