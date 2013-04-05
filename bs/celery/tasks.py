@@ -4,6 +4,7 @@ from celery.task.http import URL
 
 from bs.lib import operations
 import os
+import tg
 import urllib
 import urllib2
 import json
@@ -15,7 +16,9 @@ from celery import Celery
 from celery import current_app
 
 ROOT_DIRECTORY = os.path.dirname(__file__)
-TMP_DIR = os.path.normpath(os.path.join(ROOT_DIRECTORY, os.path.pardir, 'tmp'))
+TMP_DIR = tg.config.get('root.directory')
+if not TMP_DIR:
+    TMP_DIR = os.path.normpath(os.path.join(ROOT_DIRECTORY, os.path.pardir, 'tmp'))
 
 if 'ROOT_DIRECTORY' in current_app.conf:
     ROOT_DIRECTORY = current_app.conf['ROOT_DIRECTORY']
