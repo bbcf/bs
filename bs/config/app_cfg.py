@@ -7,17 +7,33 @@ This file complements development/deployment.ini.
 Please note that **all the argument values are strings**. If you want to
 convert them into boolean, for example, you should use the
 :func:`paste.deploy.converters.asbool` function, as in::
-    
+
     from paste.deploy.converters import asbool
     setting = asbool(global_conf.get('the_setting'))
- 
 """
 
 from tg.configuration import AppConfig
 
 import bs
 from bs import model
-from bs.lib import app_globals, helpers 
+from bs.lib import app_globals, helpers
+
+# custom middleware configuration
+from tw2.core.middleware import TwMiddleware
+
+
+class MyAppConfig(AppConfig):
+
+    def add_tosca2_middleware(self, app):
+
+        app = TwMiddleware(app, inject_resources=True,
+                           serve_resources=True,
+                           default_engine='mako',
+                           )
+
+        return app
+#base_config = MyAppConfig()
+
 
 base_config = AppConfig()
 base_config.renderers = []
@@ -61,3 +77,4 @@ def start_app(app):
 base_config.call_on_startup = [on_startup]
 base_config.call_on_shutdown = [on_shutdown]
 base_config.register_hook('before_config', start_app)
+

@@ -4,12 +4,138 @@
 from bs.config.app_cfg import base_config
 from bs.config.environment import load_environment
 import tw2.core
+import os
+import re
+
+from pkg_resources import resource_filename
+htmlfilepattern = re.compile(r'(<html>.*<head>)(.*)(</head>.*</html>)', re.DOTALL)
 
 __all__ = ['make_app']
 
 # Use base_config to setup the necessary PasteDeploy application factory.
 # make_base_app will wrap the TG2 app with all the middleware it needs.
 make_base_app = base_config.setup_tg_wsgi_app(load_environment)
+
+
+# custom middleware configuration
+from tw2.core.middleware import TwMiddleware
+from tw2.core import core
+import webob as wo
+import types
+from tw2.core import resources, util
+import re
+
+find_charset = resources.find_charset
+
+
+class _ResourceInjector(util.MultipleReplacer):
+
+    def __init__(self):
+        return util.MultipleReplacer.__init__(self, {
+            r'<head(?!er).*?>': self._injector_for_location('head'),
+            r'</head(?!er).*?>': self._injector_for_location(
+                'headbottom', False
+            ),
+            r'<body.*?>': self._injector_for_location('bodytop'),
+            r'</body.*?>': self._injector_for_location('bodybottom', False)
+        }, re.I | re.M)
+
+    def _injector_for_location(self, key, after=True):
+        def inject(group, resources, encoding):
+            inj = u'\n'.join([
+                r.display(displays_on='string')
+                for r in resources
+                if r.location == key
+            ])
+            inj = inj.encode(encoding)
+            if after:
+                return group + inj
+            return inj + group
+        return inject
+
+    def __call__(self, html, resources=None, encoding=None):
+        if resources is None:
+            resources = core.request_local().get('resources', None)
+        if resources:
+            toadd = ''
+            popit = []
+            for res in resources:
+                if 'JSLink' in str(res):
+                    resource_path = os.path.join(resource_filename(res.modname, ''), res.filename)
+                    with open(resource_path, 'r') as resource_file:
+                        toadd += '<script type="text/javascript">'
+                        toadd += resource_file.read()
+                        toadd += '</script>'
+                    popit.append(res)
+            for topop in popit:
+                resources.remove(topop)
+            encoding = encoding or find_charset(html) or 'utf-8'
+            # add css
+            html = util.MultipleReplacer.__call__(
+                self, html, resources, encoding
+            )
+            # add toadd (js files)
+            one, two, three = htmlfilepattern.match(html).groups()
+            html = one + two + toadd + three
+            core.request_local().pop('resources', None)
+        return html
+# Bind __call__ directly so docstring is included in docs
+inject_resources = _ResourceInjector().__call__
+
+
+class CustomMiddleware(TwMiddleware):
+    def __call__(self, environ, start_response):
+        rl = core.request_local()
+        rl.clear()
+        rl['middleware'] = self
+        req = wo.Request(environ)
+
+        path = req.path_info
+        if self.config.serve_resources and \
+           path.startswith(self.config.res_prefix):
+            return self.resources(environ, start_response)
+        else:
+            if self.config.serve_controllers and \
+               path.startswith(self.config.controller_prefix):
+                resp = self.controllers(req)
+            else:
+                if self.app:
+                    resp = req.get_response(self.app, catch_exc_info=True)
+                else:
+                    resp = wo.Response(status="404 Not Found")
+
+            ct = resp.headers.get('Content-Type', 'text/plain').lower()
+
+            should_inject = (
+                self.config.inject_resources
+                and 'html' in ct
+                and not isinstance(resp.app_iter, types.GeneratorType)
+            )
+            if should_inject:
+                body = inject_resources(
+                    resp.body,
+                    encoding=resp.charset,
+                )
+                if isinstance(body, unicode):
+                    resp.unicode_body = body
+                else:
+                    resp.body = body
+        core.request_local().clear()
+        return resp(environ, start_response)
+
+
+def make_middleware(app=None, config=None, **kw):
+    config = (config or {}).copy()
+    config.update(kw)
+    app = CustomMiddleware(app, **config)
+    return app
+
+
+#base_config.toscawidgets.framework.middleware.render_filter = render_filter
+
+
+
+
 
 
 def make_app(global_conf, full_stack=True, **app_conf):
@@ -32,14 +158,37 @@ def make_app(global_conf, full_stack=True, **app_conf):
 
 
     """
-
+    config = {
+            'toscawidgets.framework.middleware.render_filter': render_filter
+            }
+    inject_resources = True
+    serve_resources = True
     if 'prefix' in app_conf:
-        custom = lambda app: tw2.core.make_middleware(app, res_prefix=app_conf['prefix'] + '/tw2/resources/', default_engine='mako')
+        custom = lambda app: make_middleware(app, config=config, serve_resources=serve_resources, inject_resources=inject_resources, res_prefix=app_conf['prefix'] + '/tw2/resources/', default_engine='mako')
     else:
-        custom = lambda app: tw2.core.make_middleware(app, default_engine='mako')
+        custom = lambda app: make_middleware(app, config=config, serve_resources=serve_resources, inject_resources=inject_resources, default_engine='mako')
     app = make_base_app(global_conf, wrap_app=custom, full_stack=True, **app_conf)
     #app = make_base_app(global_conf, full_stack=True, **app_conf)
 
     # Wrap your base TurboGears 2 application with custom middleware here
 
     return app
+
+
+# from tg.configuration import AppConfig
+# from tw.api import make_middleware as tw_middleware
+
+
+# class MyAppConfig(AppConfig):
+
+#     def add_tosca2_middleware(self, app):
+
+#         app = tw_middleware(app, {
+#             'toscawidgets.middleware.inject_resources': False,
+#             })
+#         return app
+
+# base_config = MyAppConfig()
+
+
+

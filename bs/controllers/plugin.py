@@ -23,14 +23,13 @@ import tw2.core as twc
 import tw2.forms as twf
 import tw2.bs as twb
 
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 20
 TIME_IT = 1
 
 
 def debug(s, t=0, l=10):
     if DEBUG_LEVEL > l:
         print '[plugin controller] %s%s' % ('\t' * t, s)
-
 
 
 class PluginController(base.BaseController):
@@ -82,6 +81,7 @@ class PluginController(base.BaseController):
 
         if 'prefill' in bs_private:
             prefill_fields(info.get('in'), form, bs_private['prefill'], kw)
+            form = form()
         # add some private parameters from BioScript
         pp = {'id': oid}
         # if user is a serviec, add the key & the mail in the authentication
@@ -94,6 +94,24 @@ class PluginController(base.BaseController):
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
         widget = form(action=main_proxy + tg.url('/plugins/validate', {'id': oid})).req()
+        from tw2.core import core
+        resources = core.request_local().get('resources', None)
+        print 'ooooooooooooooooooooooooo'
+        print resources
+        #test = widget.prepare()
+        #rint test
+        print widget
+        print widget.resources
+        print '-----'
+        print dir(widget)
+        # print "**********"
+        # js = form.retrieve_javascript()
+        # for j in js:
+        #     print j
+        #     print j.render()
+        #import tw2.core
+        #print tw2.core.resources.inject_resources("<html><head></head><body></body></html>")
+        #print '###'
         widget.value = {'bs_private': json.dumps(bs_private), 'key': user.key}
         debug('display plugin with bs_private : %s' % bs_private)
         debug('vaaalue : %s' % widget.value)
@@ -129,31 +147,28 @@ class PluginController(base.BaseController):
             return {'page': 'plugin', 'desc': info.get('description'), 'title': info.get('title'), 'widget': e.widget}
         return 'validated'
 
+    # def _validation_render(self, private_params, plugin, **kw):
+    #     """
+    #     NOT USED FOR THE MOMENT BUT WILL REPLACE THE INTERNAL CALL IF POSSIBLE
+    #     """
+    #     form = plugin.info.get('output')()
+    #     if 'prefill' in private_params:
+    #         prefill_fields(plugin.info.get('in'), form, private_params['prefill'], kw, replace_value=False)
+    #         debug('prefill in validation', 3)
 
-
-    def _validation_render(self, private_params, plugin, **kw):
-        """
-        NOT USED FOR THE MOMENT BUT WILL REPLACE THE INTERNAL CALL IF POSSIBLE
-        """
-        form = plugin.info.get('output')()
-        if 'prefill' in private_params:
-            prefill_fields(plugin.info.get('in'), form, private_params['prefill'], kw, replace_value=False)
-            debug('prefill in validation', 3)
-
-        form = form().req()
-        try:
-            form.validate(kw)
-        except (twc.ValidationError, Exception) as e:
-            print 'Validation error %s' % e
-            response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
-            response.headers['Access-Control-Allow-Origin'] = '*'
-            main_proxy = tg.config.get('main.proxy')
-            print kw
-            util.print_traceback()
-            e.widget.action = main_proxy + tg.url('plugins/fetch', {'oid': private_params['pp']['id']})
-            return {'page': 'plugin', 'desc': plugin.info.get('description'), 'title': plugin.info.get('title'), 'widget': e.widget}, e.message
-        return 'validated', 0
-
+    #     form = form().req()
+    #     try:
+    #         form.validate(kw)
+    #     except (twc.ValidationError, Exception) as e:
+    #         print 'Validation error %s' % e
+    #         response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
+    #         response.headers['Access-Control-Allow-Origin'] = '*'
+    #         main_proxy = tg.config.get('main.proxy')
+    #         print kw
+    #         util.print_traceback()
+    #         e.widget.action = main_proxy + tg.url('plugins/fetch', {'oid': private_params['pp']['id']})
+    #         return {'page': 'plugin', 'desc': plugin.info.get('description'), 'title': plugin.info.get('title'), 'widget': e.widget}, e.message
+    #     return 'validated', 0
     @expose()
     @logger.identify
     @logger.log_connection
@@ -210,39 +225,6 @@ class PluginController(base.BaseController):
             del kw['bs_private']
         if 'key' in kw:
             del kw['key']
-
-        #  call internal method to validate
-        # request_url = tg.config.get('main.proxy') + '/plugins/_validate'
-        # form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
-        # form = info.get('output')()
-        # if 'prefill' in bs_private:
-        #     prefill_fields(info.get('in'), form, bs_private['prefill'], kw, replace_value=False)
-        #     debug('prefill in validation', 3)
-        #     del bs_private['prefill']
-
-        #response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
-        #response.headers['Access-Control-Allow-Origin'] = '*'
-        # form = form.req()
-        # try:
-        #     form.validate(kw)
-        # except (tw2.core.ValidationError, Invalid) as e:
-        #     main_proxy = tg.config.get('main.proxy')
-        #     e.widget.action = main_proxy + tg.url('plugins/fetch', {'oid': plugin_id})
-        #     util.print_traceback()
-        #     from pylons.templating import render_mako as render
-        #     p = {'page': 'plugin', 'desc': info.get('description'), 'title': info.get('title'), 'widget': e.widget}
-        #     form = render('bs/templates/plugin_validate.mak', p)
-        #     debug('validation failed', 2)
-        #     form = form.replace('\"', '\\"')
-        #     print form
-        #     plugin_request.status = 'FAILED'
-        #     plugin_request.error = 'Validation failed'
-        #     DBSession.add(plugin_request)
-        #     return json.dumps({'validation': 'failed',
-        #                        'desc': info.get('description'),
-        #                        'title': info.get('title'),
-        #                        'widget': form,
-        #                        'callback': callback})
 
         # validation passed
         debug('validated', 2)
@@ -366,7 +348,7 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
                     for field in form.children_deep():
                         if field.id == fid or fid.startswith('%s:' % field.id):
                             if multiple:
-                                mod = _change_file_field(form, field, twf.MultipleSelectField, prefill_with)
+                                mod = _change_file_field(form, field, twf.BsMultiple, prefill_with)
                             else:
                                 mod = _change_file_field(form, field, twb.BsTripleFileField, prefill_with)
                             modified.append(mod)
@@ -384,8 +366,12 @@ def set_validator(validator, field):
         strip = validator.strip
     except AttributeError:
         pass
-    debug('validator = %s' % (validator), 2)
-    field.validator = twc.Validator(required=required, strip=strip)
+    if 'BsTripleFileField' in str(field):
+        field.validator = twb.BsFileFieldValidator(required=required, strip=strip)
+    elif 'BsMultiple' in str(field):
+        field.validator = twb.MultipleValidator(required=required, strip=strip)
+    else:
+        field.validator = twc.Validator(required=required, strip=strip)
 
 
 def _change_file_field(form, field, clazz, value):
@@ -435,6 +421,7 @@ def _change_file_field(form, field, clazz, value):
     for index, f in enumerate(tmp_form.children):
         if f.id == field.id:
             tmp_form.children[index] = tmp
+    #form = tmp_form
     return field.id
 
 
