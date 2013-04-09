@@ -31,16 +31,16 @@ class JobController(base.BaseController):
         'traceback': trace, 'full_traceback': complete, 'date': datedone, 'plugin_id': plugin_id, 'plugin_info': plugin_info,
          'parameters': parameters}
 
+
     @expose('mako:bs.templates.job_all')
     def all(self, limit=None):
         if limit:
             try:
                 limit = int(limit)
-                jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done))[:limit]
-                return {'jobs': jobs}
             except ValueError:
                 pass
-        jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done)).all()
+        limit = (limit or 50)
+        jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done))[:limit]
         return {'jobs': jobs}
 
     @expose('mako:bs.templates.job_result')
