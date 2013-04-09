@@ -6,7 +6,8 @@ import urllib
 import tg
 import json
 from bs.lib import operations
-from bs.model import DBSession, Job
+from bs.model import DBSession, Job, PluginRequest
+from sqlalchemy.sql.expression import desc
 
 
 class DirectController(base.BaseController):
@@ -34,7 +35,7 @@ class DirectController(base.BaseController):
         task_ids = session.get('task_ids', [])
         jobs = []
         if task_ids:
-            jobs = DBSession.query(Job).filter(Job.task_id.in_(task_ids)).all()
+            jobs = DBSession.query(Job).join(PluginRequest).filter(Job.task_id.in_(task_ids)).order_by(desc(PluginRequest.date_done)).all()
         # serve result on visual_index.mak template file
         return {'oplist': operation_list, 'serv': bs_server_url, 'method': meth, 'jobs': jobs}
 

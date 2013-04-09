@@ -158,15 +158,12 @@ def make_app(global_conf, full_stack=True, **app_conf):
 
 
     """
-    config = {
-            'toscawidgets.framework.middleware.render_filter': render_filter
-            }
     inject_resources = True
     serve_resources = True
     if 'prefix' in app_conf:
-        custom = lambda app: make_middleware(app, config=config, serve_resources=serve_resources, inject_resources=inject_resources, res_prefix=app_conf['prefix'] + '/tw2/resources/', default_engine='mako')
+        custom = lambda app: make_middleware(app, serve_resources=serve_resources, inject_resources=inject_resources, res_prefix=app_conf['prefix'] + '/tw2/resources/', default_engine='mako')
     else:
-        custom = lambda app: make_middleware(app, config=config, serve_resources=serve_resources, inject_resources=inject_resources, default_engine='mako')
+        custom = lambda app: make_middleware(app, serve_resources=serve_resources, inject_resources=inject_resources, default_engine='mako')
     app = make_base_app(global_conf, wrap_app=custom, full_stack=True, **app_conf)
     #app = make_base_app(global_conf, full_stack=True, **app_conf)
 
