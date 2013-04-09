@@ -61,11 +61,13 @@ class _ResourceInjector(util.MultipleReplacer):
             popit = []
             for res in resources:
                 if 'JSLink' in str(res):
-                    resource_path = os.path.join(resource_filename(res.modname, ''), res.filename)
-                    with open(resource_path, 'r') as resource_file:
-                        toadd += '<script type="text/javascript">'
-                        toadd += resource_file.read()
-                        toadd += '</script>'
+                    # avoid jquery javascript to not override the main one
+                    if not 'jquery' in res.filename:
+                        resource_path = os.path.join(resource_filename(res.modname, ''), res.filename)
+                        with open(resource_path, 'r') as resource_file:
+                            toadd += '<script type="text/javascript">'
+                            toadd += resource_file.read()
+                            toadd += '</script>'
                     popit.append(res)
             for topop in popit:
                 resources.remove(topop)

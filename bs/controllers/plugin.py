@@ -81,7 +81,7 @@ class PluginController(base.BaseController):
 
         if 'prefill' in bs_private:
             prefill_fields(info.get('in'), form, bs_private['prefill'], kw)
-            form = form()
+            
         # add some private parameters from BioScript
         pp = {'id': oid}
         # if user is a serviec, add the key & the mail in the authentication
@@ -94,24 +94,6 @@ class PluginController(base.BaseController):
         # prepare form output
         main_proxy = tg.config.get('main.proxy')
         widget = form(action=main_proxy + tg.url('/plugins/validate', {'id': oid})).req()
-        from tw2.core import core
-        resources = core.request_local().get('resources', None)
-        print 'ooooooooooooooooooooooooo'
-        print resources
-        #test = widget.prepare()
-        #rint test
-        print widget
-        print widget.resources
-        print '-----'
-        print dir(widget)
-        # print "**********"
-        # js = form.retrieve_javascript()
-        # for j in js:
-        #     print j
-        #     print j.render()
-        #import tw2.core
-        #print tw2.core.resources.inject_resources("<html><head></head><body></body></html>")
-        #print '###'
         widget.value = {'bs_private': json.dumps(bs_private), 'key': user.key}
         debug('display plugin with bs_private : %s' % bs_private)
         debug('vaaalue : %s' % widget.value)
