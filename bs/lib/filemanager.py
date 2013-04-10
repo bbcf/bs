@@ -13,6 +13,10 @@ block_sz = 2048 * 4
 DEBUG_LEVEL = 1
 
 
+class UrlError(Exception):
+    pass
+
+
 def debug(s, t=0):
     if DEBUG_LEVEL > 0:
         print '[filemanager] %s%s' % ('\t' * t, s)
@@ -165,7 +169,7 @@ def take_filename_and_path(value):
 def download_from_url(_from, _to):
         u = urlparse.urlparse(_from)
         if not u.hostname:
-            raise urllib2.HTTPError('%s is not a valid URL.' % _from)
+            raise UrlError('"%s" is not a valid URL.' % _from)
         try:
             u = urllib2.urlopen(_from)
             with open(_to, 'w') as out:

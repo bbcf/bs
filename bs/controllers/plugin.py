@@ -22,6 +22,8 @@ from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 import tw2.core as twc
 import tw2.forms as twf
 import tw2.bs as twb
+import tw2.bs.widgets
+tw2.bs.widgets.DEBUG = True
 
 DEBUG_LEVEL = 20
 TIME_IT = 1
@@ -81,7 +83,7 @@ class PluginController(base.BaseController):
 
         if 'prefill' in bs_private:
             prefill_fields(info.get('in'), form, bs_private['prefill'], kw)
-            
+
         # add some private parameters from BioScript
         pp = {'id': oid}
         # if user is a serviec, add the key & the mail in the authentication
