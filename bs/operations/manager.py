@@ -52,9 +52,9 @@ class PluginManager(object):
                     clsmembers = inspect.getmembers(p, inspect.isclass)
                     for name, clz in clsmembers:
                         if clz.__module__ == p.__name__ and hasattr(clz, 'bs_plugin') and getattr(clz, 'bs_plugin') == 'bs-operation':
-                            if p.__name__ in self.plugs:
+                            if clz.__name__ in self.plugs:
                                 raise PluginError('Plugin with the same name : %s (%s) is already loaded : %s.' % (p.__name__, clz, self.plugs[p.__name__]))
-                            self.plugs[p.__name__] = clz
+                            self.plugs[clz.__name__] = clz
 
 
                 except Exception as e:
