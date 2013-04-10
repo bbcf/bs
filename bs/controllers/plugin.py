@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import tg
 import os
 import urllib2
 import urllib
 from tg import expose, response
 import copy
+import re
 
 from bs.lib import base
 from bs.lib import services
@@ -25,6 +29,9 @@ import tw2.bs as twb
 import tw2.bs.widgets
 tw2.bs.widgets.DEBUG = True
 
+
+import re
+multipattern = re.compile('(\w+):(\d+):(\w+)')
 DEBUG_LEVEL = 20
 TIME_IT = 1
 
@@ -123,13 +130,15 @@ class PluginController(base.BaseController):
         response.headers['Access-Control-Allow-Origin'] = '*'
         form = form().req()
         try:
-            form.validate(kw)
+            kw = form.validate(kw)
         except twc.ValidationError as e:
             main_proxy = tg.config.get('main.proxy')
             e.widget.action = main_proxy + tg.url('plugins/fetch', {'oid': plugin_id})
             util.print_traceback()
             return {'page': 'plugin', 'desc': info.get('description'), 'title': info.get('title'), 'widget': e.widget}
-        return 'validated'
+        debug('END _VALIDATE : %s' % kw)
+
+        return json.dumps({'validated': True, 'params': kw})
 
     # def _validation_render(self, private_params, plugin, **kw):
     #     """
@@ -148,7 +157,7 @@ class PluginController(base.BaseController):
     #         response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
     #         response.headers['Access-Control-Allow-Origin'] = '*'
     #         main_proxy = tg.config.get('main.proxy')
-    #         print kw
+    #         print kw§
     #         util.print_traceback()
     #         e.widget.action = main_proxy + tg.url('plugins/fetch', {'oid': private_params['pp']['id']})
     #         return {'page': 'plugin', 'desc': plugin.info.get('description'), 'title': plugin.info.get('title'), 'widget': e.widget}, e.message
@@ -167,7 +176,7 @@ class PluginController(base.BaseController):
             tg.abort(400, "Plugin identifier not found in the request.")
         bs_private = copy.deepcopy(json.loads(kw['bs_private']))
 
-        debug('private %s' % bs_private, 1)
+        debug('VALIDATE %s' % kw, 1)
         plugin_id = 0
         try:
             plugin_id = bs_private['pp']['id']
@@ -179,7 +188,6 @@ class PluginController(base.BaseController):
         if plug is None:
             tg.abort(400, "Bad plugin identifier.")
 
-        debug('VALIDATE')
         info = plug.info
         plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == plug.unique_id()).first()
         plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
@@ -188,10 +196,16 @@ class PluginController(base.BaseController):
         # validate
         request_url = tg.config.get('main.proxy') + '/plugins/_validate'
         form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
+        print form
 
-        #val, error = self._validation_render(bs_private, plug, **kw)
+        #val, error = self._validation_render(bases_private, plug, **kw)
         callback = kw.get('callback', 'callback')
-        if form != 'validated':
+        try:
+            form = json.loads(form)
+        except:
+            pass
+        validated = isinstance(form, dict)
+        if not validated:
             #from pylons.templating import render_mako as render
             #form = render('bs/templates/plugin_validate.mak', val)
             debug('validation failed', 2)
@@ -204,6 +218,28 @@ class PluginController(base.BaseController):
                                'widget': form,
                                'callback': callback})
 
+        debug('VALIDATED')
+        new_params = form['params']
+
+        # must keep fieldstorages
+        fs_bk = []
+        import cgi
+        for k, v in kw.iteritems():
+            if isinstance(v, cgi.FieldStorage):
+                fs_bk.append((k, v))
+
+        # separate field storage parameters if they are multi
+        # and replace them in the new_params as ther were
+        # converted to str
+        for fsk, fsv in fs_bk:
+            m = multipattern.match(fsk)
+            if m:
+                key1, n, key2 = m.groups()
+                new_params[key1][key2] = fsv
+            else:
+                new_params[fsk] = fsv
+
+        kw = new_params
         #remove private parameters from the request
         if 'bs_private' in kw:
             del kw['bs_private']
@@ -216,10 +252,11 @@ class PluginController(base.BaseController):
 
         # fetch files if any
         debug('fetching files ...', 2)
+        debug(kw, 3)
         try:
             inputs_directory = filemanager.fetch(user, plug, kw)
         except Exception as e:
-            debug('not ok', 3)
+            debug('Failed to fetch inputs', 3)
             plugin_request.status = 'FAILED'
             plugin_request.error = str(e)
             DBSession.add(plugin_request)

@@ -61,14 +61,20 @@ def fetch(user, plugin, form_parameters):
     :param form_parameters: the form parameters
     TODO : it's not elegent cause of multiple refactoring but it's working
     """
-    file_ids = [file_parameter.get('id') for file_parameter in plugin.in_params_typeof(wordlist.FILE)]
-    regoup_multiple_field_in_list(form_parameters)
+    files = plugin.in_params_typeof(wordlist.FILE)
+    #regoup_multiple_field_in_list(form_parameters)
 
     root_directory = temporary_directory()
     debug('FETCH %s' % form_parameters)
-    for fid in file_ids:
-        form_value = form_parameters.get(fid, None)
-        debug("download '%s' ? " % fid, 1)
+    for infile in files:
+        debug("download '%s' ? " % infile, 1)
+        fid = infile.get('id')
+        form_value = None
+        if infile.get('multiple', False):
+            debug('is multiple', 2)
+            form_value = form_parameters.get(infile['multiple'], {}).get(fid, None)
+        else:
+            form_value = form_parameters.get(fid, None)
         debug(form_value)
         # check if form_value contains a value or is not an empty list
         if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0) and form_value != '':
@@ -80,7 +86,7 @@ def fetch(user, plugin, form_parameters):
                 is_list = True
                 debug('is list', 3)
                 test = form_value[0]
-
+            debug('testing %s of type %s' % (test, type(test)), 3)
             if not isinstance(test, basestring):
                     is_file_field = True
                     debug('is file field', 3)
@@ -140,7 +146,11 @@ def fetch(user, plugin, form_parameters):
         else:
             input_files = ''
 
-        form_parameters[fid] = input_files
+        # Update parameters
+        if infile.get('multiple', False):
+            form_parameters[infile.get('multiple')] = {fid: input_files}
+        else:
+            form_parameters[fid] = input_files
         debug(form_parameters)
     return root_directory
 
