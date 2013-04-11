@@ -8,7 +8,7 @@ import os
 import re
 
 from pkg_resources import resource_filename
-htmlfilepattern = re.compile(r'(<html>.*<head>)(.*)(</head>.*</html>)', re.DOTALL)
+htmlfilepattern = re.compile(r'(<html>.*<head>)(.*</head>.*<body>)(.*</html>)', re.DOTALL)
 
 __all__ = ['make_app']
 
