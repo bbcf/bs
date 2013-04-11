@@ -47,8 +47,9 @@ class RootController(BaseController):
                    'pending': 0,
                    'success': 0}
         for job in jobs:
+            if job.status.lower() == 'pending':
+                print job.id
             mapping[job.status.lower()] += 1
-
         return mapping
 
     @expose('json')

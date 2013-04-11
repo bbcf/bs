@@ -68,8 +68,6 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         pass
     task_id = plugin_job.request.id
 
-    print '___________________________'
-    print task_id
     if service_callback is not None:
         callback_service(service_callback, plugin_info['generated_id'], task_id,
             'RUNNING', additional=user_parameters)

@@ -8,12 +8,13 @@ from sqlalchemy.types import Integer, DateTime, VARCHAR, TypeDecorator, PickleTy
 from sqlalchemy.orm import relationship, backref, synonym
 from bs.model import DeclarativeBase, DBSession
 import json
+import datetime as dt
 from datetime import datetime
 import uuid
 import re
 
 prefix = "jl_"
-
+delta = dt.timedelta(days=1)
 TB_PATTERN = re.compile("\w*Error.*|\w*Exception.*")
 
 
@@ -101,7 +102,12 @@ class Job(DeclarativeBase):
     @property
     def status(self):
         if not self.task:
-            return 'PENDING'
+            print 'no task for %s => %s' % (self.id, self.request.status)
+            stat = self.request.status
+            if stat.lower() == 'pending':
+                if (self.request.date_done + delta) < datetime.now():
+                    return 'FAILURE'
+            return stat
         return self.task.status
 
     @property

@@ -459,6 +459,7 @@ def _log_form_request(plugin_id, user, parameters):
     pl = PluginRequest()
     pl.plugin_id = plugin_id
     pl.user = user
+    pl.status = 'PENDING'
     pl.parameters = get_formparameters(parameters)
     DBSession.add(pl)
     DBSession.flush()
