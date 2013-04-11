@@ -32,32 +32,46 @@
                 <p>${traceback}     <a class='a_hideshow'>full traceback</a><br/> 
                 <span class='span_hidden'>${full_traceback}</span></p>
             % endif
+
+
+            <!-- DISPLAY JOB PARAMETERS -->
+            <div class='belement'>
+            <h2>Plugin parameters</h2> <br/><br/>
+                <table>
+                % for k, v in parameters.iteritems():
+                    <tr> <td><b>${k}</b></td> <td>${v}</td></tr>
+                %endfor
+                </table>
+            </div>
+
+
             <!-- DISPLAY JOB INFORMATION -->
             <div class="belement">
-                <h2>Job Information</h2>
-                <ul>
-                    <li>Date : ${date}</li>
-                    <li>Plugin identifier: ${plugin_id}</li>
-                    <li>
-                        Plugin information: 
-                        <div class='belement'>
-                       <ul> 
-                            % for k, v in plugin_info.iteritems():
-                                <li>${k} : ${v}</li>
-                            %endfor
-                        </ul></div>
-                    </li>
+                % if 'title' in plugin_info:
+                    <h2>${plugin_info['title']}</h2>
+                        <br/><br/>
+                % endif
 
-                    <li>
-                        Plugin parameters: 
-                        <div class='belement'>
-                       <ul> 
-                            % for k, v in parameters.iteritems():
-                                <li>${k} : ${v}</li>
-                            %endfor
-                        </ul></div>
-                    </li>
-                </ul>
+                % if 'description' in plugin_info:
+                    ${plugin_info['description']}
+                    <br/><br/>
+                % endif
+                % if 'meta' in plugin_info:
+                    % if 'author' in plugin_info['meta']:
+                        <b>Author</b> : ${plugin_info['meta']['author']}.
+                    <br/><br/>
+                    % endif
+                    % if 'contact' in plugin_info['meta']:
+                        <b>Contact</b> : ${plugin_info['meta']['contact']}.
+                    <br/><br/>
+                    % endif
+                    % if 'version' in plugin_info['meta']:
+                        <b>Version</b> : ${plugin_info['meta']['version']}.
+                    <br/><br/>
+                    % endif
+
+                % endif
+
             </div>
         % endif
     </div>

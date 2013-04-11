@@ -15,7 +15,10 @@ class JobController(base.BaseController):
         job = DBSession.query(Job).filter(Job.task_id == task_id).first()
         if job is None:
             return {'job_id': True, 'error': 'Wrong job identifier, "%s" is not recognized as a valid job.' % task_id}
-        results = [{'is_file': result.is_file, 'result': result.result, 'path':get_result_url(result, task_id), 'fname': result.fname} for result in job.results]
+        results = [{'is_file': result.is_file,
+                    'result': result.result,
+                    'path': get_result_url(result, task_id),
+                    'fname': result.fname} for result in job.results]
 
         # additionnal information
         trace = job.simple_error or ''
@@ -27,10 +30,16 @@ class JobController(base.BaseController):
         plugin_info = plug.info
         parameters = req.parameters
 
-        return {'status': job.status, 'task_id': task_id, 'job_id': job.id, 'results': results,
-        'traceback': trace, 'full_traceback': complete, 'date': datedone, 'plugin_id': plugin_id, 'plugin_info': plugin_info,
-         'parameters': parameters}
-
+        return {'status': job.status,
+                'task_id': task_id,
+                'job_id': job.id,
+                'results': results,
+                'traceback': trace,
+                'full_traceback': complete,
+                'date': datedone,
+                'plugin_id': plugin_id,
+                'plugin_info': plugin_info,
+                'parameters': parameters}
 
     @expose('mako:bs.templates.job_all')
     def all(self, limit=None):

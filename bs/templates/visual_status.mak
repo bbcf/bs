@@ -15,7 +15,13 @@
 
      <p>
         BioScripts is a python library providing bioinformatics scripts through a simple and consistent interface. It can be used on the command line or via a web service. Each script consists of a <b>plugin</b> running the algorithm and an <b>html form</b> managing its inputs.
+        <br/>
+        <br/>
+        Simple & straightforward, with the complexity hidden for end-users, it allows quick installation and access
+        to multiple tools. End-users may ignore where and how the operations are launched: on a dedicated machine with
+        adapted CPU & RAM.
     </p>
+
 
     <p>There is currently <span class="jstatus jrunning">${running} running</span> and <span class="jstatus jpending">${pending} pending </span>jobs on Bioscript out of <span class="jstatus jtotal">${total} total.</span>
     </p>
