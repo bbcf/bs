@@ -39,6 +39,7 @@ class RootController(BaseController):
         jobs = DBSession.query(Job).all()
         plugins = operations.get_plugins_path()
         mapping = {'plugins': plugins,
+                   'ordered': operations.get_plugins_path(ordered=True),
                    'nbplugins': len(plugins),
                    'total': len(jobs),
                    'running': 0,
@@ -47,11 +48,8 @@ class RootController(BaseController):
                    'success': 0}
         for job in jobs:
             mapping[job.status.lower()] += 1
+
         return mapping
-
-
-
-        return dict(page='index')
 
     @expose('json')
     def vocab(self, **kw):

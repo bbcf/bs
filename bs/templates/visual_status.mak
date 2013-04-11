@@ -27,7 +27,8 @@
     </p>
 
     <div id="plugin_presentation">
-        There is <span class="jstatus jrunning">${nbplugins}</span> plugins available: <br/>
+        <span class="jstatus jrunning">${nbplugins}</span> plugins are available: <br/>
+  <!--
         <ul>
         % for plugin in plugins:
             <li> 
@@ -40,8 +41,15 @@
             </li>
         % endfor
         </ul>
-
+    -->
+    
     </div>
+
+    <br/>
+     <div id="plugin_presentation2">
+        ${d.display_childs(ordered['childs'])}
+      <div>
+
 
     </div>
     ${d.footer()}

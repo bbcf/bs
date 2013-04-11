@@ -38,3 +38,30 @@
         });
     </script>
 </%def>
+
+<%def name="plugin_info(plugin)">
+    <b><a href="${tg.url('/direct/get')}?id=${plugin['id']}">${plugin['info']['title']}</a> </b>
+    <br/>by ${plugin['info']['meta']['author']} (<a href="mailto:${plugin['info']['meta']['contact']}?subject=[BioScript]">contact</a>)
+    <br/> version ${plugin['info']['meta']['version']}
+    <a class="a_hideshow">description</a>
+    <span class='plugin_description span_hidden'>${plugin['info']['description'] | n}</span>
+</%def>
+
+
+<%def name="display_childs(childs)">
+    <ul>
+    %for child in childs:
+        <li> 
+        <h3>${child['key']}</h3>
+        %if 'id' in child:
+             <div class="operation-childs">
+                ${plugin_info(child)}
+            </div>
+        %endif
+        %if 'childs' in child:
+            ${display_childs(child['childs'])}
+        %endif
+        </li>
+    %endfor
+    </ul>
+</%def>

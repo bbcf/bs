@@ -107,6 +107,16 @@ div#content p {
 .plugin_description {
   position: relative; }
 
+#plugin_presentation2 li {
+  list-style-type: none;
+  margin: 15px;
+  padding: 15px;
+  float: left;
+  padding-bottom: 30px; }
+
+.plugin_description {
+  position: relative; }
+
 .show {
   display: block; }
 
