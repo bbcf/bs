@@ -102,7 +102,6 @@ class Job(DeclarativeBase):
     @property
     def status(self):
         if not self.task:
-            print 'no task for %s => %s' % (self.id, self.request.status)
             stat = self.request.status
             if stat.lower() == 'pending':
                 if (self.request.date_done + delta) < datetime.now():
