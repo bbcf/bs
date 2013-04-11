@@ -52,11 +52,12 @@
     <ul>
     %for child in childs:
         <li> 
-        <h3>${child['key']}</h3>
         %if 'id' in child:
              <div class="operation-childs">
                 ${plugin_info(child)}
             </div>
+        %else:
+            <h3>${child['key']}</h3>
         %endif
         %if 'childs' in child:
             ${display_childs(child['childs'])}
