@@ -10,7 +10,7 @@ import json
 block_sz = 2048 * 4
 
 
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 0
 
 
 class UrlError(Exception):

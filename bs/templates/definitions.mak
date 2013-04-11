@@ -5,7 +5,6 @@
  <%def name="banner(sub='')">
      <ul id="banner">
        <li><a class="text" href="${tg.url('/')}">Bioscript</a></li>
-        <li><a class="text" href="${tg.url('/direct/status')}">Status</a></li>
        <li><a href="${tg.url('/direct/')}">Operations</a></li>
         <li><a href="${tg.url('/documentation')}">Documentation</a></li>
      </ul>

@@ -7,6 +7,9 @@ from bs.lib.base import BaseController
 from bs.controllers.error import ErrorController
 from bs.controllers import DirectController, PluginController, JobController, DevController
 from bs.lib.operations import wordlist
+from bs.lib import operations
+from bs.model import DBSession, Job, PluginRequest
+from sqlalchemy.sql.expression import desc
 
 __all__ = ['RootController']
 
@@ -31,8 +34,23 @@ class RootController(BaseController):
     plugins = PluginController()
     error = ErrorController()
 
-    @expose('bs.templates.index')
+    @expose('mako:bs.templates.visual_status')
     def index(self, *args, **kw):
+        jobs = DBSession.query(Job).all()
+        plugins = operations.get_plugins_path()
+        mapping = {'plugins': plugins,
+                   'nbplugins': len(plugins),
+                   'total': len(jobs),
+                   'running': 0,
+                   'failure': 0,
+                   'pending': 0,
+                   'success': 0}
+        for job in jobs:
+            mapping[job.status.lower()] += 1
+        return mapping
+
+
+
         return dict(page='index')
 
     @expose('json')

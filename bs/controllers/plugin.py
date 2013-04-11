@@ -32,7 +32,7 @@ tw2.bs.widgets.DEBUG = True
 
 import re
 multipattern = re.compile('(\w+):(\d+):(\w+)')
-DEBUG_LEVEL = 20
+DEBUG_LEVEL = 1
 TIME_IT = 1
 
 
@@ -196,7 +196,6 @@ class PluginController(base.BaseController):
         # validate
         request_url = tg.config.get('main.proxy') + '/plugins/_validate'
         form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
-        print form
 
         #val, error = self._validation_render(bases_private, plug, **kw)
         callback = kw.get('callback', 'callback')
