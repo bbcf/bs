@@ -31,7 +31,7 @@
         <ul>
         % for plugin in plugins:
             <li> 
-            <a href="${tg.url('/direct/get')}?id=${plugin['id']}">${plugin['info']['title']}</a> 
+            <b><a href="${tg.url('/direct/get')}?id=${plugin['id']}">${plugin['info']['title']}</a> </b>
             <br/>by ${plugin['info']['meta']['author']} (<a href="mailto:${plugin['info']['meta']['contact']}?subject=[BioScript]">contact</a>)
             <br/> version ${plugin['info']['meta']['version']}
             <a class="a_hideshow">description</a>
@@ -40,6 +40,7 @@
             </li>
         % endfor
         </ul>
+
     </div>
 
     </div>
