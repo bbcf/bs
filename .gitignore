@@ -19,3 +19,4 @@
 /doc/build
 /bs/plugins
 .sass-cache
+/celeryconfig.py

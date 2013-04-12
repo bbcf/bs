@@ -10,4 +10,5 @@ BROKER_URL = 'sqla+sqlite:///celery-transport.sqlite'
 CELERYD_CONCURRENCY = 1
 
 
-ROOT_DIRECTORY = '/data/dev/bs/rootdir'
+#ROOT_DIRECTORY = '/data/dev/bs/rootdir'
+ROOT_DIRECTORY = '/Users/nitro/git/bs/rootdir'
