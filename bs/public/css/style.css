@@ -139,7 +139,7 @@ div#content p {
   height: 75px; }
 
 .job_params td {
-  padding: 5px;
+  padding: 10px;
   text-align: right; }
   .job_params td:first-child {
     text-align: left; }
