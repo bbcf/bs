@@ -137,3 +137,9 @@ div#content p {
 
 #bs_operations {
   height: 75px; }
+
+.job_params td {
+  padding: 5px;
+  text-align: right; }
+  .job_params td:first-child {
+    text-align: left; }

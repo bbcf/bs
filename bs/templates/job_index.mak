@@ -37,7 +37,7 @@
             <!-- DISPLAY JOB PARAMETERS -->
             <div class='belement'>
             <h2>Plugin parameters</h2> <br/><br/>
-                <table>
+                <table class="job_params">
                 % for k, v in parameters.iteritems():
                     <tr> <td><b>${k}</b></td> <td>${v}</td></tr>
                 %endfor
