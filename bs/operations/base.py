@@ -14,6 +14,7 @@ print TMP_DIR
 import tw2.core
 import tw2.forms
 import tw2.dynforms
+import warnings
 
 
 class BaseForm(tw2.forms.TableForm):
@@ -28,6 +29,7 @@ class DynForm(tw2.dynforms.CustomisedTableForm):
 
 class Multi(tw2.dynforms.GrowingGridLayout):
     """A modified GridLayout that is centered on multifile upload"""
+    warnings.warn('Multi is deprected, use twb.BsMulti instead', DeprecationWarning)
 
     def _validate(self, value, state=None):
         value = [v for v in value if not ('del.x' in v and 'del.y' in v)]

@@ -27,10 +27,9 @@ import tw2.core as twc
 import tw2.forms as twf
 import tw2.bs as twb
 import tw2.bs.widgets
+
 tw2.bs.widgets.DEBUG = True
 
-
-import re
 multipattern = re.compile('(\w+):(\d+):(\w+)')
 DEBUG_LEVEL = 1
 TIME_IT = 1
@@ -224,19 +223,29 @@ class PluginController(base.BaseController):
         fs_bk = []
         import cgi
         for k, v in kw.iteritems():
+            print '[x] testing %s, %s' % (k, v)
             if isinstance(v, cgi.FieldStorage):
                 fs_bk.append((k, v))
 
-        # separate field storage parameters if they are multi
-        # and replace them in the new_params as ther were
-        # converted to str
+        # Separate field storage parameters if they are multi
+        # and replace them in the new_params as they were
+        # converted to str()
+        # Use a temporary dict because FieldStorage are
+        # in new_params as str(), so we need to supreess them
+        replace_params = {}
         for fsk, fsv in fs_bk:
             m = multipattern.match(fsk)
             if m:
                 key1, n, key2 = m.groups()
-                new_params[key1][key2] = fsv
+                if not key1 in replace_params:
+                    replace_params[key1] = {}
+                if key2 in replace_params[key1] and not key2.endswith('bs_group'):
+                    replace_params[key1][key2].append(fsv)
+                else:
+                    replace_params[key1][key2] = [fsv]
             else:
-                new_params[fsk] = fsv
+                replace_params[fsk] = fsv
+        new_params.update(replace_params)
 
         kw = new_params
         #remove private parameters from the request
@@ -265,7 +274,7 @@ class PluginController(base.BaseController):
                                'title':  info.get('title'),
                                'error': 'error while fetching files : ' + str(e),
                                'callback': callback})
-        debug('ok', 3)
+        debug('ok %s' % kw, 3)
 
         # get output directory to write results
         outputs_directory = filemanager.temporary_directory(constants.paths['data'])
