@@ -1,5 +1,5 @@
 from bs.lib import base
-from tg import expose, response, url
+from tg import expose, response, url, request
 from bs.model import DBSession, Job, PluginRequest
 import os
 from datetime import datetime
@@ -78,6 +78,9 @@ def get_result_url(result, task_id):
     return url('jobs/get', {'task_id': task_id, 'result_id': result.id})
 
 
+from bs.lib import filemanager
+
+
 def file_response(file_path):
     fname = os.path.split(file_path)[1]
     ext = os.path.splitext(fname)[1]
@@ -90,4 +93,18 @@ def file_response(file_path):
     else:
         response.content_type = "text/plain"
     response.headerlist.append(('Content-Disposition', 'attachment;filename="%s"' % fname))
-    return open(file_path).read()
+
+    sz = os.path.getsize(file_path)
+    lm = os.path.getmtime(file_path)
+    response.content_length = sz
+    response.last_modified = lm
+    response.etag = '%s-%s-%s' % (lm, sz, hash(file_path))
+    start = stop = None
+    if request.range:
+        try:
+            start, stop = str(request.range).split('=')[-1].split('-')
+            start = int(start)
+            stop = int(stop)
+        except ValueError:
+            pass
+    return filemanager.FileIterable(file_path, start, stop)
