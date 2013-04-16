@@ -223,7 +223,6 @@ class PluginController(base.BaseController):
         fs_bk = []
         import cgi
         for k, v in kw.iteritems():
-            print '[x] testing %s, %s' % (k, v)
             if isinstance(v, cgi.FieldStorage):
                 fs_bk.append((k, v))
 
