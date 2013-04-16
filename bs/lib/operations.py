@@ -1,10 +1,20 @@
 from bs.operations import manager as plmng
+from operator import attrgetter, itemgetter
 
 manager = plmng.load_plugins()
 wordlist = manager.wordlist
 
 
 def get_plugins_path(service=None, ordered=False):
+    paths = _get_plugins_path(service, ordered)
+    return paths
+
+
+def _sort(l):
+    return sorted(l, key=attrgetter('key'))
+
+
+def _get_plugins_path(service, ordered):
     """
     Get the paths of the plugins
     """
@@ -16,11 +26,12 @@ def get_plugins_path(service=None, ordered=False):
         paths = []
         for pname, pclazz in plugs.iteritems():
             o = pclazz()
-            node = Node(None)
+            node = Node(o.info['title'])
             node.id = o.unique_id()
             node.info = o.info
             node = node._serialize()
             paths.append(node)
+        paths = sorted(paths, key=itemgetter('key'))
     return paths
 
 
@@ -94,7 +105,7 @@ class Node(object):
         if self.id is not None:
             d['id'] = self.id
         if self.childs:
-            d['childs'] = [child._serialize() for child in self.childs]
+            d['childs'] = [child._serialize() for child in _sort(self.childs)]
         if self.id is not None:
             d['info'] = self._serialize_info()
         return d
