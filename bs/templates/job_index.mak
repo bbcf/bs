@@ -39,7 +39,24 @@
             <h2>Plugin parameters</h2> <br/><br/>
                 <table class="job_params">
                 % for k, v in parameters.iteritems():
-                    <tr> <td><b>${k}</b></td> <td>${v}</td></tr>
+                    % if isinstance(v, dict):
+                        <tr> <td><b>${k}</b></td><td><ul>
+                        % for key, val in v.iteritems():
+                            <li><i>${key}</i> :
+                            % if isinstance(val, list):
+                                % for item in val:
+                                    ${item}, 
+                                % endfor
+
+                            % else:
+                                ${val}
+                            %endif
+                            </li>
+                        % endfor
+                        </ul></td></tr>
+                    % else:
+                        <tr> <td><b>${k}</b></td> <td>${v}</td></tr>
+                    % endif
                 %endfor
                 </table>
             </div>
