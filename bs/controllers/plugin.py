@@ -254,6 +254,10 @@ class PluginController(base.BaseController):
         if 'key' in kw:
             del kw['key']
 
+        # update plugin arameters
+        plugin_request.parameters = kw
+        DBSession.add(plugin_request)
+
         # validation passed
         debug('validated', 2)
         info = plug.info
