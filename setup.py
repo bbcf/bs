@@ -58,7 +58,12 @@ setup(
     tests_require=testpkgs,
     package_data={'bs': ['i18n/*/LC_MESSAGES/*.mo',
                                  'templates/*/*',
-                                 'public/*/*']},
+                                 'public/*/*',
+                                 ]},
+    exclude_package_data={
+          'bs': [
+              'public/javascript/jslib'
+          ]},
     message_extractors={'bs': [
             ('**.py', 'python', None),
             ('templates/**.mako', 'mako', None),
