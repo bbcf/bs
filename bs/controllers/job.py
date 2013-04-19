@@ -95,10 +95,11 @@ def file_response(file_path):
     else:
         response.content_type = "text/plain"
     response.headerlist.append(('Content-Disposition', 'attachment;filename="%s"' % fname))
-
     sz = os.path.getsize(file_path)
     lm = os.path.getmtime(file_path)
     response.content_length = sz
+    response.headerlist.append(('Content-Length', sz))
+    #self.response.headerlist.append(("Content-Range", "bytes %s-%s/%s" % (self.start, self.stop, self.size)))
     response.last_modified = lm
     response.etag = '%s-%s-%s' % (lm, sz, hash(file_path))
     start = stop = None
@@ -107,6 +108,9 @@ def file_response(file_path):
             start, stop = str(request.range).split('=')[-1].split('-')
             start = int(start)
             stop = int(stop)
+            if stop > sz:
+                stop = sz
+            response.headerlist.append(("Content-Range", "bytes %s-%s/%s" % (start, stop - 1, sz)))
         except ValueError:
             pass
     return filemanager.FileIterable(file_path, start, stop)
