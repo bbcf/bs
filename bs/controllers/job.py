@@ -86,7 +86,7 @@ def file_response(file_path):
 
     sz = os.path.getsize(file_path)
     lm = os.path.getmtime(file_path)
-    lm = datetime.fromtimestamp(lm).strftime("%d%b%Y %H:%M:%S")
+    lm = datetime.fromtimestamp(lm).strftime("%a, %d %b %Y %H:%M:%S GMT")
     response.content_length = '%s' % sz
     if ext in ['.pdf', '.gz', '.gzip']:
         response.content_type = 'application/' + ext
@@ -117,4 +117,5 @@ def file_response(file_path):
             response.content_length = '%s' % (newsz)
         except ValueError:
             pass
+    print response.headers
     return filemanager.FileIterable(file_path, start, stop)
