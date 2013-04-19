@@ -81,6 +81,9 @@ def get_result_url(result, task_id):
 
 
 def file_response(file_path):
+    print request
+    print request.headers
+    print "--------------------------------------------------------"
     fname = os.path.split(file_path)[1]
     ext = os.path.splitext(fname)[1].lower()
 
