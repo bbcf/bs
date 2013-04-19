@@ -86,7 +86,7 @@ def file_response(file_path):
 
     sz = os.path.getsize(file_path)
     lm = os.path.getmtime(file_path)
-    datetime.fromtimestamp(lm).strftime("%d%b%Y %H:%M:%S")
+    lm = datetime.fromtimestamp(lm).strftime("%d%b%Y %H:%M:%S")
     response.content_length = '%s' % sz
     if ext in ['.pdf', '.gz', '.gzip']:
         response.content_type = 'application/' + ext
