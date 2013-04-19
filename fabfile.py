@@ -2,6 +2,15 @@ from fabric.api import run, cd, local, prefix, task, hosts
 from fabric.colors import green
 
 
+settings = {
+    'paths': {
+        'sugar': {
+            'bs': '/data/dev/bs'
+        }
+    }
+}
+
+
 def _run(locally):
     if locally:
         return local
@@ -27,12 +36,6 @@ def sync(branch='master', remote='origin', locally=True):
     push(branch, remote, locally)
 
 
-@task
-def serve(conf_file, branch='master', remote='origin', opts='--reload', workon='bs', locally=True):
-    print(green('[x] SERVING ...'))
-    _run(locally)('paster serve %s %s' % (opts, conf_file))
-
-
 ## for updating dev server on sugar from local
 # e.g:
 # update bioscript and restart service: $ fab update deploy
@@ -43,17 +46,19 @@ sugar_libs = ['bbcflib', 'bsPlugins', 'tw2.bs']
 
 @task
 @hosts('yo@sugar.epfl.ch')
-def sync_sugar():
-    with cd('/data/dev/bs'):
+def sugar_sync_repo(project='bs'):
+    path = settings['paths']['sugar'][project]
+    with cd(path):
         pull(locally=False)
         push(locally=False)
 
 
-@task(alias='update')
+@task(alias='supdate')
 @hosts('yo@sugar.epfl.ch')
-def update_sugar(libs=False):
+def sugar_update(libs=False, project='bs'):
     print(green('[x] Updating bioscript ...'))
-    with cd('/data/dev/bs'):
+    path = settings['paths']['sugar'][project]
+    with cd(path):
         pull(locally=False)
     if libs:
         with cd('/data/dev/libs'):
@@ -64,10 +69,11 @@ def update_sugar(libs=False):
                     pull(locally=False)
 
 
-@task(alias='deploy')
+@task(alias='sdeploy')
 @hosts('yo@sugar.epfl.ch')
-def deploy_sugar(cmd='restart'):
+def deploy_sugar(cmd='restart', project='bs'):
     print(green('[x] Service %sing on sugar ... ' % cmd))
-    with cd('/data/dev/bs'):
-        with prefix('workon bs'):
+    path = settings['paths']['sugar'][project]
+    with cd(path):
+        with prefix('workon %s' % project):
             _run(locally=False)("./webserverctl %s && ./workerctl %s" % (cmd, cmd))

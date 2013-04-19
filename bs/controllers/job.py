@@ -83,13 +83,15 @@ from bs.lib import filemanager
 
 def file_response(file_path):
     fname = os.path.split(file_path)[1]
-    ext = os.path.splitext(fname)[1]
-    if ext.lower() in ['.pdf', '.gz', '.gzip']:
-        response.content_type = 'application/' + ext.lower()
-    elif ext.lower() in ['.png', '.jpeg', '.jpg', '.gif']:
-        response.content_type = 'image/' + ext.lower()
-    elif ext.lower() in ['.sql', '.db', '.sqlite3']:
+    ext = os.path.splitext(fname)[1].lower()
+    if ext in ['.pdf', '.gz', '.gzip']:
+        response.content_type = 'application/' + ext
+    elif ext in ['.png', '.jpeg', '.jpg', '.gif']:
+        response.content_type = 'image/' + ext
+    elif ext in ['.sql', '.db', '.sqlite3']:
         response.content_type = 'application/x-sqlite3'
+    elif ext in ['.bw', '.bigw', '.bigwig']:
+        response.content_type = 'application/octet-stream'
     else:
         response.content_type = "text/plain"
     response.headerlist.append(('Content-Disposition', 'attachment;filename="%s"' % fname))
