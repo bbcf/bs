@@ -207,6 +207,7 @@ class FileIterable(object):
     def app_iter_range(self, start, stop):
         return self.__class__(self.filename, start, stop)
 
+    
 
 class FileIterator(object):
     chunk_size = 4096

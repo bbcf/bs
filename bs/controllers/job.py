@@ -98,8 +98,12 @@ def file_response(file_path):
         response.content_type = 'application/octet-stream'
     else:
         response.content_type = "text/plain"
+    octet_size = sz / 8
+    if not octet_size:
+        octet_size = 1
     response.headers['Content-Disposition'] = 'attachement; filename=%s; size=%s' % (fname, sz)
     response.headers['Accept-Ranges'] = 'bytes'
+    response.headers['Content-Length'] = '%s' % octet_size
     response.headers['Last-Modified'] = lm
     response.headers['Content-Description'] = "Bioscript result"
     response.etag = '%s' % hash(file_path)
@@ -118,4 +122,5 @@ def file_response(file_path):
         except ValueError:
             pass
     print response.headers
-    return filemanager.FileIterable(file_path, start, stop)
+    fiter = filemanager.FileIterable(file_path, start, stop)
+    return fiter
