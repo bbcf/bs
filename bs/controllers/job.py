@@ -52,6 +52,7 @@ class JobController(base.BaseController):
         jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done))[:limit]
         return {'jobs': jobs}
 
+    @expose(content_type='toto/tata')
     @expose('mako:bs.templates.job_result')
     def get(self, task_id, result_id):
         result_id = int(result_id)
@@ -84,6 +85,10 @@ from bs.lib import filemanager
 def file_response(file_path):
     fname = os.path.split(file_path)[1]
     ext = os.path.splitext(fname)[1].lower()
+
+    sz = os.path.getsize(file_path)
+    lm = os.path.getmtime(file_path)
+    response.content_length = '%s' % sz
     if ext in ['.pdf', '.gz', '.gzip']:
         response.content_type = 'application/' + ext
     elif ext in ['.png', '.jpeg', '.jpg', '.gif']:
@@ -94,14 +99,11 @@ def file_response(file_path):
         response.content_type = 'application/octet-stream'
     else:
         response.content_type = "text/plain"
-    response.headerlist.append(('Content-Disposition', 'attachment;filename="%s"' % fname))
-    sz = os.path.getsize(file_path)
-    lm = os.path.getmtime(file_path)
-    response.content_length = sz
-    response.headerlist.append(('Content-Length', sz))
-    #self.response.headerlist.append(("Content-Range", "bytes %s-%s/%s" % (self.start, self.stop, self.size)))
-    response.last_modified = lm
-    response.etag = '%s-%s-%s' % (lm, sz, hash(file_path))
+    response.headers['Content-Disposition'] = 'attachement; filename=%s; size=%s' % (fname, sz)
+    response.headers['Accept-Ranges'] = 'bytes'
+    response.headers['Last-Modified'] = lm
+    response.headers['Content-Description'] = "Bioscript result"
+    response.etag = '%s' % hash(file_path)
     start = stop = None
     if request.range:
         try:
@@ -109,8 +111,11 @@ def file_response(file_path):
             start = int(start)
             stop = int(stop)
             if stop > sz:
-                stop = sz
-            response.headerlist.append(("Content-Range", "bytes %s-%s/%s" % (start, stop - 1, sz)))
+                stop = sz - 1
+            newsz = stop - start
+            response.headers["Content-Range"] = "bytes %s-%s/%s" % (start, stop, sz)
+            response.headers['Content-Disposition'] = 'attachement; filename=%s; size=%s' % (fname, newsz)
+            response.content_length = '%s' % (newsz)
         except ValueError:
             pass
     return filemanager.FileIterable(file_path, start, stop)
