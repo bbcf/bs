@@ -113,6 +113,8 @@ def file_response(file_path):
             start, stop = str(request.range).split('=')[-1].split('-')
             start = int(start)
             stop = int(stop)
+            if stop == start:
+                stop += 1
             if stop > sz:
                 stop = sz - 1
             newsz = stop - start
