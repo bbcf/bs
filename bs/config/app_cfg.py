@@ -13,7 +13,7 @@ convert them into boolean, for example, you should use the
 """
 
 from tg.configuration import AppConfig
-
+import tg
 import bs
 from bs import model
 from bs.lib import app_globals, helpers
@@ -24,18 +24,17 @@ from tw2.core.middleware import TwMiddleware
 
 class MyAppConfig(AppConfig):
 
-    def add_tosca2_middleware(self, app):
-
-        app = TwMiddleware(app, inject_resources=True,
-                           serve_resources=True,
-                           default_engine='mako',
-                           )
-
-        return app
-#base_config = MyAppConfig()
+    def after_init_config(self):
+        s = 'debug.toolbar'
+        if s in tg.config and tg.config[s].lower() in ['true', 'yes']:
+            from tgext.debugbar import enable_debugbar
+            enable_debugbar(base_config)
 
 
-base_config = AppConfig()
+base_config = MyAppConfig()
+
+
+#base_config = AppConfig()
 base_config.renderers = []
 base_config.prefer_toscawidgets2 = True
 
@@ -77,4 +76,3 @@ def start_app(app):
 base_config.call_on_startup = [on_startup]
 base_config.call_on_shutdown = [on_shutdown]
 base_config.register_hook('before_config', start_app)
-
