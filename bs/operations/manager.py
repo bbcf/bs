@@ -12,6 +12,7 @@ from base import TMP_DIR
 DEBUG_LEVEL = 0
 
 
+
 def debug(s, t=0):
     if DEBUG_LEVEL > 0:
         print '[plugin manager] %s%s' % ('\t' * t, s)

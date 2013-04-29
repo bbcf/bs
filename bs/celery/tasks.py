@@ -26,6 +26,7 @@ if 'ROOT_DIRECTORY' in current_app.conf:
 
 print '[x] temporary data path is %s' % TMP_DIR
 
+DEBUG_PLUGINS = True
 
 def check_data_paths():
     if not os.path.exists(ROOT_DIRECTORY):
@@ -77,6 +78,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     plugin = operations.get_plugin_byId(plugin_info['generated_id'])
     if plugin is None:
         raise Exception('Plugin not found by the worker.')
+    plugin.is_debug = DEBUG_PLUGINS
 
     debug('plugin operation start')
     plugin._start_timer()
