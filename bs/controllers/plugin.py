@@ -308,6 +308,7 @@ class PluginController(base.BaseController):
 
         # call plugin process
         bioscript_callback = tg.config.get('main.proxy') + '/' + tg.url('plugins/callback_results')
+        print "callback on %s " % bioscript_callback
         async_res = tasks.plugin_job.delay(user.name, inputs_directory, outputs_directory, plugin_info,
                                            user_parameters, service_callback, bioscript_callback, **kw)
         task_id = async_res.task_id
@@ -331,6 +332,7 @@ class PluginController(base.BaseController):
 
     @expose('json')
     def callback_results(self, task_id, results):
+        print 'CALLBACK %s %s' % (task_id, results)
         results = json.loads(results)
         for result in results:
             task = DBSession.query(Task).filter(Task.task_id == task_id).first()

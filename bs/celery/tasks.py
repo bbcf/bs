@@ -89,6 +89,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         results = [{'is_file': False,
                     'value': ret}]
     except Exception as e:
+        debug("ERROR")
         if service_callback is not None:
             user_parameters.update({'error': e})
             callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=user_parameters)
@@ -101,6 +102,13 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         if file_is_in_bs(TMP_DIR, inputs_directory):
             debug('deleting %s' % inputs_directory)
             shutil.rmtree(inputs_directory)
+
+        if len(plugin.debug_stack) > 0:
+            debug("Adding debug stack to error")
+            debug_error = '\n [x] DEBUG STACK : %s' % '\n'.join([d for d in plugin.debug_stack])
+            if not e.args:
+                e.args = ('',)
+            e.args = (e.args[0] + debug_error,) + e.args[1:]
         raise
 
     # mkdir output directory
@@ -157,6 +165,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
 #             user_parameters.update({'result' : result})
 #             callback_service(callback_url, _id, task_id, 'SUCCESS', name, description, files=plugin.files, additional=user_parameters)
 #         return result
+
 
 
 
@@ -237,7 +246,6 @@ def callback_service(url, plugin_id, task_id, status, results=None, additional=N
     :param additional : a dict with some additional parameters that can be needed
     ('error' : when an error occurs, 'result' when a task finish with success)
     """
-
     params = {'plugin_id': plugin_id,
               'task_id': task_id,
               'status': status}
