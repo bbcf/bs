@@ -85,12 +85,6 @@ def get_result_url(result, task_id):
     return url('jobs/get', {'task_id': task_id, 'result_id': result.id})
 
 
-<<<<<<< HEAD
-def file_response(file_path):
-    print "########################################################"
-    print request.headers
-    print "--------------------------------------------------------"
-=======
 def file_response_with_xsendfile(file_path):
     response.headers['X-Sendfile'] = file_path
     print request
