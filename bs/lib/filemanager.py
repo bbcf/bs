@@ -194,24 +194,48 @@ def download_from_url(_from, _to):
             raise e
 
 
-class FileIterable(object):
+class FileChunk(object):
 
-    def __init__(self, filename, start=None, stop=None):
+    chunk_size = 4096
+
+    def __init__(self, filename, length, start=None, stop=None):
         self.filename = filename
         self.start = start
         self.stop = stop
+        self.len = length
+
+    def read(self):
+        self.fileobj = open(self.filename, 'rb')
+        if self.start:
+            self.fileobj.seek(self.start)
+        if self.stop:
+            sz = self.stop - self.start
+            return self.fileobj.read(sz)
+        return self.fileobj.read()
+
+class FileIterable(object):
+
+    def __init__(self, filename, length, start=None, stop=None):
+        self.filename = filename
+        self.start = start
+        self.stop = stop
+        self.len = length
 
     def __iter__(self):
-        return FileIterator(self.filename, self.start, self.stop)
+        return FileIterator(self.filename, self.len, self.start, self.stop)
 
     def app_iter_range(self, start, stop):
         return self.__class__(self.filename, start, stop)
+
+    def __len__(self):
+        return self.len
+
 
 
 class FileIterator(object):
     chunk_size = 4096
 
-    def __init__(self, filename, start, stop):
+    def __init__(self, filename, l, start, stop):
         self.filename = filename
         self.fileobj = open(self.filename, 'rb')
         if start:
@@ -220,9 +244,13 @@ class FileIterator(object):
             self.length = stop - start
         else:
             self.length = None
+        self.l = l
 
     def __iter__(self):
         return self
+
+    def __len__(self):
+        return self.l
 
     def next(self):
         if self.length is not None and self.length <= 0:
