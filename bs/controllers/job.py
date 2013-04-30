@@ -1,6 +1,6 @@
 from bs.lib import base
 from tg import expose, response, url, request
-from bs.model import DBSession, Job, PluginRequest
+from bs.model import DBSession, Job, PluginRequest, Task
 import os
 from datetime import datetime
 from sqlalchemy.sql import expression
@@ -43,7 +43,7 @@ class JobController(base.BaseController):
                 'parameters': parameters}
 
     @expose('mako:bs.templates.job_all')
-    def all(self, limit=None):
+    def all(self, limit=None, status=None):
         if limit:
             try:
                 limit = int(limit)
@@ -51,6 +51,8 @@ class JobController(base.BaseController):
                 pass
         limit = (limit or 50)
         jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done))[:limit]
+        if status and status.lower() in ['success', 'failure']:
+            jobs = [j for j in jobs if j.status == status.upper()]
         return {'jobs': jobs}
 
     @expose()
