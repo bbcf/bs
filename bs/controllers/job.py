@@ -53,7 +53,8 @@ class JobController(base.BaseController):
         jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done))[:limit]
         return {'jobs': jobs}
 
-    @expose(content_type='toto/tata')
+    @expose()
+    @expose('json')
     @expose('mako:bs.templates.job_result')
     def get(self, task_id, result_id):
         result_id = int(result_id)
@@ -81,7 +82,7 @@ def get_result_url(result, task_id):
 
 
 def file_response(file_path):
-    print request
+    print "########################################################"
     print request.headers
     print "--------------------------------------------------------"
     fname = os.path.split(file_path)[1]
@@ -90,7 +91,7 @@ def file_response(file_path):
     sz = os.path.getsize(file_path)
     lm = os.path.getmtime(file_path)
     lm = datetime.fromtimestamp(lm).strftime("%a, %d %b %Y %H:%M:%S GMT")
-    response.content_length = '%s' % sz
+    response.content_length = sz
     if ext in ['.pdf', '.gz', '.gzip']:
         response.content_type = 'application/' + ext
     elif ext in ['.png', '.jpeg', '.jpg', '.gif']:
@@ -101,12 +102,9 @@ def file_response(file_path):
         response.content_type = 'application/octet-stream'
     else:
         response.content_type = "text/plain"
-    octet_size = sz / 8
-    if not octet_size:
-        octet_size = 1
     response.headers['Content-Disposition'] = 'attachement; filename=%s; size=%s' % (fname, sz)
     response.headers['Accept-Ranges'] = 'bytes'
-    response.headers['Content-Length'] = '%s' % octet_size
+    response.headers['Content-Length'] = sz
     response.headers['Last-Modified'] = lm
     response.headers['Content-Description'] = "Bioscript result"
     response.etag = '%s' % hash(file_path)
@@ -123,9 +121,10 @@ def file_response(file_path):
             newsz = stop - start
             response.headers["Content-Range"] = "bytes %s-%s/%s" % (start, stop, sz)
             response.headers['Content-Disposition'] = 'attachement; filename=%s; size=%s' % (fname, newsz)
-            response.content_length = '%s' % (newsz)
+            response.content_length = str('%s') % (newsz)
         except ValueError:
             pass
     print response.headers
     fiter = filemanager.FileIterable(file_path, start, stop)
+    print "########################################################"
     return fiter

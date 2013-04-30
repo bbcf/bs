@@ -6,7 +6,7 @@ from bs.config.environment import load_environment
 import tw2.core
 import os
 import re
-
+from webob import Request
 from pkg_resources import resource_filename
 htmlfilepattern = re.compile(r'(<html>.*<head>)(.*</head>.*<body>)(.*</html>)', re.DOTALL)
 
@@ -135,9 +135,22 @@ def make_middleware(app=None, config=None, **kw):
 
 #base_config.toscawidgets.framework.middleware.render_filter = render_filter
 
+def wrapper_middleware(app):
+    print 'wrapping'
+    print app
+    return app
 
 
+class MyMiddleware(object):
 
+    def __init__(self, wrap_app):
+        self.wrap_app = wrap_app
+
+    def __call__(self, environ, start_response):
+        def custom_start_response(status, headers, exc_info=None):
+            #headers.append(('Content-Length', "1"))
+            return start_response(status, headers, exc_info)
+        return self.wrap_app(environ, custom_start_response)
 
 
 def make_app(global_conf, full_stack=True, **app_conf):
@@ -170,7 +183,8 @@ def make_app(global_conf, full_stack=True, **app_conf):
     #app = make_base_app(global_conf, full_stack=True, **app_conf)
 
     # Wrap your base TurboGears 2 application with custom middleware here
-    
+
+    app = MyMiddleware(app)
     return app
 
 
