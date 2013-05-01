@@ -28,6 +28,13 @@ print '[x] temporary data path is %s' % TMP_DIR
 
 DEBUG_PLUGINS = True
 
+
+def shutilerror(func, path, einfo):
+    print '[shutil error] with %s. On path %s' % (func, path)
+    etype, value, tb = einfo
+    traceback.print_exception(etype, value, tb)
+
+
 def check_data_paths():
     if not os.path.exists(ROOT_DIRECTORY):
         print "Directory '%s' does not exist: trying to create it..." % ROOT_DIRECTORY
@@ -96,12 +103,12 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         # deleting plugin temporary files
         for todel in plugin.tmp_files:
             debug('deleting %s' % todel)
-            shutil.rmtree(todel)
+            shutil.rmtree(todel, onerror=shutilerror)
         debug('deleting %s' % outputs_directory)
-        shutil.rmtree(outputs_directory)
+        shutil.rmtree(outputs_directory, onerror=shutilerror)
         if file_is_in_bs(TMP_DIR, inputs_directory):
             debug('deleting %s' % inputs_directory)
-            shutil.rmtree(inputs_directory)
+            shutil.rmtree(inputs_directory, onerror=shutilerror)
 
         if len(plugin.debug_stack) > 0:
             debug("Adding debug stack to error")
@@ -131,10 +138,10 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     # deleting plugin temporary files
     for todel in plugin.tmp_files:
         debug('deleting %s' % todel)
-        shutil.rmtree(todel)
+        shutil.rmtree(todel, onerror=shutilerror)
     if file_is_in_bs(TMP_DIR, inputs_directory):
             debug('deleting %s' % inputs_directory)
-            shutil.rmtree(inputs_directory)
+            shutil.rmtree(inputs_directory, onerror=shutilerror)
 
     # updating bioscript with the results
     URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results))
