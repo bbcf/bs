@@ -29,8 +29,8 @@
 
             <!-- DISPLAY TRACEBACK -->
             % if traceback != '':
-                <p>${traceback}     <a class='a_hideshow'>full traceback</a><br/> 
-                <span class='span_hidden'>${full_traceback}</span></p>
+                <p>${traceback | n}     <a class='a_hideshow'>full traceback</a><br/> 
+                <span class='span_hidden'>${full_traceback | n}</span></p>
             % endif
 
 

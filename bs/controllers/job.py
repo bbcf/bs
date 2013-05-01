@@ -30,7 +30,8 @@ class JobController(base.BaseController):
         plugin_id = plug.id
         plugin_info = plug.info
         parameters = req.parameters
-
+        trace = trace.replace('\n', '<br/>')
+        complete = complete.replace('\n', '<br/>')
         return {'status': job.status,
                 'task_id': task_id,
                 'job_id': job.id,
