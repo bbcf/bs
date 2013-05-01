@@ -70,11 +70,12 @@ def fetch(user, plugin, form_parameters):
         debug("download '%s' ? " % infile, 1)
         fid = infile.get('id')
         form_value = None
-        if infile.get('multiple', False):
+        if infile.get('multiple'):
             debug('is multiple', 2)
-            form_value = form_parameters.get(infile['multiple'], {}).get(fid, None)
+            if isinstance(form_parameters.get(infile['multiple']),dict):
+                form_value = form_parameters[infile['multiple']].get(fid)
         else:
-            form_value = form_parameters.get(fid, None)
+            form_value = form_parameters.get(fid)
         debug(form_value)
         # check if form_value contains a value or is not an empty list
         if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0) and form_value != '':
