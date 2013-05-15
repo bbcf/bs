@@ -64,6 +64,11 @@ class _ResourceInjector(util.MultipleReplacer):
                     # avoid jquery javascript to not override the main one
                     if not 'jquery' in res.filename:
                         resource_path = os.path.join(resource_filename(res.modname, ''), res.filename)
+                         # some debug
+                        # toadd += '<script type="text/javascript">'
+                        # toadd += 'console.log("Log from custom middleware.");'
+                        # toadd += 'console.log("{}");'.format(resource_path)
+                        # toadd += '</script>'
                         with open(resource_path, 'r') as resource_file:
                             toadd += '<script type="text/javascript">'
                             toadd += resource_file.read()
@@ -76,11 +81,13 @@ class _ResourceInjector(util.MultipleReplacer):
             html = util.MultipleReplacer.__call__(
                 self, html, resources, encoding
             )
+
             # add toadd (js files)
             one, two, three = htmlfilepattern.match(html).groups()
             html = one + two + toadd + three
             core.request_local().pop('resources', None)
         return html
+
 # Bind __call__ directly so docstring is included in docs
 inject_resources = _ResourceInjector().__call__
 
@@ -202,6 +209,3 @@ def make_app(global_conf, full_stack=True, **app_conf):
 #         return app
 
 # base_config = MyAppConfig()
-
-
-

@@ -30,7 +30,7 @@ testpkgs=['WebTest >= 1.2.3',
                'wsgiref',
                ]
 install_requires=[
-    "TurboGears2 >= 2.2.0",
+    "TurboGears2 >= 2.2.2",
     "Genshi",
     "Mako",
     "zope.sqlalchemy >= 0.4",
@@ -77,7 +77,7 @@ setup(
     main = pylons.util:PylonsInstaller
     """,
     dependency_links=[
-        "http://tg.gy/220"
+        "http://tg.gy/222"
         ],
     zip_safe=False
 )
