@@ -81,6 +81,8 @@ class RootController(BaseController):
     @expose()
     def test(self, *a, **kw):
         print '%s, %s' % (a, kw)
+        from tg import flash
+        flash("hello")
         return ''
 
     @expose('bs.templates.koopa')
