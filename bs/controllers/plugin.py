@@ -195,6 +195,8 @@ class PluginController(base.BaseController):
         # validate
         request_url = tg.config.get('main.proxy') + '/plugins/_validate'
         form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
+        response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
+        response.headers['Access-Control-Allow-Origin'] = '*'
 
         #val, error = self._validation_render(bases_private, plug, **kw)
         callback = kw.get('callback', 'callback')
@@ -289,7 +291,6 @@ class PluginController(base.BaseController):
             if o:
                 outputs_directory = o
             service_callback = services.service_manager.get(user.name, constants.SERVICE_CALLBACK_URL_PARAMETER)
-
         debug('Write result in %s' % outputs_directory, 2)
         # get user parameters from the request
         user_parameters = bs_private.get('app', "{}")

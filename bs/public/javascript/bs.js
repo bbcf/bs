@@ -13,7 +13,10 @@
         show_plugin: false,
         validation_successful: false,
         fsizemax: 255,
-        app: ''
+        app: '',
+        getcsrftoken: function(){
+            return $('meta[name="csrf-token"]').attr('content');
+        }
     };
 
     /* inside call */
@@ -46,7 +49,8 @@
                         geturl: settings.fetch_url,
                         bsform: settings.bs_form_container_selector,
                         fsizemax: settings.fsizemax,
-                        app: settings.app
+                        app: settings.app,
+                        csrf: settings.getcsrftoken
                     });
                     data = $this.data(bs_namespace);
                     // $.ajaxSetup({
@@ -233,8 +237,9 @@
             $.ajax({
                 'url' : data.geturl + '?oid=' + plugin_id,
                 'dataType': 'html',
+                crossDomain: true,
                 'beforeSend': function(xhr) {
-                    xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+                    xhr.setRequestHeader('X-CSRFToken', data.csrf());
                 },
                 type : 'POST',
                 datatype:'json',
