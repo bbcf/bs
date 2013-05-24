@@ -379,31 +379,33 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
 
                     #multiple = fparam.get('multiple', False)
                     #TODO utility method to get all children
-                    for field in form.children_deep():
+                    for child_index, field in enumerate(form.children_deep()):
                         debug('test %s' % field, 3)
-                        if field.id == fid or fid.startswith('%s:' % field.id):
+                        if field.id == fid or fid.startswith('%s:' % field.id) and 'BsFileField' in str(field):
                            # if multiple:
                                 #mod = _change_file_field(form, field, twb.BsMultiple, prefill_with)
                             #else:
-                            mod = _change_file_field(form, field, twb.BsTripleFileField, prefill_with)
+                            mod = _change_file_field(form, field, twb.BsTripleFileField, prefill_with, child_index)
                             modified.append(mod)
                         # fetch children for this field if any and if not already replaced
                         # it 's not recursive and should bs
                         else:
-                            mod = recursivly_check_and_change_field_children(field, fid, form, prefill_with)
+                            mod = recursivly_check_and_change_field_children(field, fid, form, prefill_with, child_index)
                             if mod:
                                 modified.append(mod)
         return modified
 
 
-def recursivly_check_and_change_field_children(field, fid, form, prefill_with):
-    if len(field.children) > 0:
-        for c in field.children:
-            if c.id == fid or fid.startswith('%s:' % c.id):
-                mod = _change_file_field(form, c, twb.BsTripleFileField, prefill_with)
+def recursivly_check_and_change_field_children(field, fid, form, prefill_with, child_index, deep=0):
+    if hasattr(field, 'child') and hasattr(field.child, 'children') and len(field.child.children) > 0:
+        deep += 1
+        for c in field.child.children:
+            debug('test deep : %s' % c, 4)
+            if c.id == fid or fid.startswith('%s:' % c.id) and 'BsFileField' in str(c):
+                mod = _change_file_field(form, c, twb.BsTripleFileField, prefill_with, child_index, deep)
                 return mod
             else:
-                mod = recursivly_check_and_change_field_children
+                mod = recursivly_check_and_change_field_children(c, fid, form, prefill_with, child_index, deep)
                 if mod:
                     return mod
 
@@ -419,7 +421,7 @@ def set_validator(validator, field):
         strip = validator.strip
     except AttributeError:
         pass
-    if 'BsTripleFileField' in str(field):
+    if 'BsTripleFileField' in str(field) or 'BsFileField' in str(field):
         field.validator = twb.BsFileFieldValidator(required=required, strip=strip)
     # elif 'BsMultiple' in str(field):
     #     field.validator = twb.BsMultipleValidator(required=required, strip=strip)
@@ -427,7 +429,7 @@ def set_validator(validator, field):
         field.validator = twc.Validator(required=required, strip=strip)
 
 
-def _change_file_field(form, field, clazz, value):
+def _change_file_field(form, field, clazz, value, index, deep=0):
     """
     Modify field type
     :param form: the 'form widget'
@@ -435,23 +437,25 @@ def _change_file_field(form, field, clazz, value):
     :param clazz: the clazz to replace the field with
     :param index: the position of the field in the form
     :param value: fill the new field with "value"
+    :param deepe: how "deep" is the child
     """
 
     # prepare
     tmp = clazz()
     tmp.id = field.id
-    # if hasattr(field, 'label'):
-    #     tmp.label = field.label
-    # else:
-    #     tmp.label = field.id
     debug('change file field', 1)
+
+    # transmit validator
     if field.validator is not None:
         set_validator(field.validator, tmp)
+
+    # transmit name
     try:
         tmp.name = field.name
     except AttributeError:
         tmp.name = field.key
-    # fill
+
+    # transmit options if any
     if len(value) > 0:
         if isinstance(value[0], (list, tuple)):
             tmp.options = [(value[i][0], value[i][1]) for i in xrange(len(list(value)))]
@@ -459,21 +463,34 @@ def _change_file_field(form, field, clazz, value):
             tmp.options = dict([(value[i], value[i]) for i in xrange(len(list(value)))])
     else:
         tmp.options = []
-    # replace
+
+    # replace with th clazz provided
+    # we need here to take the right index
+    # in the form.
     #print 'replace %s with %s' % (field, clazz)
-    tmp_parent = field.parent
-    debug(tmp_parent)
-    parent_deep = 1
-    tmp_form = form
-    #print tmp_parent
-    while(tmp_parent != form):
-        tmp_parent = tmp_parent.parent
-        #print tmp_parent
-        parent_deep += 1
-        tmp_form = tmp_form.child
-    for index, f in enumerate(tmp_form.children):
-        if f.id == field.id:
-            tmp_form.children[index] = tmp
+    if deep == 0:
+        form.child.children[index] = tmp
+    else:
+        # Warning : it is not recursive and just checjk the first children
+        for cindex, child in enumerate(form.child.children[index].child.children):
+            if 'BsFileField' in str(child):
+                form.child.children[index].child.children[cindex] = tmp
+
+
+    # tmp_parent = field.parent
+    # debug(tmp_parent)
+    # parent_deep = 1
+    # tmp_form = form
+    # #print tmp_parent
+    # while(tmp_parent != form):
+    #     tmp_parent = tmp_parent.parent
+    #     #print tmp_parent
+    #     parent_deep += 1
+    #     tmp_form = tmp_form.child
+
+    # for index, f in enumerate(tmp_form.children):
+    #     if f.id == field.id:
+    #         tmp_form.children[index] = tmp
     #form = tmp_form
     return field.id
 
