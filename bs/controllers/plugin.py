@@ -30,7 +30,7 @@ import tw2.bs.widgets
 tw2.bs.widgets.DEBUG = True
 
 multipattern = re.compile('(\w+):(\d+):(\w+)')
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 20
 TIME_IT = 1
 
 
@@ -366,10 +366,10 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
             debug('Checking parameter %s' % fparam, 2)
 
             if wordlist.is_of_type(fparam.get('type'), type_to_prefill):
-                debug('prefilling ...', 3)
                 fid = fparam.get('id')
+                debug('prefilling "%s" ... ' % fid, 3)
 
-                # when validation occurs, there no need to replace parameters
+                # when validation occurs, there no need to replace parameters (replace_value = False)
                 if replace_value:
                     kw[fid] = prefill_with
 
@@ -377,14 +377,14 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
                 if wordlist.is_of_type(fparam.get('type'), wordlist.FILE):
                     debug('change file field ...', 3)
 
-                    multiple = fparam.get('multiple', False)
+                    #multiple = fparam.get('multiple', False)
                     #TODO utility method to get all children
                     for field in form.children_deep():
                         if field.id == fid or fid.startswith('%s:' % field.id):
-                            if multiple:
-                                mod = _change_file_field(form, field, twb.BsMultiple, prefill_with)
-                            else:
-                                mod = _change_file_field(form, field, twb.BsTripleFileField, prefill_with)
+                           # if multiple:
+                                #mod = _change_file_field(form, field, twb.BsMultiple, prefill_with)
+                            #else:
+                            mod = _change_file_field(form, field, twb.BsTripleFileField, prefill_with)
                             modified.append(mod)
         return modified
 
