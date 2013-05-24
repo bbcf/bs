@@ -404,7 +404,7 @@ def set_validator(validator, field):
     if 'BsTripleFileField' in str(field):
         field.validator = twb.BsFileFieldValidator(required=required, strip=strip)
     elif 'BsMultiple' in str(field):
-        field.validator = twb.MultipleValidator(required=required, strip=strip)
+        field.validator = twb.BsMultipleValidator(required=required, strip=strip)
     else:
         field.validator = twc.Validator(required=required, strip=strip)
 
