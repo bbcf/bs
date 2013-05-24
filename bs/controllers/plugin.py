@@ -383,7 +383,7 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
                     for field in form.children_deep():
                         if field.id == fid or fid.startswith('%s:' % field.id):
                             if multiple:
-                                mod = _change_file_field(form, field, twf.BsMultiple, prefill_with)
+                                mod = _change_file_field(form, field, twb.BsMultiple, prefill_with)
                             else:
                                 mod = _change_file_field(form, field, twb.BsTripleFileField, prefill_with)
                             modified.append(mod)
