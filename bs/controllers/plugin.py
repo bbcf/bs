@@ -24,7 +24,6 @@ from bs.celery import tasks
 from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
 import tw2.core as twc
-import tw2.forms as twf
 import tw2.bs as twb
 import tw2.bs.widgets
 
@@ -403,8 +402,8 @@ def set_validator(validator, field):
         pass
     if 'BsTripleFileField' in str(field):
         field.validator = twb.BsFileFieldValidator(required=required, strip=strip)
-    elif 'BsMultiple' in str(field):
-        field.validator = twb.BsMultipleValidator(required=required, strip=strip)
+    # elif 'BsMultiple' in str(field):
+    #     field.validator = twb.BsMultipleValidator(required=required, strip=strip)
     else:
         field.validator = twc.Validator(required=required, strip=strip)
 
