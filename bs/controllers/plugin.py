@@ -30,7 +30,7 @@ import tw2.bs.widgets
 tw2.bs.widgets.DEBUG = True
 
 multipattern = re.compile('(\w+):(\d+):(\w+)')
-DEBUG_LEVEL = 20
+DEBUG_LEVEL = 1
 TIME_IT = 1
 
 
@@ -454,6 +454,10 @@ def _change_file_field(form, field, clazz, value, index, deep=0):
         tmp.name = field.name
     except AttributeError:
         tmp.name = field.key
+    try:
+        tmp.label = field.label
+    except AttributeError:
+        tmp.label = field.key
 
     # transmit options if any
     if len(value) > 0:
