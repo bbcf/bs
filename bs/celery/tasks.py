@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from celery.task import task
 from celery.task.http import URL
 
-from bs.lib import operations
+from bs.lib import operations, util
 import os
 import tg
 import urllib
@@ -31,8 +31,7 @@ DEBUG_PLUGINS = True
 
 def shutilerror(func, path, einfo):
     print '[shutil error] with %s. On path %s' % (func, path)
-    etype, value, tb = einfo
-    traceback.print_exception(etype, value, tb)
+    util.print_traceback()
 
 
 def check_data_paths():
