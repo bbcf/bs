@@ -26,15 +26,11 @@ class JSONEncodedDict(TypeDecorator):
     impl = VARCHAR
 
     def process_bind_param(self, value, dialect):
-        print "BIND PARAM"
-        print value
         if value is None:
             return None
         return json.dumps(value)
 
     def process_result_value(self, value, dialect):
-        print "R VALUE"
-        print value
         if value is None:
             return None
         return json.loads(value)

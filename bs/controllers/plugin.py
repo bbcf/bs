@@ -188,7 +188,7 @@ class PluginController(base.BaseController):
 
         info = plug.info
         plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == plug.unique_id()).first()
-        plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=kw)
+        plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=dict(kw))
         debug('User : %s on plugin: %s' % (user, plugin_id), 2)
 
         # validate
