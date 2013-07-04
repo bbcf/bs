@@ -103,8 +103,8 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         for todel in plugin.tmp_files:
             debug('deleting %s' % todel)
             shutil.rmtree(todel, onerror=shutilerror)
-        debug('deleting %s' % outputs_directory)
-        shutil.rmtree(outputs_directory, onerror=shutilerror)
+        #debug('deleting %s' % outputs_directory)
+        #shutil.rmtree(outputs_directory, onerror=shutilerror)
         if file_is_in_bs(TMP_DIR, inputs_directory):
             debug('deleting %s' % inputs_directory)
             shutil.rmtree(inputs_directory, onerror=shutilerror)
