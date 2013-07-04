@@ -255,7 +255,7 @@ class PluginController(base.BaseController):
             del kw['key']
 
         # update plugin arameters
-        plugin_request.parameters = kw
+        #plugin_request.parameters = kw
         DBSession.add(plugin_request)
 
         # validation passed
