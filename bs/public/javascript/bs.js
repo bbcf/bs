@@ -265,6 +265,9 @@
                 type: 'POST',
                 datatype: 'json',
                 data: pdata,
+                'beforeSend': function(xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', data.csrf());
+                },
                 'success': function(r){
                     _incall($this, 'toggle_bs_form', [plugin_id]);
                 }
