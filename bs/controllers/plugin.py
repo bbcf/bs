@@ -514,7 +514,9 @@ def _log_form_request(plugin_id, user, parameters):
     pl.plugin_id = plugin_id
     pl.user = user
     pl.status = 'PENDING'
-    pl.parameters = get_formparameters(parameters)
+    params = get_formparameters(parameters)
+    debug('set request params %s' % params, 4)
+    pl.parameters = params
     DBSession.add(pl)
     DBSession.flush()
     return pl
@@ -533,6 +535,8 @@ def get_formparameters(params):
 def _get_value(param):
     if isinstance(param, (list, tuple)):
         value = [_get_value(p) for p in param]
+    elif isinstance(param, int):
+        value = str(param)
     elif not isinstance(param, basestring):
         value = param.filename
     else:
