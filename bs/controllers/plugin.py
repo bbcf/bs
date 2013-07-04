@@ -505,6 +505,7 @@ def jsonp_response(**kw):
     tg.response.headers['Content-Type'] = 'text/javascript'
     return '%s(%s)' % (kw.get('callback', 'callback'), tg.json_encode(kw))
 
+import copy
 
 def _log_form_request(plugin_id, user, parameters):
     """
@@ -528,7 +529,7 @@ def get_formparameters(params):
     d = {}
     for k, v in params.iteritems():
         if k not in PRIVATE_BS_PARAMS:
-            d[k] = _get_value(v)
+            d[k] = copy.copy(_get_value(v))
     return d
 
 
