@@ -529,19 +529,19 @@ def get_formparameters(params):
     d = {}
     for k, v in params.iteritems():
         if k not in PRIVATE_BS_PARAMS:
-            d[k] = copy.copy(_get_value(v))
+            d[k] = _get_value(v)
     return d
 
 
 def _get_value(param):
     if isinstance(param, (list, tuple)):
-        value = [_get_value(p) for p in param]
+        value = [copy.copy(_get_value(p)) for p in param]
     elif isinstance(param, int):
         value = str(param)
     elif not isinstance(param, basestring):
         value = param.filename
     else:
-        value = str(param)
+        value = copy.copy(str(param))
     return value
 
 
