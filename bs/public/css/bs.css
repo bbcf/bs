@@ -77,9 +77,9 @@ ul#bs_menubar {
   opacity: 0;
   visibility: hidden;
   position: absolute;
+  padding: 0;
   top: 38px;
   left: 0;
-  padding: 0;
   z-index: 1;
   background: #636769;
   box-shadow: 10px 10px 5px #4b4e50;
