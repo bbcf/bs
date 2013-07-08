@@ -152,7 +152,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     except Exception as e:
         if service_callback is not None:
                 callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=e.message)
-
+        raise
 # @task()
 # def plugin_process(_id, service_name, tmp_dir, out_path, name, description, callback_url=None, **kw):
 #     """

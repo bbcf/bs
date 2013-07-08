@@ -134,9 +134,10 @@ def fetch(user, plugin, form_parameters):
                     if is_list:
                         for fvalue in form_value:
                             fname, fvalue = take_filename_and_path(fvalue)
-                            _to = os.path.join(temporary_directory(root_directory), fname)
-                            download_from_url(fvalue, _to)
-                            input_files.append(_to)
+                            if fvalue:
+                                _to = os.path.join(temporary_directory(root_directory), fname)
+                                download_from_url(fvalue, _to)
+                                input_files.append(_to)
                     else:
                         _to = os.path.join(temporary_directory(root_directory), os.path.split(form_value)[1].split('?')[0])
                         download_from_url(form_value, _to)
