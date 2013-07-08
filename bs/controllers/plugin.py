@@ -449,6 +449,12 @@ def _change_file_field(form, field, clazz, value, index, deep=0):
     if field.validator is not None:
         set_validator(field.validator, tmp)
 
+    # transmit help text
+    try:
+        tmp.help_text = field.help_text
+    except AttributeError:
+        pass
+
     # transmit name
     try:
         tmp.name = field.name
