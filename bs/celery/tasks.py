@@ -70,85 +70,88 @@ def file_is_in_bs(bs_path, filepath):
 def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     user_parameters, service_callback, bioscript_callback, **form_parameters):
     try:
-        user_parameters = json.loads(user_parameters)
-    except TypeError:
-        pass
-    task_id = plugin_job.request.id
+        try:
+            user_parameters = json.loads(user_parameters)
+        except TypeError:
+            pass
+        task_id = plugin_job.request.id
 
-    if service_callback is not None:
-        callback_service(service_callback, plugin_info['generated_id'], task_id,
-            'RUNNING', additional=user_parameters)
-
-    debug('task launched username: %s, indir: %s, oudir: %s' % (username, inputs_directory, outputs_directory))
-    # get plugin class
-    plugin = operations.get_plugin_byId(plugin_info['generated_id'])
-    if plugin is None:
-        raise Exception('Plugin not found by the worker.')
-    plugin.is_debug = DEBUG_PLUGINS
-
-    debug('plugin operation start')
-    plugin._start_timer()
-    results = []
-    # call plugin with form parameters
-    try:
-        ret = plugin(**form_parameters)
-        results = [{'is_file': False,
-                    'value': ret}]
-    except Exception as e:
-        debug("ERROR")
         if service_callback is not None:
-            user_parameters.update({'error': e})
-            callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=user_parameters)
+            callback_service(service_callback, plugin_info['generated_id'], task_id, 'RUNNING', additional=user_parameters)
+
+        debug('task launched username: %s, indir: %s, oudir: %s' % (username, inputs_directory, outputs_directory))
+        # get plugin class
+        plugin = operations.get_plugin_byId(plugin_info['generated_id'])
+        if plugin is None:
+            raise Exception('Plugin not found by the worker.')
+        plugin.is_debug = DEBUG_PLUGINS
+
+        debug('plugin operation start')
+        plugin._start_timer()
+        results = []
+        # call plugin with form parameters
+        try:
+            ret = plugin(**form_parameters)
+            results = [{'is_file': False,
+                        'value': ret}]
+        except Exception as e:
+            debug("ERROR")
+            if service_callback is not None:
+                user_parameters.update({'error': e})
+                callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=user_parameters)
+            # deleting plugin temporary files
+            for todel in plugin.tmp_files:
+                debug('deleting %s' % todel)
+                shutil.rmtree(todel, onerror=shutilerror)
+            #debug('deleting %s' % outputs_directory)
+            #shutil.rmtree(outputs_directory, onerror=shutilerror)
+            if file_is_in_bs(TMP_DIR, inputs_directory):
+                debug('deleting %s' % inputs_directory)
+                shutil.rmtree(inputs_directory, onerror=shutilerror)
+
+            if len(plugin.debug_stack) > 0:
+                debug("Adding debug stack to error")
+                debug_error = '\n [x] DEBUG STACK : %s' % '\n'.join([d for d in plugin.debug_stack])
+                if not e.args:
+                    e.args = ('',)
+                e.args = (e.args[0] + debug_error,) + e.args[1:]
+            raise
+
+        # mkdir output directory
+        out = os.path.join(outputs_directory, task_id)
+        debug('mkdir out path : %s' % out)
+        try:
+            os.mkdir(out)
+        except OSError, e:
+            if e.errno == errno.EEXIST:
+                io.rm(out)
+                os.mkdir(out)
+        debug('moving files')
+        # moving files to the output directory
+        for output_file, output_type in plugin.output_files:
+            debug('f: %s' % output_file, 1)
+            out_path = os.path.join(out, os.path.split(output_file)[1])
+            io.mv(output_file, out)
+            results.append({'is_file': True, 'path': out_path, 'type': output_type})
+
         # deleting plugin temporary files
         for todel in plugin.tmp_files:
             debug('deleting %s' % todel)
             shutil.rmtree(todel, onerror=shutilerror)
-        #debug('deleting %s' % outputs_directory)
-        #shutil.rmtree(outputs_directory, onerror=shutilerror)
         if file_is_in_bs(TMP_DIR, inputs_directory):
-            debug('deleting %s' % inputs_directory)
-            shutil.rmtree(inputs_directory, onerror=shutilerror)
+                debug('deleting %s' % inputs_directory)
+                shutil.rmtree(inputs_directory, onerror=shutilerror)
 
-        if len(plugin.debug_stack) > 0:
-            debug("Adding debug stack to error")
-            debug_error = '\n [x] DEBUG STACK : %s' % '\n'.join([d for d in plugin.debug_stack])
-            if not e.args:
-                e.args = ('',)
-            e.args = (e.args[0] + debug_error,) + e.args[1:]
-        raise
+        # updating bioscript with the results
+        URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results))
 
-    # mkdir output directory
-    out = os.path.join(outputs_directory, task_id)
-    debug('mkdir out path : %s' % out)
-    try:
-        os.mkdir(out)
-    except OSError, e:
-        if e.errno == errno.EEXIST:
-            io.rm(out)
-            os.mkdir(out)
-    debug('moving files')
-    # moving files to the output directory
-    for output_file, output_type in plugin.output_files:
-        debug('f: %s' % output_file, 1)
-        out_path = os.path.join(out, os.path.split(output_file)[1])
-        io.mv(output_file, out)
-        results.append({'is_file': True, 'path': out_path, 'type': output_type})
-
-    # deleting plugin temporary files
-    for todel in plugin.tmp_files:
-        debug('deleting %s' % todel)
-        shutil.rmtree(todel, onerror=shutilerror)
-    if file_is_in_bs(TMP_DIR, inputs_directory):
-            debug('deleting %s' % inputs_directory)
-            shutil.rmtree(inputs_directory, onerror=shutilerror)
-
-    # updating bioscript with the results
-    URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results))
-
-    # callback
-    if service_callback is not None:
-        callback_service(service_callback, plugin_info['generated_id'], task_id, 'SUCCESS',
-            results=json.dumps(results), additional=user_parameters)
+        # callback
+        if service_callback is not None:
+            callback_service(service_callback, plugin_info['generated_id'], task_id, 'SUCCESS',
+                results=json.dumps(results), additional=user_parameters)
+    except Exception as e:
+        if service_callback is not None:
+                callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=e.message)
 
 # @task()
 # def plugin_process(_id, service_name, tmp_dir, out_path, name, description, callback_url=None, **kw):
