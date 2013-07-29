@@ -25,8 +25,7 @@
 
 <%def name="footer()">
     <div id="footer"><div class="foottext">
-        <p>BioScript is a <a href="http://bbcf.epfl.ch/">BBCF</a> application hosted on <a href="https:///github.com/bbcf/bs">github</a>.</p>
-        <p><a href="http://www.turbogears.org/">Powered by TurboGears</a></p>
+        BioScript is a <a href="http://bbcf.epfl.ch/">BBCF</a> application hosted on <a href="https:///github.com/bbcf/bs">github</a>. <a href="http://www.turbogears.org/">Powered by TurboGears</a>.
     </div></div>
 </%def>
 
