@@ -14,7 +14,7 @@
     <div id="content">
 
 
-    <p>There is currently <span class="jstatus jrunning">${running} running</span> and <span class="jstatus jpending">${pending} pending </span>jobs on Bioscript out of <span class="jstatus jtotal">${total} total.</span>
+    <p>There is currently <span class="jstatus jrunning">${started} running</span> and <span class="jstatus jpending">${pending} pending </span>jobs on Bioscript out of <span class="jstatus jtotal">${total} total.</span>
     </p>
 
     <div id="plugin_presentation">

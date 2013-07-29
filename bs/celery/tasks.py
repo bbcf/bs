@@ -29,6 +29,9 @@ print '[x] temporary data path is %s' % TMP_DIR
 DEBUG_PLUGINS = True
 
 
+
+
+
 def shutilerror(func, path, einfo):
     print '[shutil error] with %s. On path %s' % (func, path)
     util.print_traceback()
@@ -66,7 +69,18 @@ def file_is_in_bs(bs_path, filepath):
     return filepath.startswith(bs_path)
 
 
-@task()
+@task(track_started=True)
+def testtask(x=10):
+    import time
+    try:
+        x = int(x)
+    except ValueError:
+        x = 10
+    time.sleep(x)
+    return 1
+
+
+@task(track_started=True)
 def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
     user_parameters, service_callback, bioscript_callback, **form_parameters):
     try:

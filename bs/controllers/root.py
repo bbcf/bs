@@ -8,7 +8,7 @@ from bs.controllers.error import ErrorController
 from bs.controllers import DirectController, PluginController, JobController, DevController
 from bs.lib.operations import wordlist
 from bs.lib import operations
-from bs.model import DBSession, Job, PluginRequest
+from bs.model import DBSession, Job, PluginRequest, Task
 from sqlalchemy.sql.expression import desc
 
 __all__ = ['RootController']
@@ -42,13 +42,11 @@ class RootController(BaseController):
                    'ordered': operations.get_plugins_path(ordered=True),
                    'nbplugins': len(plugins),
                    'total': len(jobs),
-                   'running': 0,
+                   'started': 0,
                    'failure': 0,
                    'pending': 0,
                    'success': 0}
         for job in jobs:
-            if job.status.lower() == 'pending':
-                print job.id
             mapping[job.status.lower()] += 1
         return mapping
 
@@ -80,10 +78,17 @@ class RootController(BaseController):
 
     @expose()
     def test(self, *a, **kw):
+        from bs.celery import tasks
         print '%s, %s' % (a, kw)
-        from tg import flash
-        flash("hello")
-        return ''
+        x = kw.get('x', 10)
+        tasks.testtask.delay(x)
+        return {}
+
+    @expose('bs.templates.tasklist')
+    def listtasks(self):
+        from sqlalchemy.sql import expression
+        tasks = DBSession.query(Task).order_by(expression.desc(Task.date_done))[:10]
+        return {'tasks': tasks}
 
     @expose('bs.templates.koopa')
     def koopa(self, **kw):

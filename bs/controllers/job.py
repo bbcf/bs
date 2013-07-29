@@ -52,7 +52,7 @@ class JobController(base.BaseController):
                 pass
         limit = (limit or 50)
         jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done))[:limit]
-        if status and status.lower() in ['success', 'failure']:
+        if status and status.lower() in ['success', 'failure', 'started']:
             jobs = [j for j in jobs if j.status == status.upper()]
         return {'jobs': jobs}
 
