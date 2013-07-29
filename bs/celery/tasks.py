@@ -259,6 +259,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
 #         _f[0] = os.path.join(out, fname)
 #     return True
 
+
 def callback_service(url, plugin_id, task_id, status, results=None, additional=None):
     """
     Send a response back to the callback url with parameters of the job launched
@@ -275,8 +276,8 @@ def callback_service(url, plugin_id, task_id, status, results=None, additional=N
     debug('callback %s with params %s & results %s & additionnals %s' % (url, params, results, additional))
     if results is not None:
         params.update({'results': results})
-    if additional is not None and not isinstance(additional, basestring):
-        params.update(additional)
+    if additional is not None:
+        params['bs_private'] = additional
     try:
         debug('Callback on URL %s with parameters %s : ' % (url, ', '.join(['%s : %s' % (k, v) for k, v in params.iteritems()])))
         urllib2.urlopen(url, data=urllib.urlencode(params))

@@ -30,7 +30,7 @@ import tw2.bs.widgets
 tw2.bs.widgets.DEBUG = True
 
 multipattern = re.compile('(\w+):(\d+):(\w+)')
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 20
 TIME_IT = 1
 
 

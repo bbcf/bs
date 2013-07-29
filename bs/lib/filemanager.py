@@ -92,24 +92,25 @@ def fetch(user, plugin, form_parameters):
                     is_file_field = True
                     debug('is file field', 3)
 
-            # download FILE FIELD
+            # download from FILE FIELD
             if is_file_field:
                 if is_list:
                     input_files = [download_file_field(v, os.path.join(temporary_directory(root_directory), v.filename)) for v in form_value]
                 else:
                     input_files = [download_file_field(form_value, os.path.join(temporary_directory(root_directory), form_value.filename))]
 
-            # download URL
+            # download from URL
             else:
-                # fake urls
                 input_files = []
                 if user.is_service:
+                    # the user is a service, as HTSStation, so Urls has to be transformed into path
                     debug('is service', 2)
                     file_root = services.service_manager.get(user.name, constants.SERVICE_FILE_ROOT_PARAMETER)
                     debug('got file_root : %s' % file_root, 4)
                     url_root = services.service_manager.get(user.name, constants.SERVICE_URL_ROOT_PARAMETER)
                     debug('got url_root : %s' % url_root, 4)
-
+                    # so BEIN doesn't have extensions on the filename (other than SQL) like .bigwig, .bed, ...
+                    # we have to guess it from the URL if possible
                     if is_list:
                         for fvalue in form_value:
                             fname, fvalue = take_filename_and_path(fvalue)
@@ -119,7 +120,7 @@ def fetch(user, plugin, form_parameters):
                             shutil.copy2(_from, _to)
                             input_files.append(_to)
                     else:
-                        # remove //. Servide defined a directory where to take & put files
+                        # remove //. Service defined a directory where to take & put files
                         # so the urls are fakes
                         fname, fvalue = take_filename_and_path(form_value)
                         fvalue = fvalue.replace('//', '/').replace(':/', '://')
@@ -128,8 +129,8 @@ def fetch(user, plugin, form_parameters):
                         shutil.copy2(_from, _to)
                         input_files.append(_to)
 
-                # real urls
                 else:
+                    # user is not a service so URLs are 'real' urls
                     debug('is user', 2)
                     if is_list:
                         for fvalue in form_value:
