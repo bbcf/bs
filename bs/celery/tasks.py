@@ -82,7 +82,7 @@ def testtask(x=10):
 
 @task(track_started=True)
 def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
-    user_parameters, service_callback, bioscript_callback, **form_parameters):
+               user_parameters, service_callback, bioscript_callback, **form_parameters):
     try:
         try:
             user_parameters = json.loads(user_parameters)

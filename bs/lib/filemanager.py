@@ -6,11 +6,16 @@ import shutil
 import urlparse
 import urllib2
 import json
+import re
 
 block_sz = 2048 * 4
 
 
 DEBUG_LEVEL = 0
+
+
+NAME_PATTERN = re.compile('\?.*?name=(?P<name>.+?)(&|$)')
+HTS_TYPE_PATTERN = re.compile('\?.*?type=(?P<type>.+?)(&|$)')
 
 
 class UrlError(Exception):
@@ -109,8 +114,6 @@ def fetch(user, plugin, form_parameters):
                     debug('got file_root : %s' % file_root, 4)
                     url_root = services.service_manager.get(user.name, constants.SERVICE_URL_ROOT_PARAMETER)
                     debug('got url_root : %s' % url_root, 4)
-                    # so BEIN doesn't have extensions on the filename (other than SQL) like .bigwig, .bed, ...
-                    # we have to guess it from the URL if possible
                     if is_list:
                         for fvalue in form_value:
                             fname, fvalue = take_filename_and_path(fvalue)
@@ -171,12 +174,30 @@ def download_file_field(ff, to):
 
 def take_filename_and_path(value):
     try:
+        # file come from a registered service
         loaded = json.loads(value)
         fname = loaded['n']
         path = loaded['p']
         return fname, path
     except ValueError, KeyError:
-        return os.path.split(value)[1].split('?')[0], value
+        # so this is an url an we have to guess the name from it.
+        # we take the last pasrt of the URL
+        lastpart = os.path.split(value)[1]
+        try:
+            fname = NAME_PATTERN.search(lastpart).group('name')
+            try:
+                ftype = HTS_TYPE_PATTERN.search(lastpart).group('type')
+                # the file comme from HTS and we succeed taking fname & ftype from the URL
+                return '%s.%s' % (fname, ftype), value
+            except AttributeError:
+                # the ftype is not in the url, so the file is not from HTS, we can assume
+                # that the fname will also contains the extension
+                return fname, value
+
+        except AttributeError:
+            # the file name is not in a parameter so we take the last part of the url
+            # minus the parameters
+            return lastpart.split('?')[0], value
 
 
 def download_from_url(_from, _to):
