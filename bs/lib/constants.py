@@ -13,6 +13,16 @@ SERVICE_CALLBACK_URL_PARAMETER = 'callback.url'
 date_format = "%d. %b %Y %Hh%M"
 
 ROOT_DIRECTORY = tg.config.get('root.directory')
+FROMCELERY = False
+
+if not ROOT_DIRECTORY:
+    from celery import current_app
+    if 'ROOT_DIRECTORY' in current_app.conf:
+        ROOT_DIRECTORY = current_app.conf['ROOT_DIRECTORY']
+    else :
+        raise Exception('You must set ROOT_DIRECTORY parameter in celery configuration file')
+    FROMCELERY = True
+
 
 
 paths = {
@@ -46,7 +56,8 @@ def check_data_paths():
     if not os.path.exists(paths['services']):
         raise IOError('You must define the service.ini file. It must be located at %s' % paths['services'])
 
-check_data_paths()
+if not FROMCELERY:
+    check_data_paths()
 
 
 def plugin_directory():

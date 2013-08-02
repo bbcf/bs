@@ -79,10 +79,61 @@ def testtask(x=10):
     time.sleep(x)
     return 1
 
+from celery import current_task
 
-@task(track_started=True)
-def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
+@task()
+def fetchfiles(error=False, t=2):
+    print 'fetchingfiles'
+    import time
+    time.sleep(10)
+    result = {}
+    if error:
+        result['error'] = 'Error while fetching files'
+        return result
+    return {'fetched' : ['pathone', 'pathto', 'blabla']}
+
+
+@task()
+def pluginprocess(fetchedfiles, error=False, t=2):
+    if 'error' in fetchedfiles:
+        raise Exception(fetchedfiles['error'])
+    print 'plugin process'
+    print 'got fetched files : %s' % fetchedfiles
+    
+    import time
+    time.sleep(10)
+    if error:
+        raise Exception('Error while computing')
+    return 1
+
+from bs.lib.filemanager import fetchurls
+@task()
+def fetch_files(user, plug, **kw):
+    # fetch files if any
+    debug('fetching files ...', 2)
+    debug(kw, 3)
+    inputs_directory = ''
+    try:
+        inputs_directory = fetchurls(user, plug, kw)
+    except Exception as e:
+        return {'error': 'error while fetching files : ' + str(e)}
+        debug('Failed to fetch inputs', 3)
+    return {'inputs_dir' : inputs_directory}
+
+
+
+@task()
+def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin_info,
                user_parameters, service_callback, bioscript_callback, **form_parameters):
+
+
+    # FETCHING FILES
+    current_task.update_state(state='FETCHING FILES')
+    inputs_directory = fetchurls(user, plug, dwdfiles, inputs_directory, form_parameters)
+
+
+    # PLUGIN PROCESS
+    current_task.update_state(state='STARTED')
     try:
         try:
             user_parameters = json.loads(user_parameters)
@@ -93,7 +144,7 @@ def plugin_job(username, inputs_directory, outputs_directory, plugin_info,
         if service_callback is not None:
             callback_service(service_callback, plugin_info['generated_id'], task_id, 'RUNNING', additional=user_parameters)
 
-        debug('task launched username: %s, indir: %s, oudir: %s' % (username, inputs_directory, outputs_directory))
+        debug('task launched user.name: %s, indir: %s, oudir: %s' % (user.name, inputs_directory, outputs_directory))
         # get plugin class
         plugin = operations.get_plugin_byId(plugin_info['generated_id'])
         if plugin is None:

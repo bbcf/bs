@@ -7,11 +7,12 @@ import urlparse
 import urllib2
 import json
 import re
+import cgi
 
 block_sz = 2048 * 4
 
 
-DEBUG_LEVEL = 0
+DEBUG_LEVEL = 1
 
 
 NAME_PATTERN = re.compile('\?.*?name=(?P<name>.+?)(&|$)')
@@ -58,6 +59,129 @@ def regoup_multiple_field_in_list(form_parameters):
     for p in todel:
         del form_parameters[p]
     form_parameters.update(paramlist)
+
+
+def check_files_parameter(plugin, form_parameters):
+    pass
+
+def fetchfilefields(user, plugin, form_parameters):
+    """
+    Download the file fields and change the form parameters accordingly
+    return the directory where file has been downloaded and the dwd files.
+    """
+    files = plugin.in_params_typeof(wordlist.FILE)
+    debug('Download file fields :  %s' % form_parameters)
+    root_directory = temporary_directory()
+    
+    dwdfiles = {}
+    for infile in files:
+        debug("download '%s' ? " % infile, 1)
+        fid = infile.get('id')
+        form_value = None
+        
+        # check if it's a multiple field. In that case we will have a list
+        if infile.get('multiple'):
+            if isinstance(form_parameters.get(infile['multiple']), dict):
+                form_value = form_parameters[infile['multiple']].get(fid)
+        else:
+            form_value = form_parameters.get(fid)
+
+        # check if form_value contains a value or is not an empty list
+        if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0) and form_value != '':
+
+            # check if we have a list or a single value
+            if not isinstance(form_value, (list, tuple)):
+                form_value = [form_value]
+
+            for index, v in enumerate(form_value):
+                if isinstance(v, cgi.FieldStorage):
+                    dwdfile = download_file_field(v, os.path.join(temporary_directory(root_directory), v.filename))
+
+                    # Update form parameters
+                    if infile.get('multiple', False):
+                        if infile.get('multiple') not in dwdfiles:
+                            dwdfiles[infile.get('multiple')] = {}
+                        if fid not in dwdfiles[infile.get('multiple')]:
+                            dwdfiles[infile.get('multiple')][fid] = SparseList()
+                        dwdfiles[infile.get('multiple')][fid][index] = True
+                        form_parameters[infile.get('multiple')][fid][index] = dwdfile
+                    else:
+                        dwdfiles[fid] = True
+                        form_parameters[fid] = dwdfile
+    debug('File fields downloaded:  %s --- form parameters are : %s' % (dwdfiles, form_parameters))
+    return root_directory, dwdfiles
+
+def fetchurls(user, plugin, dwdfiles, root_directory, form_parameters):
+    """
+    Download the file fields and change the form parameters accordingly
+    return the directory where file has been downloaded
+    """
+    files = plugin.in_params_typeof(wordlist.FILE)
+    debug('FETCH from URLS %s' % form_parameters)
+    for infile in files:
+
+        fid = infile.get('id')
+        form_value = None
+        # check if it's a multiple field. In that case we will have a list
+        if infile.get('multiple'):
+            debug('is multiple', 2)
+            if isinstance(form_parameters.get(infile['multiple']),dict):
+                form_value = form_parameters[infile['multiple']].get(fid)
+        else:
+            form_value = form_parameters.get(fid)
+
+        # check if form_value contains a value or is not an empty list
+        if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0) and form_value != '':
+
+            # check if we have a list or a single value
+            if not isinstance(form_value, (list, tuple)):
+                form_value = [form_value]
+
+            for index, val in enumerate(form_value):
+                ####### TODOOOOOOOOOO
+                # check if it is not already downloaded
+                dwd = False
+                multiple = infile.get('multiple', False)
+                if multiple:
+                    if infile.get('multiple') in  dwdfiles:
+                         if not dwdfiles[infile.get('multiple')].get(fid, False):
+                            dwd = True
+                    else:
+                        if not dwdfiles.get(fid, False):
+                            dwd = True
+                if dwd:
+                    if user.is_service:
+                        # the user is a service, as HTSStation, so Urls has to be transformed into path
+                        debug('is service', 2)
+                        file_root = services.service_manager.get(user.name, constants.SERVICE_FILE_ROOT_PARAMETER)
+                        debug('got file_root : %s' % file_root, 4)
+                        url_root = services.service_manager.get(user.name, constants.SERVICE_URL_ROOT_PARAMETER)
+                        debug('got url_root : %s' % url_root, 4)
+
+                        # remove //. Service defined a directory where to take & put files
+                        # so the urls are fakes
+                        fname, val = take_filename_and_path(val)
+                        val = val.replace('//', '/').replace(':/', '://')
+                        _from = val.replace(url_root, file_root)
+                        _to = os.path.join(temporary_directory(root_directory), fname)
+                        shutil.copy2(_from, _to)
+                        ##############input_files.append(_to)
+
+                    else:
+                        # user is not a service so URLs are 'real' urls
+                        debug('is user', 2)
+                        fname, val = take_filename_and_path(val)
+                        _to = os.path.join(temporary_directory(root_directory), fname)
+                        download_from_url(val, _to)
+                        ################input_files.append(_to)
+
+
+                    # Update form parameters
+                    if infile.get('multiple', False):
+                        form_parameters[infile.get('multiple')][fid][index] = _to
+                    else:
+                        form_parameters[fid] = _to
+        return root_directory
 
 
 def fetch(user, plugin, form_parameters):
@@ -179,7 +303,7 @@ def take_filename_and_path(value):
         fname = loaded['n']
         path = loaded['p']
         return fname, path
-    except ValueError, KeyError:
+    except (ValueError, KeyError, TypeError):
         # so this is an url an we have to guess the name from it.
         # we take the last pasrt of the URL
         lastpart = os.path.split(value)[1]

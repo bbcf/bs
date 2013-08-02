@@ -69,5 +69,6 @@ class ServiceManager(object):
                 return service
         return False
 
-configuration_file = constants.services_directory()
-service_manager = ServiceManager(configuration_file)
+if not constants.FROMCELERY:
+    configuration_file = constants.services_directory()
+    service_manager = ServiceManager(configuration_file)

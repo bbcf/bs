@@ -78,10 +78,19 @@ class RootController(BaseController):
 
     @expose()
     def test(self, *a, **kw):
+        #from celery import chain
         from bs.celery import tasks
-        print '%s, %s' % (a, kw)
-        x = kw.get('x', 10)
-        tasks.testtask.delay(x)
+        print 'testing ...'
+        if 'error' in kw:
+            chain = tasks.fetchfiles.s(error=True) | tasks.pluginprocess.s()
+        else:
+            chain = tasks.fetchfiles.s() | tasks.pluginprocess.s()
+        print 'chain : %s' % chain
+        res = chain()
+        print 'launched'
+        print dir(res)
+        print '-----------'
+        print res.task_id
         return {}
 
     @expose('bs.templates.tasklist')
@@ -89,6 +98,11 @@ class RootController(BaseController):
         from sqlalchemy.sql import expression
         tasks = DBSession.query(Task).order_by(expression.desc(Task.date_done))[:10]
         return {'tasks': tasks}
+
+    @expose('bs.templates.gettask')
+    def gettask(self, task_id):
+        task = DBSession.query(Task).filter(Task.task_id == task_id).first()
+        return {'task': task}
 
     @expose('bs.templates.koopa')
     def koopa(self, **kw):
