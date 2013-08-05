@@ -41,7 +41,7 @@ class ServiceManager(object):
             remote = self.get(service, 'remote')
             serv = model.DBSession.query(model.User).filter(model.User.email == contact).first()
             if serv is None:
-                print "** Adding service {} **.".format(service)
+                print "** Adding service %s **." % service
                 serv = model.User()
                 serv.name = service
                 serv.email = contact
