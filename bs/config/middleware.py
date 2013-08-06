@@ -63,7 +63,11 @@ class _ResourceInjector(util.MultipleReplacer):
                 if 'JSLink' in str(res):
                     # avoid jquery javascript to not override the main one
                     if not 'jquery' in res.filename:
-                        resource_path = os.path.join(resource_filename(res.modname, ''), res.filename)
+                        if res.filename == 'static/dynforms.js':
+                            # replace dynfom by a patched one because some javascript is not well written
+                            resource_path = os.path.join(resource_filename('bs', 'public'), 'javascript', 'patched_dynforms.js')
+                        else:
+                            resource_path = os.path.join(resource_filename(res.modname, ''), res.filename)
                          # some debug
                         # toadd += '<script type="text/javascript">'
                         # toadd += 'console.log("Log from custom middleware.");'
