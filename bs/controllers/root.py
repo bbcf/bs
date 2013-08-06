@@ -34,6 +34,10 @@ class RootController(BaseController):
     plugins = PluginController()
     error = ErrorController()
 
+    @expose()
+    def v(self):
+        return '1.0.0'
+
     @expose('mako:bs.templates.visual_status')
     def index(self, *args, **kw):
         jobs = DBSession.query(Job).all()
