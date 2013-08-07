@@ -72,12 +72,12 @@ def fetchfilefields(user, plugin, form_parameters):
     return the directory where file has been downloaded and the dwd files.
     """
     files = plugin.in_params_typeof(wordlist.FILE)
-    debug('Download file fields :  %s' % form_parameters)
+    debug('Download file fields :  %s with parameters : %s' % (files, form_parameters), False)
     root_directory = temporary_directory()
     
     dwdfiles = {}
     for infile in files:
-        debug("download '%s' ? " % infile)
+        debug('infile is %s' % infile)
         fid = infile.get('id')
         form_value = None
         
@@ -90,12 +90,13 @@ def fetchfilefields(user, plugin, form_parameters):
 
         # check if form_value contains a value or is not an empty list
         if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0) and form_value != '':
-
+            debug('check parameters')
             # check if we have a list or a single value
             if not isinstance(form_value, (list, tuple)):
                 form_value = [form_value]
 
             for index, v in enumerate(form_value):
+
                 if isinstance(v, cgi.FieldStorage):
                     dwdfile = download_file_field(v, os.path.join(temporary_directory(root_directory), v.filename))
 
@@ -110,7 +111,12 @@ def fetchfilefields(user, plugin, form_parameters):
                     else:
                         dwdfiles[fid] = True
                         form_parameters[fid] = dwdfile
-    debug('File fields downloaded:  %s --- form parameters are : %s' % (dwdfiles, form_parameters))
+                else:
+                    debug('not a fieldstorage', False)
+        else:
+            debug('not downloaded', False)
+
+    debug('File fields downloaded:  %s --- form parameters are : %s' % (dwdfiles, form_parameters), False)
     return root_directory, dwdfiles
 
 def fetchurls(user, plugin, dwdfiles, root_directory, form_parameters):

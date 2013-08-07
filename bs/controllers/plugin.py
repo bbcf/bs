@@ -30,7 +30,7 @@ import tw2.bs.widgets
 tw2.bs.widgets.DEBUG = True
 
 multipattern = re.compile('(\w+):(\d+):(\w+)')
-DEBUG_LEVEL = 20
+DEBUG = True
 TIME_IT = 1
 
 class SparseList(list):
@@ -40,9 +40,9 @@ class SparseList(list):
             self.extend([None] * missing)
         list.__setitem__(self, index, value)
 
-def debug(s, t=0, l=10):
-    if DEBUG_LEVEL > l:
-        print '[plugin controller] %s%s' % ('\t' * t, s)
+def debug(s):
+    if DEBUG:
+        print s
 
 
 class PluginController(base.BaseController):
@@ -72,6 +72,7 @@ class PluginController(base.BaseController):
         """
         Display the form by it's id
         """
+        debug('\n[plugin controller]FETCH')
         # check plugin id
         plug = None
         try:
@@ -79,18 +80,18 @@ class PluginController(base.BaseController):
         except:
             tg.abort(400, "Bad plugin identifier")
 
-        debug('get plugin %s' % oid)
+        debug('get plugin %s' % oid,)
         # get the plugin
         obj = plug
         info = obj.info
         form = info.get('output')()
         desc = info.get('description')
-        debug('params =  %s' % kw, 1)
+        debug('params =  %s' % kw,)
         # bioscript parameters
         bs_private = {}
         if 'bs_private' in kw:
             bs_private = json.loads(kw['bs_private'])
-            debug("get bs private parameters %s" % bs_private, 2)
+            debug("get bs private parameters %s" % bs_private,)
 
         if 'prefill' in bs_private:
             prefill_fields(info.get('in'), form, bs_private['prefill'], kw)
@@ -112,12 +113,13 @@ class PluginController(base.BaseController):
         debug('vaaalue : %s' % widget.value)
 
         debug(user)
+        debug('END FETCH')
         return {'page': 'plugin', 'desc': desc, 'title': info.get('title'), 'widget': widget}
 
     @expose()
     @expose('mako:bs.templates.plugin_validate')
     def _validate(self, **kw):
-        debug('_validate %s' % kw, 4)
+        debug('_validate %s' % kw,)
         bs_private = copy.deepcopy(json.loads(kw['bs_private']))
         plugin_id = bs_private['pp']['id']
         plug = operations.get_plugin_byId(plugin_id)
@@ -129,7 +131,7 @@ class PluginController(base.BaseController):
         # perhaps we can do this only if the form validation fail)
         if 'prefill' in bs_private:
             prefill_fields(info.get('in'), form, bs_private['prefill'], kw, replace_value=False)
-            debug('prefill in validation', 3)
+            debug('prefill in validation',)
             del bs_private['prefill']
 
         response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
@@ -185,7 +187,7 @@ class PluginController(base.BaseController):
             tg.abort(400, "Plugin identifier not found in the request.")
         bs_private = copy.deepcopy(json.loads(kw['bs_private']))
 
-        debug('VALIDATE %s' % kw, 1)
+        debug('\n[plugin controller]\nVALIDATE %s' % kw,)
 
 
         # get the plugin from the private parameters
@@ -228,7 +230,7 @@ class PluginController(base.BaseController):
 
         info = plug.info
         if not validated:
-            debug('validation failed', 2)
+            debug('Validation failed',)
             plugin_request.status = 'FAILED'
             plugin_request.error = 'Form validation failed'
             DBSession.add(plugin_request)
@@ -239,15 +241,15 @@ class PluginController(base.BaseController):
                                'callback': callback})
 
         # validation passes
-        debug('VALIDATED')
         new_params = form['params']
+        debug('Validation passes with params : %s' % new_params,)
 
         # we regoup all multi stuff in a single list:
         # for instance a multi field will give parameters like:
         # {SigMulti:1:signals: val1, SigMulti:2:signals: val2, ...}
         # and we will transform it to
         # {SigMulti: { signals : [val1, val2], ...}
-
+        debug('group "multi" params',)
         grouped_params = {}
         for k, v in kw.iteritems():
             m = multipattern.match(k)
@@ -263,23 +265,27 @@ class PluginController(base.BaseController):
                     grouped_params[key1][key2] = sl
 
 
+        debug('check fieldstorages',)
         # must keep fieldstorages because they were converted to str
         fs_bk = []
         import cgi
         for k, v in kw.iteritems():
             if isinstance(v, cgi.FieldStorage):
                 fs_bk.append((k, v))
+        debug(fs_bk)
 
         for fsk, fsv in fs_bk:
             m = multipattern.match(fsk)
             if m:
                 key1, n, key2 = m.groups()
                 grouped_params[key1][key2][int(n) - 1] = fsv
+            else:
+                grouped_params[fsk] = fsv
         new_params.update(grouped_params)
         # but we need to keep all params that are multi and urls
 
         kw = new_params
-
+        debug('New params are : %s' % new_params,)
         #remove private parameters from the request
         if 'bs_private' in kw:
             del kw['bs_private']
@@ -289,17 +295,18 @@ class PluginController(base.BaseController):
         # update plugin arameters
         DBSession.add(plugin_request)
     
+        debug('get output directory',)
         # get output directory to write results
         outputs_directory = filemanager.temporary_directory(constants.paths['data'])
         service_callback = None
         # if the user is a service, get parameters from configuration
         if user.is_service:
-            debug('is service', 1)
+            debug('is service',)
             o = services.service_manager.get(user.name, constants.SERVICE_RESULT_ROOT_PARAMETER)
             if o:
                 outputs_directory = o
             service_callback = services.service_manager.get(user.name, constants.SERVICE_CALLBACK_URL_PARAMETER)
-        debug('Write result in %s' % outputs_directory, 2)
+        debug('Write result in %s' % outputs_directory,)
         
 
         # get prvate parameters from the request
@@ -318,7 +325,7 @@ class PluginController(base.BaseController):
 
         # define the bioscript callback
         bioscript_callback = tg.config.get('main.proxy') + '/' + tg.url('plugins/callback_results')
-        debug("callback on bs : %s " % bioscript_callback)
+        debug("callback on bs : %s " % bioscript_callback,)
 
         # if some files come from a file field, we must download them directly
         inputs_directory, dwdfiles = filemanager.fetchfilefields(user, plug, kw)
@@ -336,7 +343,7 @@ class PluginController(base.BaseController):
                                    **kw)
 
         task_id = async_res.task_id
-        debug('Launch task %s' % task_id, 2)
+        debug('Launch task %s' % task_id,)
 
         # log the job request
         _log_job_request(plugin_request.id, task_id)
@@ -363,180 +370,6 @@ class PluginController(base.BaseController):
 
 
 
-    @expose()
-    @logger.identify
-    @logger.log_connection
-    @logger.timeit(TIME_IT)
-    def validate2(self, **kw):
-        """
-        plugin parameters validation
-        """
-        user = util.get_user(tg.request)
-        if not 'bs_private' in kw:
-            debug('bs_private not found')
-            tg.abort(400, "Plugin identifier not found in the request.")
-        bs_private = copy.deepcopy(json.loads(kw['bs_private']))
-
-        debug('VALIDATE %s' % kw, 1)
-        plugin_id = 0
-        try:
-            plugin_id = bs_private['pp']['id']
-        except KeyError:
-            tg.abort(400, "Plugin identifier not found in the request.")
-        if plugin_id == 0:
-            tg.abort(400, "Plugin identifier not found in the request.")
-        plug = operations.get_plugin_byId(plugin_id)
-        if plug is None:
-            tg.abort(400, "Bad plugin identifier.")
-
-        info = plug.info
-        plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == plug.unique_id()).first()
-        plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=dict(kw))
-        debug('User : %s on plugin: %s' % (user, plugin_id), 2)
-
-        # validate
-        request_url = tg.config.get('main.proxy') + '/plugins/_validate'
-        form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
-        response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
-        response.headers['Access-Control-Allow-Origin'] = '*'
-
-        #val, error = self._validation_render(bases_private, plug, **kw)
-        callback = kw.get('callback', 'callback')
-        try:
-            form = json.loads(form)
-        except:
-            pass
-        validated = isinstance(form, dict)
-
-
-        ## Must return now
-        # fetch the files after
-
-
-        if not validated:
-            #from pylons.templating import render_mako as render
-            #form = render('bs/templates/plugin_validate.mak', val)
-            debug('validation failed', 2)
-            plugin_request.status = 'FAILED'
-            plugin_request.error = 'Form validation failed'
-            DBSession.add(plugin_request)
-            return json.dumps({'validation': 'failed',
-                               'desc': info.get('description'),
-                               'title': info.get('title'),
-                               'widget': form,
-                               'callback': callback})
-
-        debug('VALIDATED')
-        new_params = form['params']
-
-        # must keep fieldstorages
-        fs_bk = []
-        import cgi
-        for k, v in kw.iteritems():
-            if isinstance(v, cgi.FieldStorage):
-                fs_bk.append((k, v))
-
-        # Separate field storage parameters if they are multi
-        # and replace them in the new_params as they were
-        # converted to str()
-        # Use a temporary dict because FieldStorage are
-        # in new_params as str(), so we need to supreess them
-        replace_params = {}
-        for fsk, fsv in fs_bk:
-            m = multipattern.match(fsk)
-            if m:
-                key1, n, key2 = m.groups()
-                if not key1 in replace_params:
-                    replace_params[key1] = {}
-                if key2 in replace_params[key1] and not key2.endswith('bs_group'):
-                    replace_params[key1][key2].append(fsv)
-                else:
-                    replace_params[key1][key2] = [fsv]
-            else:
-                replace_params[fsk] = fsv
-        new_params.update(replace_params)
-
-        kw = new_params
-        #remove private parameters from the request
-        if 'bs_private' in kw:
-            del kw['bs_private']
-        if 'key' in kw:
-            del kw['key']
-
-        # update plugin arameters
-        #plugin_request.parameters = kw
-        DBSession.add(plugin_request)
-
-        # validation passed
-        debug('validated', 2)
-        info = plug.info
-
-        # fetch files if any
-        debug('fetching files ...', 2)
-        debug(kw, 3)
-        try:
-            inputs_directory = filemanager.fetch(user, plug, kw)
-        except Exception as e:
-            debug('Failed to fetch inputs', 3)
-            plugin_request.status = 'FAILED'
-            plugin_request.error = str(e)
-            DBSession.add(plugin_request)
-            util.print_traceback()
-            return json.dumps({'validation': 'success',
-                               'desc': info.get('description'),
-                               'title':  info.get('title'),
-                               'error': 'error while fetching files : ' + str(e),
-                               'callback': callback})
-        debug('ok %s' % kw, 3)
-
-        # get output directory to write results
-        outputs_directory = filemanager.temporary_directory(constants.paths['data'])
-        service_callback = None
-        if user.is_service:
-            debug('is service', 1)
-            # def out_path(service_name):
-            o = services.service_manager.get(user.name, constants.SERVICE_RESULT_ROOT_PARAMETER)
-            if o:
-                outputs_directory = o
-            service_callback = services.service_manager.get(user.name, constants.SERVICE_CALLBACK_URL_PARAMETER)
-        debug('Write result in %s' % outputs_directory, 2)
-        # get user parameters from the request
-        user_parameters = bs_private.get('app', "{}")
-
-        # get response config from the request
-        resp_config = bs_private.get('cfg', None)
-        plugin_info = {'title': info['title'],
-                       'plugin_id': plugin_db.id,
-                       'generated_id': plugin_db.generated_id,
-                       'description': info['description'],
-                       'path': info['path'],
-                       'in': info['in'],
-                       'out': info['out'],
-                       'meta': info['meta']}
-
-        # call plugin process
-        bioscript_callback = tg.config.get('main.proxy') + '/' + tg.url('plugins/callback_results')
-        print "callback on %s " % bioscript_callback
-        async_res = tasks.plugin_job.delay(user.name, inputs_directory, outputs_directory, plugin_info,
-                                           user_parameters, service_callback, bioscript_callback, **kw)
-        task_id = async_res.task_id
-        debug('Launch task %s' % task_id, 2)
-
-        _log_job_request(plugin_request.id, task_id)
-
-        resp = {'validation': 'success',
-                'plugin_id': plugin_id,
-                'task_id': task_id,
-                'callback': callback,
-                'app': user_parameters}
-        if resp_config and resp_config.get('plugin_info', '') == 'min':
-            resp.update({'plugin_info': json.dumps({'title': info['title'],
-                                                    'description': info['description'],
-                                                    'path': info['path'],
-                                                    'in': info['in'],
-                                                    'out': info['out'],
-                                                    'meta': info['meta']})})
-        return json.dumps(resp)
 
     @expose('json')
     def callback_results(self, task_id, results):
@@ -568,20 +401,20 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
     """
 
     modified = []   # list of modified fields
-    debug('PREFILL FIELDS')
+    debug('\nPREFILL FIELDS')
     for type_to_prefill, prefill_with in prefill_params.iteritems():
-        debug('type, prefill: %s, %s' % (type_to_prefill, prefill_with), 2)
+        debug('type, prefill: %s, %s' % (type_to_prefill, prefill_with),)
         for fparam in form_parameters:
-            debug('Checking parameter %s' % fparam, 2)
+            #debug('Checking parameter %s' % fparam,)
 
             if wordlist.is_of_type(fparam.get('type'), type_to_prefill):
                 fid = fparam.get('id')
-                debug('prefilling "%s" ... ' % fid, 3)
+                #debug('prefilling "%s" ... ' % fid,)
 
                 # when validation occurs, there no need to replace parameters (replace_value = False)
                 if replace_value:
                     kw[fid] = prefill_with
-                debug(kw)
+                #debug(kw,)
                 # if fparam is of `file` type, we need to modify it
                 if wordlist.is_of_type(fparam.get('type'), wordlist.FILE):
                     #debug('change file field ...', 3)
@@ -602,7 +435,8 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
                             mod = recursivly_check_and_change_field_children(field, fid, form, prefill_with, child_index)
                             if mod:
                                 modified.append(mod)
-        return modified
+    debug('\n')
+    return modified
 
 
 def recursivly_check_and_change_field_children(field, fid, form, prefill_with, child_index, deep=0):
@@ -715,7 +549,7 @@ def _change_file_field(form, field, clazz, value, index, deep=0):
 
 
 def jsonp_response(**kw):
-    debug('JSONP response %s' % kw, 3)
+    debug('JSONP response %s' % kw,)
     # encode in JSONP here cauz there is a problem with custom renderer
     tg.response.headers['Content-Type'] = 'text/javascript'
     return '%s(%s)' % (kw.get('callback', 'callback'), tg.json_encode(kw))
@@ -731,7 +565,7 @@ def _log_form_request(plugin_id, user, parameters):
     pl.user = user
     pl.status = 'PENDING'
     params = get_formparameters(parameters)
-    debug('set request params %s' % params, 4)
+    debug('set request params %s' % params,)
     pl.parameters = params
     DBSession.add(pl)
     DBSession.flush()
