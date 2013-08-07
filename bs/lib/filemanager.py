@@ -23,10 +23,12 @@ class UrlError(Exception):
     pass
 
 
-def debug(s, t=0):
+def debug(s, inline=True):
     if DEBUG_LEVEL > 0:
-        print '[filemanager] %s%s' % ('\t' * t, s)
-
+        if inline:
+            print '[filemanager] %s' % s,
+        else:
+            print '[filemanager] %s' % s
 
 def temporary_directory(directory=constants.paths['tmp']):
     return tempfile.mkdtemp(dir=directory)
@@ -75,7 +77,7 @@ def fetchfilefields(user, plugin, form_parameters):
     
     dwdfiles = {}
     for infile in files:
-        debug("download '%s' ? " % infile, 1)
+        debug("download '%s' ? " % infile)
         fid = infile.get('id')
         form_value = None
         
@@ -117,46 +119,49 @@ def fetchurls(user, plugin, dwdfiles, root_directory, form_parameters):
     return the directory where file has been downloaded
     """
     files = plugin.in_params_typeof(wordlist.FILE)
-    debug('FETCH from URLS %s' % form_parameters)
+    debug('FETCH from URLS %s' % form_parameters, False)
     for infile in files:
-
+        debug('infile is %s' % infile)
         fid = infile.get('id')
         form_value = None
         # check if it's a multiple field. In that case we will have a list
         if infile.get('multiple'):
-            debug('is multiple', 2)
+            debug('is multiple')
             if isinstance(form_parameters.get(infile['multiple']),dict):
                 form_value = form_parameters[infile['multiple']].get(fid)
         else:
             form_value = form_parameters.get(fid)
 
         # check if form_value contains a value or is not an empty list
+        
         if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0) and form_value != '':
-
+            debug("check parameter")
             # check if we have a list or a single value
             if not isinstance(form_value, (list, tuple)):
                 form_value = [form_value]
 
             for index, val in enumerate(form_value):
-                ####### TODOOOOOOOOOO
                 # check if it is not already downloaded
                 dwd = False
                 multiple = infile.get('multiple', False)
+                debug('multiple ? %s' % multiple)
                 if multiple:
-                    if infile.get('multiple') in  dwdfiles:
+                    if infile.get('multiple') in dwdfiles:
                          if not dwdfiles[infile.get('multiple')].get(fid, False):
                             dwd = True
-                    else:
-                        if not dwdfiles.get(fid, False):
-                            dwd = True
+                else:
+                    if not dwdfiles.get(fid, False):
+                        dwd = True
+                debug("download ? %s" % dwd)
                 if dwd:
+                    debug("trying to download")
                     if user.is_service:
                         # the user is a service, as HTSStation, so Urls has to be transformed into path
-                        debug('is service', 2)
+                        debug('is service',)
                         file_root = services.service_manager.get(user.name, constants.SERVICE_FILE_ROOT_PARAMETER)
-                        debug('got file_root : %s' % file_root, 4)
+                        debug('got file_root : %s' % file_root,)
                         url_root = services.service_manager.get(user.name, constants.SERVICE_URL_ROOT_PARAMETER)
-                        debug('got url_root : %s' % url_root, 4)
+                        debug('got url_root : %s' % url_root,)
 
                         # remove //. Service defined a directory where to take & put files
                         # so the urls are fakes
@@ -169,7 +174,7 @@ def fetchurls(user, plugin, dwdfiles, root_directory, form_parameters):
 
                     else:
                         # user is not a service so URLs are 'real' urls
-                        debug('is user', 2)
+                        debug('is user')
                         fname, val = take_filename_and_path(val)
                         _to = os.path.join(temporary_directory(root_directory), fname)
                         download_from_url(val, _to)
@@ -181,7 +186,10 @@ def fetchurls(user, plugin, dwdfiles, root_directory, form_parameters):
                         form_parameters[infile.get('multiple')][fid][index] = _to
                     else:
                         form_parameters[fid] = _to
-        return root_directory
+                    debug('Done', False)
+        else:
+            debug('no value for that file', False)
+    return root_directory
 
 
 def fetch(user, plugin, form_parameters):
@@ -297,11 +305,13 @@ def download_file_field(ff, to):
 
 
 def take_filename_and_path(value):
+    print 'TAKE FNAME & PATH'
     try:
         # file come from a registered service
         loaded = json.loads(value)
         fname = loaded['n']
         path = loaded['p']
+        print fname, path
         return fname, path
     except (ValueError, KeyError, TypeError):
         # so this is an url an we have to guess the name from it.

@@ -581,15 +581,15 @@ def prefill_fields(form_parameters, form, prefill_params, kw, replace_value=True
                 # when validation occurs, there no need to replace parameters (replace_value = False)
                 if replace_value:
                     kw[fid] = prefill_with
-
+                debug(kw)
                 # if fparam is of `file` type, we need to modify it
                 if wordlist.is_of_type(fparam.get('type'), wordlist.FILE):
-                    debug('change file field ...', 3)
+                    #debug('change file field ...', 3)
 
                     #multiple = fparam.get('multiple', False)
                     #TODO utility method to get all children
                     for child_index, field in enumerate(form.children_deep()):
-                        debug('test %s' % field, 3)
+                        #debug('test %s' % field, 3)
                         if field.id == fid or fid.startswith('%s:' % field.id) and 'BsFileField' in str(field):
                            # if multiple:
                                 #mod = _change_file_field(form, field, twb.BsMultiple, prefill_with)
@@ -609,7 +609,7 @@ def recursivly_check_and_change_field_children(field, fid, form, prefill_with, c
     if hasattr(field, 'child') and hasattr(field.child, 'children') and len(field.child.children) > 0:
         deep += 1
         for c in field.child.children:
-            debug('test deep : %s' % c, 4)
+            #debug('test deep : %s' % c, 4)
             if c.id == fid or fid.startswith('%s:' % c.id) and 'BsFileField' in str(c):
                 mod = _change_file_field(form, c, twb.BsTripleFileField, prefill_with, child_index, deep)
                 return mod
@@ -652,7 +652,7 @@ def _change_file_field(form, field, clazz, value, index, deep=0):
     # prepare
     tmp = clazz()
     tmp.id = field.id
-    debug('change file field', 1)
+    #debug('change file field', 1)
 
     # transmit validator
     if field.validator is not None:
