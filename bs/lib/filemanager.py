@@ -162,24 +162,14 @@ def fetchurls(user, plugin, dwdfiles, root_directory, form_parameters):
                         debug('got file_root : %s' % file_root,)
                         url_root = services.service_manager.get(user.name, constants.SERVICE_URL_ROOT_PARAMETER)
                         debug('got url_root : %s' % url_root,)
-
-                        # remove //. Service defined a directory where to take & put files
-                        # so the urls are fakes
-                        fname, val = take_filename_and_path(val)
-                        val = val.replace('//', '/').replace(':/', '://')
-                        _from = val.replace(url_root, file_root)
-                        _to = os.path.join(temporary_directory(root_directory), fname)
-                        shutil.copy2(_from, _to)
-                        ##############input_files.append(_to)
-
+                        if file_root is None or url_root is None:
+                            _to = _durl(root_directory, form_value, val)
+                        else: 
+                            _to = _dservice(root_directory, form_value, val, url_root, file_root)
                     else:
                         # user is not a service so URLs are 'real' urls
-                        debug('is user')
-                        fname, val = take_filename_and_path(val)
-                        _to = os.path.join(temporary_directory(root_directory), fname)
-                        download_from_url(val, _to)
-                        ################input_files.append(_to)
-
+                        debug('is real user')
+                        _to = _durl(root_directory, form_value, val)
 
                     # Update form parameters
                     if infile.get('multiple', False):
@@ -192,106 +182,30 @@ def fetchurls(user, plugin, dwdfiles, root_directory, form_parameters):
     return root_directory
 
 
-def fetch(user, plugin, form_parameters):
+def _dservice(root_directory, form_value, val, url_root, file_root):
     """
-    Fetch file from a plugin form and update form_parameters.
-    :param form_parameters: the form parameters
-    TODO : it's not elegent cause of multiple refactoring but it's working
+    Download the file(s). As the user is a service, fetch the file from a path.
     """
-    files = plugin.in_params_typeof(wordlist.FILE)
-    #regoup_multiple_field_in_list(form_parameters)
+    debug('fetch from path')
+    # remove //. Service defined a directory where to take & put files
+    # so the urls are fakes
+    fname, val = take_filename_and_path(val)
+    val = val.replace('//', '/').replace(':/', '://')
+    _from = val.replace(url_root, file_root)
+    _to = os.path.join(temporary_directory(root_directory), fname)
+    shutil.copy2(_from, _to)
+    return _to
 
-    root_directory = temporary_directory()
-    debug('FETCH %s' % form_parameters)
-    for infile in files:
-        debug("download '%s' ? " % infile, 1)
-        fid = infile.get('id')
-        form_value = None
-        if infile.get('multiple'):
-            debug('is multiple', 2)
-            if isinstance(form_parameters.get(infile['multiple']),dict):
-                form_value = form_parameters[infile['multiple']].get(fid)
-        else:
-            form_value = form_parameters.get(fid)
-        debug(form_value)
-        # check if form_value contains a value or is not an empty list
-        if form_value is not None and (not isinstance(form_value, (list, tuple)) or len(form_value) > 0) and form_value != '':
-            # check if we have file fields or urls
-            is_file_field = False
-            is_list = False
-            test = form_value
-            if isinstance(form_value, (list, tuple)):
-                is_list = True
-                debug('is list', 3)
-                test = form_value[0]
-            debug('testing %s of type %s' % (test, type(test)), 3)
-            if not isinstance(test, basestring):
-                    is_file_field = True
-                    debug('is file field', 3)
-
-            # download from FILE FIELD
-            if is_file_field:
-                if is_list:
-                    input_files = [download_file_field(v, os.path.join(temporary_directory(root_directory), v.filename)) for v in form_value]
-                else:
-                    input_files = [download_file_field(form_value, os.path.join(temporary_directory(root_directory), form_value.filename))]
-
-            # download from URL
-            else:
-                input_files = []
-                if user.is_service:
-                    # the user is a service, as HTSStation, so Urls has to be transformed into path
-                    debug('is service', 2)
-                    file_root = services.service_manager.get(user.name, constants.SERVICE_FILE_ROOT_PARAMETER)
-                    debug('got file_root : %s' % file_root, 4)
-                    url_root = services.service_manager.get(user.name, constants.SERVICE_URL_ROOT_PARAMETER)
-                    debug('got url_root : %s' % url_root, 4)
-                    if is_list:
-                        for fvalue in form_value:
-                            fname, fvalue = take_filename_and_path(fvalue)
-                            fvalue = fvalue.replace('//', '/').replace(':/', '://')
-                            _from = fvalue.replace(url_root, file_root)
-                            _to = os.path.join(temporary_directory(root_directory), fname)
-                            shutil.copy2(_from, _to)
-                            input_files.append(_to)
-                    else:
-                        # remove //. Service defined a directory where to take & put files
-                        # so the urls are fakes
-                        fname, fvalue = take_filename_and_path(form_value)
-                        fvalue = fvalue.replace('//', '/').replace(':/', '://')
-                        _from = fvalue.replace(url_root, file_root)
-                        _to = os.path.join(temporary_directory(root_directory), fname)
-                        shutil.copy2(_from, _to)
-                        input_files.append(_to)
-
-                else:
-                    # user is not a service so URLs are 'real' urls
-                    debug('is user', 2)
-                    if is_list:
-                        for fvalue in form_value:
-                            fname, fvalue = take_filename_and_path(fvalue)
-                            if fvalue:
-                                _to = os.path.join(temporary_directory(root_directory), fname)
-                                download_from_url(fvalue, _to)
-                                input_files.append(_to)
-                    else:
-                        _to = os.path.join(temporary_directory(root_directory), os.path.split(form_value)[1].split('?')[0])
-                        download_from_url(form_value, _to)
-                        input_files.append(_to)
-
-            if len(input_files) == 1:
-                input_files = input_files[0]
-        else:
-            input_files = ''
-
-        # Update parameters
-        if infile.get('multiple', False):
-            form_parameters[infile.get('multiple')] = {fid: input_files}
-        else:
-            form_parameters[fid] = input_files
-        debug(form_parameters)
-    return root_directory
-
+def _durl(root_directory, form_value, val):
+    """
+    Download the file(s) form url.
+    """
+    debug('fetch from url')
+    
+    fname, val = take_filename_and_path(val)
+    _to = os.path.join(temporary_directory(root_directory), fname)
+    download_from_url(val, _to)
+    return _to
 
 def download_file_field(ff, to):
     """
@@ -305,7 +219,6 @@ def download_file_field(ff, to):
 
 
 def take_filename_and_path(value):
-    print 'TAKE FNAME & PATH'
     try:
         # file come from a registered service
         loaded = json.loads(value)

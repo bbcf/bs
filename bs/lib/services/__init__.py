@@ -23,6 +23,14 @@ class ServiceManager(object):
         self.in_path = config.get(main_service, 'in.path')
         self.out_path = config.get(main_service, 'out.path.default')
 
+
+        self.store_params(config)
+        if not constants.FROMCELERY:
+            self.update_db()
+                
+        
+
+    def store_params(self, config):
         # store parameters
         for service in config.sections():
             if not service == main_service:
@@ -30,11 +38,16 @@ class ServiceManager(object):
                 self.parameters[service] = {}
                 for k, v in config.items(service):
                     self.parameters[service][k] = v.strip("'").strip('"')
-                # mkdir tmp directories
-                try:
-                    os.mkdir(os.path.join(self.in_path, service))
-                except OSError:
-                    pass
+                if not constants.FROMCELERY:
+                    self.mkdir(self.in_path, service)
+
+    def mkdir(self, inpath, serv):
+        try:
+            os.mkdir(os.path.join(inpath, serv))
+        except OSError:
+            pass
+
+    def update_db(self):
         # store services on the database
         for service in self.services:
             contact = self.get(service, 'contact')
@@ -69,6 +82,6 @@ class ServiceManager(object):
                 return service
         return False
 
-if not constants.FROMCELERY:
-    configuration_file = constants.services_directory()
-    service_manager = ServiceManager(configuration_file)
+
+configuration_file = constants.services_directory()
+service_manager = ServiceManager(configuration_file)
