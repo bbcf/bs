@@ -2,7 +2,6 @@
  * This is a patched version of dynform.js from toscawidget, because some 
  * for loop are not understood by every browsers.
  */
-console.log('Patched dynforms');
 /**
  * Hiding
  **/
