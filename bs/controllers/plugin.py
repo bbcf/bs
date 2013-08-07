@@ -19,7 +19,7 @@ from bs.lib import util
 from bs.lib import filemanager
 from bs.lib import operations
 from bs.lib.operations import wordlist
-
+import cgi
 from bs.celery import tasks
 from bs.model import DBSession, PluginRequest, Plugin, Job, Result, Task
 
@@ -205,8 +205,7 @@ class PluginController(base.BaseController):
         # get the plugin from database
         plugin_db = DBSession.query(Plugin).filter(Plugin.generated_id == plug.unique_id()).first()
 
-        # log the request, it's a valid one
-        plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=dict(kw))
+        
 
 
         # validate the form
@@ -231,9 +230,6 @@ class PluginController(base.BaseController):
         info = plug.info
         if not validated:
             debug('Validation failed',)
-            plugin_request.status = 'FAILED'
-            plugin_request.error = 'Form validation failed'
-            DBSession.add(plugin_request)
             return json.dumps({'validation': 'failed',
                                'desc': info.get('description'),
                                'title': info.get('title'),
@@ -242,6 +238,7 @@ class PluginController(base.BaseController):
 
         # validation passes
         new_params = form['params']
+        new_params = kw
         debug('Validation passes with params : %s' % new_params,)
 
         # we regoup all multi stuff in a single list:
@@ -251,9 +248,11 @@ class PluginController(base.BaseController):
         # {SigMulti: { signals : [val1, val2], ...}
         debug('group "multi" params',)
         grouped_params = {}
+        todel = []
         for k, v in kw.iteritems():
             m = multipattern.match(k)
             if m:
+                todel.append(k)
                 key1, n, key2 = m.groups()
                 if not key1 in grouped_params:
                     grouped_params[key1] = {}
@@ -265,25 +264,29 @@ class PluginController(base.BaseController):
                     grouped_params[key1][key2] = sl
 
 
-        debug('check fieldstorages',)
-        # must keep fieldstorages because they were converted to str
-        fs_bk = []
-        import cgi
-        for k, v in kw.iteritems():
-            if isinstance(v, cgi.FieldStorage):
-                fs_bk.append((k, v))
-        debug(fs_bk)
+        # debug('check fieldstorages',)
+        # # must keep fieldstorages because they were converted to str
+        # fs_bk = []
+        # import cgi
+        # for k, v in kw.iteritems():
+        #     if isinstance(v, cgi.FieldStorage):
+        #         fs_bk.append((k, v))
+        # debug(fs_bk)
 
-        for fsk, fsv in fs_bk:
-            m = multipattern.match(fsk)
-            if m:
-                key1, n, key2 = m.groups()
-                grouped_params[key1][key2][int(n) - 1] = fsv
-            else:
-                grouped_params[fsk] = fsv
+        # for fsk, fsv in fs_bk:
+        #     m = multipattern.match(fsk)
+        #     if m:
+        #         key1, n, key2 = m.groups()
+        #         grouped_params[key1][key2][int(n) - 1] = fsv
+        #     else:
+        #         grouped_params[fsk] = fsv
         new_params.update(grouped_params)
-        # but we need to keep all params that are multi and urls
+        
+        # delete multi parameters
+        for td in todel:
+            del new_params[td]
 
+        # but we need to keep all params that are multi and urls
         kw = new_params
         debug('New params are : %s' % new_params,)
         #remove private parameters from the request
@@ -293,6 +296,8 @@ class PluginController(base.BaseController):
             del kw['key']
 
         # update plugin arameters
+        # log the request, it's a valid one
+        plugin_request = _log_form_request(plugin_id=plugin_db.id, user=user, parameters=dict(kw))
         DBSession.add(plugin_request)
     
         debug('get output directory',)
@@ -587,9 +592,10 @@ def _get_value(param):
         value = [copy.copy(_get_value(p)) for p in param]
     elif isinstance(param, int):
         value = str(param)
-    elif not isinstance(param, basestring):
+    elif isinstance(param, cgi.FieldStorage):
         value = param.filename
     else:
+        ## HERE It can be some multi fields... = list, there is certainly a way to 
         value = copy.copy(str(param))
     return value
 
