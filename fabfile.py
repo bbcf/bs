@@ -77,3 +77,12 @@ def deploy_sugar(cmd='restart', project='bs'):
     with cd(path):
         with prefix('workon %s' % project):
             _run(locally=False)("./webserverctl %s && ./workerctl %s" % (cmd, cmd))
+
+@task(alias='webserver')
+@hosts('yo@sugar.epfl.ch')
+def deploy_sugar(cmd='restart', project='bs'):
+    print(green('[x] Service %sing on sugar ... ' % cmd))
+    path = settings['paths']['sugar'][project]
+    with cd(path):
+        with prefix('workon %s' % project):
+            _run(locally=False)("./webserverctl %s" % cmd)
