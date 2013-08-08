@@ -1,4 +1,3 @@
-from pkg_resources import resource_filename
 import os
 import tg
 from bs import PROJECT_ROOT
@@ -22,7 +21,6 @@ if not ROOT_DIRECTORY:
     else :
         raise Exception('You must set ROOT_DIRECTORY parameter in celery configuration file')
     FROMCELERY = True
-
 
 
 paths = {

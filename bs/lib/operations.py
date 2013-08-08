@@ -28,12 +28,25 @@ def _get_plugins_path(service, ordered):
             o = pclazz()
             node = Node(o.info['title'])
             node.id = o.unique_id()
-            node.info = o.info
+            node.info = serialize_info(o)
             node = node._serialize()
             paths.append(node)
         paths = sorted(paths, key=itemgetter('key'))
     return paths
 
+
+def serialize_info(plug):
+    """
+    Serialize plugin info in the node.
+    """
+    inf = plug.info
+    try:
+        inf['html_doc'] = plug.html_doc_link()
+        inf['html_src_code'] = plug.html_source_code_link()
+    except:
+        pass
+        
+    return inf
 
 def get_plugin_byId(_id):
     '''
@@ -82,6 +95,7 @@ class Node(object):
         self.key = key
         self.id = None
         self.info = None
+        self.html_doc = None
 
     def add(self, child):
         self.childs.append(child)
@@ -150,5 +164,5 @@ def _pathify(nodes):
     '''
     root = Node("Operations")
     for n in nodes:
-        _mix(root, n.info['path'], 0, n.unique_id(), n.info)
+        _mix(root, n.info['path'], 0, n.unique_id(), serialize_info(n))
     return root
