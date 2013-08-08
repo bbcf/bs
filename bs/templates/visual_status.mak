@@ -27,7 +27,7 @@
             <br/>by ${plugin['info']['meta']['author']} (<a href="mailto:${plugin['info']['meta']['contact']}?subject=[BioScript]">contact</a>)
             <br/> version ${plugin['info']['meta']['version']}
             <a class="a_hideshow">description</a>
-            <span class='plugin_description span_hidden'>${plugin['info']['description'] | n}</span>
+            <span class='plugin_description span_hidden'>${plugin['info']['desc_as_html'] | n}</span>
 
             </li>
         % endfor

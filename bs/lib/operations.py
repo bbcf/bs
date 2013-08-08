@@ -39,14 +39,28 @@ def serialize_info(plug):
     """
     Serialize plugin info in the node.
     """
+    # take basic info
     inf = plug.info
+
+    # add links to code and doc
     try:
         inf['html_doc'] = plug.html_doc_link()
         inf['html_src_code'] = plug.html_source_code_link()
-    except:
-        pass
-        
+    except Exception as e:
+        print 'html_doc and html_src_code error'
+        print e
+
+    # set html description
+    inf['desc_as_html'] = plug.description_as_html
     return inf
+
+def restructuredtextToHtml(text):
+    print text
+    from docutils.core import publish_parts
+    text = publish_parts(text, writer_name='html')['body']
+    print '*********************************'
+    print text
+    return text
 
 def get_plugin_byId(_id):
     '''

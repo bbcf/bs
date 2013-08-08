@@ -68,10 +68,24 @@ class PluginManager(object):
             except ImportError as e:
                 print '[e][plugin manager] Module %s not found.' % pfile
 
-
+        # pull html doc on all plugins
+        for k, v in self.plugs.iteritems():
+            self._set_html_formatted_description(v)
 
 
         debug('loaded : %s' % ', '.join([k for k, v in self.plugs.iteritems()]))
+
+    def _set_html_formatted_description(self, plugin):
+        """
+        Use docutils to format reStructuredText description (Sphinx) to a HTML display.
+        """
+        try:
+            from docutils.core import publish_parts
+            plugin.description_as_html = publish_parts(plugin.info['description'], writer_name='html')['body']
+        except Exception as e:
+            print 'description cannot be formatted with docutils'
+            print e
+            plugin.description_as_html = plugin.info['description']
 
     @property
     def wordlist(self):

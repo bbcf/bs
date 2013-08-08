@@ -85,7 +85,8 @@ class PluginController(base.BaseController):
         obj = plug
         info = obj.info
         form = info.get('output')()
-        desc = info.get('description')
+        desc = plug.description_as_html
+
         debug('params =  %s' % kw,)
         # bioscript parameters
         bs_private = {}

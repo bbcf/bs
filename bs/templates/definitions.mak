@@ -43,7 +43,7 @@
     <br/>by ${plugin['info']['meta']['author']} (<a href="mailto:${plugin['info']['meta']['contact']}?subject=[BioScript]">contact</a>)
     <br/> v. ${plugin['info']['meta']['version']}
     <a class="a_hideshow">description</a>
-    <span class='plugin_description span_hidden'>${plugin['info']['description'] | n}</span><br/>
+    <span class='plugin_description span_hidden'>${plugin['info']['desc_as_html'] | n}</span><br/>
     %if 'html_doc' in plugin['info']:
         <a href="${plugin['info']['html_doc']}">doc</a>
     %endif
