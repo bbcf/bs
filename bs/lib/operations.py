@@ -55,11 +55,8 @@ def serialize_info(plug):
     return inf
 
 def restructuredtextToHtml(text):
-    print text
     from docutils.core import publish_parts
     text = publish_parts(text, writer_name='html')['body']
-    print '*********************************'
-    print text
     return text
 
 def get_plugin_byId(_id):

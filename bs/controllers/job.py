@@ -1,11 +1,16 @@
-from bs.lib import base
+from bs.lib import base, operations
 from tg import expose, response, url, request
-from bs.model import DBSession, Job, PluginRequest, Task
+from sqlalchemy.sql.expression import desc, asc
+from bs.model import DBSession, Job, PluginRequest, Task, User, Plugin
 import os
 from datetime import datetime
 from sqlalchemy.sql import expression
+from bs.lib import operations
 from bs.lib import filemanager
-
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 class JobController(base.BaseController):
 
@@ -51,7 +56,7 @@ class JobController(base.BaseController):
             except ValueError:
                 pass
         limit = (limit or 50)
-        jobs = DBSession.query(Job).join(PluginRequest).order_by(expression.desc(PluginRequest.date_done))[:limit]
+        jobs = DBSession.query(Job).join(PluginRequest).order_by(desc(PluginRequest.date_done))[:limit]
         if status and status.lower() in ['success', 'failure', 'started']:
             jobs = [j for j in jobs if j.status == status.upper()]
         return {'jobs': jobs}
@@ -77,7 +82,74 @@ class JobController(base.BaseController):
         job = DBSession.query(Job).filter(Job.task_id == task_id).first()
         req = job.request
         results = [{'id': r.id, 'result': r.result, 'is_file': r.is_file, 'fname': r.fname} for r in job.results]
-        return {'results': results, 'status': job.status, 'plugin_id': req.plugin.id, 'parameters': req.parameters}
+        return {'results': results, 'status': job.status, 'plugin_id': req.plugin.id, 'parameters': json.dumps(req.parameters)}
+
+
+    @expose('mako:bs.templates.job_stats')
+    def stats(self):
+        jobs = DBSession.query(Job).join(PluginRequest).order_by(asc(PluginRequest.date_done)).all()
+
+        # get number of jobs / month, days, ...
+        d = {'months' : [0] * 12, 
+            'days': [0] * 7,
+            'hours': [0] * 24,
+            'users': {},
+            'plugins': {}
+            }
+        # set all users to prevent looking if user alrady set for each jobs
+        users = DBSession.query(User).all()
+        for user in users:
+             d['users'][user.name] = 1
+        # do the same for all plugin
+        plugs = operations.get_plugins_path(ordered=False)
+        for plug in plugs:
+            d['plugins'][plug['info']['title']] = 1
+
+        # now look at each jobs one by one
+        for job in jobs:
+            dd = job.request.date_done.strftime('%m %w %H').split()         
+            currentday = int(dd[1])
+            d['months'][int(dd[0]) - 1] += 1
+            d['days'][currentday] += 1
+            d['hours'][int(dd[2])] += 1
+            d['users'][job.request.user.name] += 1
+            try:
+                d['plugins'][job.request.plugin.info['title']] += 1
+            except KeyError:
+                pass
+        return {'jobs': json.dumps(d)}
+
+
+def serialize_job(job):
+    req = job.request
+    plugin = req.plugin
+    user = req.user
+    return {
+        'id': job.id,
+        'request': {
+            'id': req.id,
+            'date': {
+                'complete': datetime.strftime(req.date_done, '%a %d %b %Y at %H:%M:%S'),
+                'hour': datetime.strftime(req.date_done, '%H'),
+                'min': datetime.strftime(req.date_done, '%M'),
+                'sec': datetime.strftime(req.date_done, '%S'),
+                'day': datetime.strftime(req.date_done, '%w'),
+                'year': datetime.strftime(req.date_done, '%Y'),
+                'month': datetime.strftime(req.date_done, '%m')
+            },
+            'status': req.status
+        },
+        'plugin': {
+            'id': plugin.id,
+            'name': plugin.info['path'][-1]
+        },
+        'user': {
+            'id': user.id,
+            'name': user.name,
+            'is_service': user.is_service,
+            'remote': user.remote
+        }
+    }
 
 
 def get_result_url(result, task_id):

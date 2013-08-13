@@ -80,19 +80,19 @@ class PluginController(base.BaseController):
         except:
             tg.abort(400, "Bad plugin identifier")
 
-        debug('get plugin %s' % oid,)
+        debug('[x] get plugin %s' % oid,)
         # get the plugin
         obj = plug
         info = obj.info
         form = info.get('output')()
         desc = plug.description_as_html
 
-        debug('params =  %s' % kw,)
+        debug('[x] params =  %s' % kw,)
         # bioscript parameters
         bs_private = {}
         if 'bs_private' in kw:
             bs_private = json.loads(kw['bs_private'])
-            debug("get bs private parameters %s" % bs_private,)
+            debug("[x] get bs private parameters %s" % bs_private,)
 
         if 'prefill' in bs_private:
             prefill_fields(info.get('in'), form, bs_private['prefill'], kw)
