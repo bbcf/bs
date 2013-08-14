@@ -22,6 +22,7 @@ TB_PATTERN = re.compile("\w*Error.*|\w*Exception.*")
 
 
 def _san(value):
+    #print 'sanitize %s (%s)' % (value, type(value))
     try:
         value = json.loads(value)
     except (ValueError, TypeError):
@@ -34,6 +35,7 @@ def _san(value):
         for _k, _v in value.iteritems():
             d[_k] = _san(_v)
         value = d
+    #print 'end =>  %s (%s)' % (value, type(value))
     return value
 
 
