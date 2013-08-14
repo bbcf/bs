@@ -6,7 +6,7 @@ var ndata = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
 
 // positionning
 var margin = {top: 40, right: 20, bottom: 40, left: 50};
-var w = 500;
+var w = 700;
 var width = w - margin.left - margin.right;
 var h = 300;
 var height = h - margin.top - margin.bottom;

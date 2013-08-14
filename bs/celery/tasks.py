@@ -129,6 +129,7 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
     
 
     debug('FETCHING FILES ... %s' % form_parameters)
+    raised = False
     # FETCHING FILES
     current_task.update_state(state='FETCHING FILES')
     inputs_directory = fetchurls(user, plug, dwdfiles, inputs_directory, form_parameters)
@@ -184,6 +185,7 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
                 if not e.args:
                     e.args = ('',)
                 e.args = (e.args[0] + debug_error,) + e.args[1:]
+            raised = True
             raise
 
         # mkdir output directory
@@ -219,8 +221,9 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
             callback_service(service_callback, plugin_info['generated_id'], task_id, 'SUCCESS',
                 results=json.dumps(results), additional=user_parameters)
     except Exception as e:
-        if service_callback is not None:
-                callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=e.message)
+        if service_callback is not None and not raised:
+            user_parameters.update({'error': str(e)})
+            callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=user_parameters)
         raise
 
 
