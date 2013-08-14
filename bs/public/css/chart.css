@@ -1,0 +1,39 @@
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}
+
+.chart rect {
+  stroke: white;
+  fill: steelblue;
+}
+
+path {
+    stroke: steelblue; stroke-width: 2; fill: none;
+}
+.axis path, .axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1; shape-rendering: crispEdges;
+}
+
+circle {
+  fill: rgb(31, 119, 180);
+  fill-opacity: .25;
+  stroke: rgb(31, 119, 180);
+  stroke-width: 1px;
+}
+
+.node circle {
+  fill: #3574c5;
+  fill-opacity: 0.2;
+}
+
+.leaf circle {
+  fill: #d2e8f7;
+  fill-opacity: 1;
+}

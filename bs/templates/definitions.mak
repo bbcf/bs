@@ -25,12 +25,16 @@
 <%def name="chart_js()">
     <script type="text/javascript" src="${tg.url('/javascript/jslib/d3/d3.js')}"></script>
     <script type="text/javascript" src="${tg.url('/javascript/jslib/bootstrap/bootstrap.js')}"></script>
+</%def>
+
+<%def name="start_chart()">
     <script type="text/javascript" src="${tg.url('/javascript/chart.js')}"></script>
 </%def>
 
 <%def name="chart_css()">
-    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/chart.css')}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/bootstrap.css')}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/chart.css')}" />
+
 </%def>
 
 <%def name="footer()">
