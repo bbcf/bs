@@ -149,17 +149,24 @@ def fetchurls(user, plugin, dwdfiles, root_directory, form_parameters):
             for index, val in enumerate(form_value):
                 # check if it is not already downloaded
                 dwd = False
+                already_downloaded = False
+
                 multiple = infile.get('multiple', False)
                 debug('multiple ? %s' % multiple)
                 if multiple:
                     if infile.get('multiple') in dwdfiles:
-                         if not dwdfiles[infile.get('multiple')].get(fid, False):
-                            dwd = True
+                        if dwdfiles[infile.get('multiple')].get(fid, False):
+                            already_downloaded = True
+                         # if not dwdfiles[infile.get('multiple')].get(fid, False):
+                         #    dwd = True
                 else:
-                    if not dwdfiles.get(fid, False):
-                        dwd = True
-                debug("download ? %s" % dwd)
-                if dwd:
+                    if dwdfiles.get(fid, False):
+                        already_downloaded = True
+                    # if not dwdfiles.get(fid, False):
+                    #     dwd = True
+                debug("already downloaded ? %s" % already_downloaded)
+                #if dwd:
+                if not already_downloaded:
                     debug("trying to download")
                     if user.is_service:
                         # the user is a service, as HTSStation, so Urls has to be transformed into path
