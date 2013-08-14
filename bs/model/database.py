@@ -26,7 +26,36 @@ def _san(value):
         value = json.loads(value)
     except (ValueError, TypeError):
         pass
+    if isinstance(value, (list, tuple)):
+        value = [_san(v) for v in value]
+    elif isinstance(value, dict):
+        value = {}
+        for _k, _v in value.iteritems():
+            value[_k] = _san(_v)
     return value
+
+
+
+
+# def _get_value(param):
+#     if isinstance(param, (list, tuple)):
+#         value = [copy.copy(_get_value(p)) for p in param]
+#     elif isinstance(param, int):
+#         value = str(param)
+#     elif isinstance(param, cgi.FieldStorage):
+#         value = param.filename
+#     elif isinstance(param, dict):
+#         value = {}
+#         for _k, _v in param.iteritems():
+#             value[_k] = _get_value(_v)
+#     else:
+#         value = copy.copy(str(param))
+#     return value
+
+
+
+
+
 
 class JSONEncodedDict(TypeDecorator):
     """Represents an immutable structure as a json-encoded string.
@@ -105,7 +134,6 @@ class PluginRequest(DeclarativeBase):
         for k, v in self.parameters.iteritems():
             d[k] = _san(v)
         return d
-
 
 
 class Job(DeclarativeBase):
