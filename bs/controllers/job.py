@@ -82,7 +82,7 @@ class JobController(base.BaseController):
         job = DBSession.query(Job).filter(Job.task_id == task_id).first()
         req = job.request
         results = [{'id': r.id, 'result': r.result, 'is_file': r.is_file, 'fname': r.fname} for r in job.results]
-        return {'results': results, 'status': job.status, 'plugin_id': req.plugin.id, 'parameters': json.dumps(req.parameters)}
+        return {'results': results, 'status': job.status, 'plugin_id': req.plugin.id, 'parameters': json.dumps(req.sanitized_parameter())}
 
 
     @expose('mako:bs.templates.job_stats')

@@ -180,8 +180,6 @@ class PluginController(base.BaseController):
     #     return 'validated', 0
     
 
-
-
     @expose()
     @logger.identify
     @logger.log_connection
@@ -219,7 +217,7 @@ class PluginController(base.BaseController):
 
 
         # validate the form
-        # we must do an HTT call because I don't find a way
+        # we must do an HTTP call because I don't find a way
         # to call the 'render' method on 'plugin_validate' template
         request_url = tg.config.get('main.proxy') + '/plugins/_validate'
         form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
@@ -228,7 +226,7 @@ class PluginController(base.BaseController):
         response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
         response.headers['Access-Control-Allow-Origin'] = '*'
 
-        # get ths callback if any
+        # get the callback if any
         callback = kw.get('callback', 'callback')
         try:
             form = json.loads(form)
@@ -298,12 +296,14 @@ class PluginController(base.BaseController):
 
         # but we need to keep all params that are multi and urls
         kw = new_params
-        debug('New params are : %s' % new_params,)
+       
         #remove private parameters from the request
         if 'bs_private' in kw:
             del kw['bs_private']
         if 'key' in kw:
             del kw['key']
+
+        debug('New params are : %s' % new_params,)
 
         # update plugin arameters
         # log the request, it's a valid one
@@ -569,7 +569,6 @@ def jsonp_response(**kw):
     tg.response.headers['Content-Type'] = 'text/javascript'
     return '%s(%s)' % (kw.get('callback', 'callback'), tg.json_encode(kw))
 
-import copy
 
 def _log_form_request(plugin_id, user, parameters):
     """
@@ -581,6 +580,7 @@ def _log_form_request(plugin_id, user, parameters):
     pl.status = 'PENDING'
     params = get_formparameters(parameters)
     debug('set request params %s' % params,)
+    #print ', '.join(['%s (%s) : %s (%s)' % (k, type(k), v, type(v)) for k, v in params.iteritems()])
     pl.parameters = params
     DBSession.add(pl)
     DBSession.flush()
@@ -604,8 +604,11 @@ def _get_value(param):
         value = str(param)
     elif isinstance(param, cgi.FieldStorage):
         value = param.filename
+    elif isinstance(param, dict):
+        value = {}
+        for _k, _v in param.iteritems():
+            value[_k] = _get_value(_v)
     else:
-        ## HERE It can be some multi fields... = list, there is certainly a way to 
         value = copy.copy(str(param))
     return value
 

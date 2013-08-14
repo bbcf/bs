@@ -7,7 +7,10 @@ from sqlalchemy import ForeignKey, Column, Sequence
 from sqlalchemy.types import Integer, DateTime, VARCHAR, TypeDecorator, PickleType, Text, Boolean, Unicode
 from sqlalchemy.orm import relationship, backref, synonym
 from bs.model import DeclarativeBase, DBSession
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import datetime as dt
 from datetime import datetime
 import uuid
@@ -17,6 +20,13 @@ prefix = "jl_"
 delta = dt.timedelta(days=1)
 TB_PATTERN = re.compile("\w*Error.*|\w*Exception.*")
 
+
+def _san(value):
+    try:
+        value = json.loads(value)
+    except (ValueError, TypeError):
+        pass
+    return value
 
 class JSONEncodedDict(TypeDecorator):
     """Represents an immutable structure as a json-encoded string.
@@ -89,6 +99,13 @@ class PluginRequest(DeclarativeBase):
     date_done = Column(DateTime, default=datetime.now, nullable=True)
     status = Column(Text, default='PENDING')
     error = Column(Text)
+
+    def sanitized_parameter(self):
+        d = {}
+        for k, v in self.parameters.iteritems():
+            d[k] = _san(v)
+        return d
+
 
 
 class Job(DeclarativeBase):
