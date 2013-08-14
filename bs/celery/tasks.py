@@ -154,7 +154,7 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
             raise Exception('Plugin not found by the worker.')
         plugin.is_debug = DEBUG_PLUGINS
 
-        debug('plugin operation start')
+        debug('plugin operation start %s' % form_parameters)
         plugin._start_timer()
         results = []
         # call plugin with form parameters
@@ -163,9 +163,10 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
             results = [{'is_file': False,
                         'value': ret}]
         except Exception as e:
-            debug("ERROR")
+            debug("ERROR %s" % e)
+            util.print_traceback()
             if service_callback is not None:
-                user_parameters.update({'error': e})
+                user_parameters.update({'error': str(e)})
                 callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=user_parameters)
             # deleting plugin temporary files
             for todel in plugin.tmp_files:
@@ -242,7 +243,7 @@ def callback_service(url, plugin_id, task_id, status, results=None, additional=N
     if additional is not None:
         params['bs_private'] = json.dumps(additional)
     try:
-        debug('Callback on URL %s with parameters %s : ' % (url, ', '.join(['%s : %s' % (k, v) for k, v in params.iteritems()])))
+        debug('Callback on URL %s with parameters %s : ' % (url, ', '.join(['%s (%s): %s (%s)' % (k, type(k), v, type(v)) for k, v in params.iteritems()])))
         urllib2.urlopen(url, data=urllib.urlencode(params))
     except Exception:
         import sys

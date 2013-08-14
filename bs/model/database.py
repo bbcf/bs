@@ -26,12 +26,14 @@ def _san(value):
         value = json.loads(value)
     except (ValueError, TypeError):
         pass
+
     if isinstance(value, (list, tuple)):
         value = [_san(v) for v in value]
     elif isinstance(value, dict):
-        value = {}
+        d = {}
         for _k, _v in value.iteritems():
-            value[_k] = _san(_v)
+            d[_k] = _san(_v)
+        value = d
     return value
 
 
