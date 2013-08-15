@@ -1,73 +1,159 @@
-/*
-Syntax error: Invalid CSS after "": expected selector_comma_sequence, was "}"
-        on line 76 of bs/public/css/style.sass
+* {
+  margin: 0;
+  padding: 0; }
 
-71:   list-style-type: none
-72:   position: fixed
-73:   right: 0
-74:   top: 0
-75:   width: 100%
-76: }
-77: 
-78: 
-79: .banner2 > li
-80:   float: right
-81:   margin: 10px
+.error {
+  color: red; }
 
-Backtrace:
-bs/public/css/style.sass:76
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/scss/parser.rb:1148:in `expected'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/scss/parser.rb:1084:in `expected'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/scss/parser.rb:1066:in `expr!'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/scss/static_parser.rb:20:in `parse_selector'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/perform.rb:314:in `visit_rule'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/base.rb:37:in `send'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/base.rb:37:in `visit'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/perform.rb:100:in `visit'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/base.rb:53:in `visit_children'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/base.rb:53:in `map'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/base.rb:53:in `visit_children'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/perform.rb:109:in `visit_children'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/perform.rb:121:in `with_environment'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/perform.rb:108:in `visit_children'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/base.rb:37:in `visit'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/perform.rb:128:in `visit_root'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/base.rb:37:in `send'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/base.rb:37:in `visit'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/perform.rb:100:in `visit'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/perform.rb:7:in `send'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/visitors/perform.rb:7:in `visit'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/tree/root_node.rb:20:in `render'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/engine.rb:315:in `_render'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/engine.rb:262:in `render'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/plugin/compiler.rb:341:in `update_stylesheet'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/plugin/compiler.rb:203:in `update_stylesheets'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/plugin/compiler.rb:201:in `each'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/plugin/compiler.rb:201:in `update_stylesheets'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/plugin/compiler.rb:299:in `watch'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/multi_listener.rb:108:in `call'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/multi_listener.rb:108:in `on_change'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/multi_listener.rb:117:in `initialize_adapter'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/adapter.rb:198:in `call'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/adapter.rb:198:in `report_changes'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/adapter.rb:210:in `poll_changed_dirs'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/adapters/darwin.rb:38:in `start'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/adapters/darwin.rb:38:in `initialize'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/adapters/darwin.rb:38:in `new'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/adapters/darwin.rb:38:in `start'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/vendor/listen/lib/listen/multi_listener.rb:44:in `start'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/plugin/compiler.rb:307:in `watch'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/plugin.rb:107:in `send'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/plugin.rb:107:in `method_missing'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/exec.rb:452:in `watch_or_update'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/exec.rb:315:in `process_result'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/exec.rb:41:in `parse'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/../lib/sass/../sass/exec.rb:21:in `parse!'
-/Users/nitro/.virtualenv/dev/gems/gems/sass-3.2.8/bin/sass:9
-/Users/nitro/.virtualenv/dev/gems/bin/sass:19:in `load'
-/Users/nitro/.virtualenv/dev/gems/bin/sass:19
-*/
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "Syntax error: Invalid CSS after \"\": expected selector_comma_sequence, was \"}\"\A         on line 76 of bs/public/css/style.sass\A \A 71:   list-style-type: none\A 72:   position: fixed\A 73:   right: 0\A 74:   top: 0\A 75:   width: 100%\A 76: }\A 77: \A 78: \A 79: .banner2 > li\A 80:   float: right\A 81:   margin: 10px"; }
+body {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  background-color: #aab3b6; }
+
+/* BANNER */
+ul#banner {
+  list-style-type: none;
+  background-color: #636769;
+  height: 40px;
+  width: 100%;
+  margin: auto;
+  box-shadow: 10px 10px 5px #4b4e50;
+  margin-bottom: 30px; }
+
+ul#banner li:first-child {
+  font-size: 24px;
+  position: relative;
+  top: 2px;
+  margin-left: 20px; }
+
+ul#banner li {
+  height: 40px;
+  position: relative;
+  top: 10px; }
+
+ul#banner li ul {
+  list-style-type: none; }
+
+ul#banner li ul li {
+  float: none;
+  font-size: 12px;
+  position: relative;
+  left: 10px; }
+
+ul#banner li ul li:first-child {
+  left: 0px;
+  font-size: 24px; }
+
+ul#banner li {
+  float: left; }
+
+ul#banner li a {
+  background-repeat: no-repeat;
+  background-position: right;
+  padding: 0px 40px 0px 40px;
+  display: block;
+  text-decoration: none;
+  color: #e6f1f5; }
+
+ul#banner li:first-child a {
+  color: black; }
+
+ul#banner li a:hover {
+  color: #4b4e50; }
+
+.banner2 {
+  list-style-type: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 100%; }
+
+.banner2 > li {
+  float: right;
+  margin: 10px;
+  position: relative;
+  right: 0; }
+
+/* LINKS */
+a {
+  color: #e6f1f5; }
+  a:hover {
+    color: #4b4e50; }
+
+/* FOOTER */
+div#footer {
+  background-color: #636769;
+  height: 40px;
+  width: 100%;
+  margin: 0 auto-40px;
+  position: fixed;
+  bottom: 0;
+  text-align: center; }
+
+/* CONTENT */
+div#content {
+  margin: 30px; }
+
+div#content > p {
+  margin: 30px;
+  padding: 30px;
+  box-shadow: 10px 10px 5px #4b4e50;
+  border: 1px solid #4b4e50;
+  border-radius: 5px; }
+
+.belement {
+  margin: 30px;
+  padding: 30px;
+  box-shadow: 10px 10px 5px #4b4e50;
+  border: 1px solid #4b4e50;
+  border-radius: 5px; }
+
+.span_hidden {
+  display: none; }
+
+.plugin_description {
+  position: relative; }
+
+#plugin_presentation > li {
+  list-style-type: none;
+  margin: 15px;
+  padding: 15px;
+  float: left;
+  box-shadow: 10px 10px 5px #4b4e50;
+  padding-bottom: 30px; }
+
+#plugin_presentation2 li {
+  list-style-type: none;
+  margin: 15px;
+  padding: 15px;
+  float: left;
+  padding-bottom: 30px; }
+
+ul.simple > li {
+  list-style-type: circle; }
+
+.show {
+  display: block; }
+
+.jstatus {
+  font-style: bold; }
+
+.jrunning {
+  color: #e6f1f5; }
+
+.jpending {
+  color: #6e7476; }
+
+.jtotal {
+  color: #4b4e50; }
+
+.jfailed {
+  color: #4b4e50; }
+
+#bs_operations {
+  height: 75px; }
+
+.job_params td {
+  padding: 10px;
+  text-align: right; }
+  .job_params td:first-child {
+    text-align: left; }
