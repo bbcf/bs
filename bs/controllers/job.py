@@ -117,6 +117,7 @@ class JobController(base.BaseController):
                 d['plugins'][job.request.plugin.info['title']] += 1
             except KeyError:
                 pass
+        d['users'] = [{'name': k, 'value': v} for k, v in d['users'].iteritems()]
         return {'jobs': json.dumps(d)}
 
 

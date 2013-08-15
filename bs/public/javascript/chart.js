@@ -6,7 +6,7 @@ var ndata = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
 
 // positionning
 var margin = {top: 40, right: 20, bottom: 40, left: 50};
-var w = 700;
+var w = 600;
 var width = w - margin.left - margin.right;
 var h = 300;
 var height = h - margin.top - margin.bottom;
@@ -18,6 +18,55 @@ function badge_info(label, value){
   return "<div class='nav nav-pills'><span class='badge pull-right'><label>" + value + "</label></span>" + label + "</div>";
 }
 
+function piechart_users(selector, users, width, height, rad){
+
+  var radius = rad;
+
+  var color = d3.scale.ordinal()
+      .range(["#e61447", "#8a89a6", "#3fc7e4", "#0e6bf9", "#dde410", "#d0743c", "#2ac610"]);
+
+  var arc = d3.svg.arc()
+      .outerRadius(radius - 10)
+      .innerRadius(0);
+
+  var pie = d3.layout.pie()
+      .sort(null)
+      .value(function(d) { return d.value; });
+
+  var svg = d3.select(selector).append("svg")
+      .attr("width", width)
+      .attr("height", height)
+    .append("g")
+      .attr("transform", "translate(150," + height / 2 + ")");
+
+    // users.forEach(function(d) {
+    //   d.value = +d.value;
+    // });
+
+    var g = svg.selectAll(".arc")
+        .data(pie(users))
+      .enter().append("g")
+        .attr("class", "arc");
+
+    g.append("path")
+        .attr("d", arc)
+        .style("fill", function(d) { return color(d.data.name); });
+
+    g.append("text")
+        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .text(function(d) {
+          if(d.data.name == 'anonymous'){
+            return 'Direct access';
+          }
+          return d.data.name; });
+
+
+}
+
+piechart_users('#piechart', bioscript_jobs['users'], 500, 300, 150);
+
 function update_stats(thedata){
   var cdata = thedata.slice(0);
   $('#statpanel_content').append(badge_info('Total', d3.sum(cdata)))
@@ -28,6 +77,7 @@ function update_stats(thedata){
                          // .append(badge_info('Min', d3.min(cdata)))
                          // .append(badge_info('Max', d3.max(cdata)))
                          ;
+
 }
 
 

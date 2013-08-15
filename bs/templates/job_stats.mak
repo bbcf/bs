@@ -28,8 +28,9 @@
                           <div id="thechart-content" class="panel-content"></div>
                         </div>
                           <!-- stat panel -->
-                        <div class="col-lg-3 pull-right">
-                          <div id="statpanel_content" class="panel-content"></div>
+                        <div class="col-lg-4 pull-right">
+                          <div id="statpanel_content" class="row panel-content"></div>
+                          <div id="piechart" class="row panel-content"></div>
                         </div>
                       </div>
 
