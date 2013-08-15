@@ -16,23 +16,25 @@
 
     ${d.banner()}
      <div class="container">
-                  <div class="row">
+
+            <div class="panel-group" id="accordion">
+                <!-- job per ... --->
                     <div id="thechart" class="panel panel-primary col-lg-11">
                       <!-- head -->
-                      <div id="thechart-heading" class="panel-heading text-center">Jobs per <span id="thechart-title-label">...</span></div>
+                      <div id="thechart-heading" data-toggle="collapse" data-parent="#accordion" href="#panel-one" class="panel-heading text-center accordion-toggle">Jobs per <span id="thechart-title-label">...</span></div>
                       <!-- content -->
-                      <div class="row">
+                      <div id="panel-one" class="row panel-collapse collapse in">
                         <div class="col-lg-6">
-                          <div id="thechart-content" class="panel-content collapsable"></div>
+                          <div id="thechart-content" class="panel-content"></div>
                         </div>
                           <!-- stat panel -->
-                         <div class="col-lg-3 pull-right">
-                            <div id="statpanel_content" class="collapsable panel-content"></div>
-                         </div>
+                        <div class="col-lg-3 pull-right">
+                          <div id="statpanel_content" class="panel-content"></div>
+                        </div>
                       </div>
 
                       <!-- footer -->
-                      <div id="thechart-footer" class="panel-footer collapsable">
+                      <div id="thechart-footer" class="panel-footer">
                           <!-- start radios -->
                           <div id="chart_chooser" class="form-inline">
                             <div class="radio">
@@ -57,21 +59,20 @@
                       </div><!-- end footer -->
                     </div><!-- end thechart -->
 
-                    <div class="col-lg-2"></div>
-
                     
-                  </div> <!-- end row -->
 
-                  <div class="row">
+                  <!-- circles chart -->
                     <div id="mused-chart" class="panel panel-primary col-lg-11">
-                      <div class="panel-heading text-center">Most used plugins</div>
-                      <div class="row">
-                        <div id="mused-chart-content" class="col-lg-8 panel-content collapsable"></div>
+                      <div data-toggle="collapse" data-parent="#accordion" href="#panel-two" class="panel-heading text-center accordion-toggle">Most used plugins / circles</div>
+                      <div id="panel-two" class="row panel-collapse collapse">
+                        <div class="col-lg-8">
+                          <div id="mused-chart-content" class="panel-content"></div>
+                        </div>
                         <div class="col-lg-3 pull-right">
                             <div id="mused-chart-tooltip"></div>
-                         </div>
-                        
-                    </div>
+                        </div>  
+                      </div>
+
                       <!-- footer -->
                       <div id="mused-chart-footer" class="panel-footer collapsable">
                           <!-- start radios -->
@@ -100,17 +101,52 @@
                           </div><!-- end radios -->
                       </div><!-- end footer -->
                     </div>
-                  </div>
 
-              </div>
+                  <!-- treemap chart -->
+                    <div id="treemap-chart" class="panel panel-primary col-lg-11">
+                      <div data-toggle="collapse" data-parent="#accordion" href="#panel-three" class="panel-heading text-center accordion-toggle">Most used plugins / treemap</div>
+                      <div id="panel-three" class="row panel-collapse collapse">
+                        <div id="treemap-chart-content" class="col-lg-8 panel-content"></div>
+                        <div class="col-lg-3 pull-right">
+                            <div id="treemap-chart-tooltip"></div>
+                        </div>
+                        
+                    </div>
+                      <!-- footer -->
+                      <div id="treemap-chart-footer" class="panel-footer collapsable">
+                          <!-- start radios -->
+                          <div id="treemap-chart-chooser" class="form-inline">
+                            <label>
+                              If you click on a square, you will be redirected to the
+                            </label>
+                            <div class="radio">
+                              <label>
+                                <input type="radio" name="treemap-chart-chooser" value="form" checked>
+                                form
+                              </label>
+                            </div>
+                            <div class="radio">
+                              <label>
+                                <input type="radio" name="treemap-chart-chooser" value="doc">
+                                documentation
+                              </label>
+                            </div>
+                            <div class="radio">
+                              <label>
+                                <input type="radio" name="treemap-chart-chooser" value="code">
+                                source code
+                              </label>
+                            </div>
+                          </div><!-- end radios -->
+                      </div><!-- end footer -->
+                    </div>
 
-
-    ${d.footer()}
-
+            </div>
 </body>
 
 <script>
     var bioscript_jobs = ${jobs|n};
+    var bs_url = ${tg.url('/')};
 </script>
-  ${d.start_chart()};
+  ${d.start_chart()}
 </html>

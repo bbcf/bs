@@ -37,3 +37,20 @@ circle {
   fill: #d2e8f7;
   fill-opacity: 1;
 }
+
+.treenode {
+  border: solid 1px white;
+  font: 10px sans-serif;
+  line-height: 12px;
+  overflow: hidden;
+  position: absolute;
+  text-indent: 2px;
+}
+.htreenode {
+  border: solid 2px #3574c5;
+  font: 12px sans-serif;
+  line-height: 12px;
+  overflow: hidden;
+  position: absolute;
+  text-indent: 2px;
+}
