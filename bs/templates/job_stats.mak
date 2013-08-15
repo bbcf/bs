@@ -62,46 +62,7 @@
 
                     
 
-                  <!-- circles chart -->
-                    <div id="mused-chart" class="panel panel-primary col-lg-11">
-                      <div data-toggle="collapse" data-parent="#accordion" href="#panel-two" class="panel-heading text-center accordion-toggle">Most used plugins / circles</div>
-                      <div id="panel-two" class="row panel-collapse collapse">
-                        <div class="col-lg-8">
-                          <div id="mused-chart-content" class="panel-content"></div>
-                        </div>
-                        <div class="col-lg-3 pull-right">
-                            <div id="mused-chart-tooltip"></div>
-                        </div>  
-                      </div>
-
-                      <!-- footer -->
-                      <div id="mused-chart-footer" class="panel-footer collapsable">
-                          <!-- start radios -->
-                          <div id="mused-chart-chooser" class="form-inline">
-                            <label>
-                              If you click on a circle, you will be redirected to the
-                            </label>
-                            <div class="radio">
-                              <label>
-                                <input type="radio" name="mused-chart-chooser" value="form" checked>
-                                form
-                              </label>
-                            </div>
-                            <div class="radio">
-                              <label>
-                                <input type="radio" name="mused-chart-chooser" value="doc">
-                                documentation
-                              </label>
-                            </div>
-                            <div class="radio">
-                              <label>
-                                <input type="radio" name="mused-chart-chooser" value="code">
-                                source code
-                              </label>
-                            </div>
-                          </div><!-- end radios -->
-                      </div><!-- end footer -->
-                    </div>
+               
 
                   <!-- treemap chart -->
                     <div id="treemap-chart" class="panel panel-primary col-lg-11">
@@ -141,7 +102,46 @@
                           </div><!-- end radios -->
                       </div><!-- end footer -->
                     </div>
+   <!-- circles chart -->
+                    <div id="mused-chart" class="panel panel-primary col-lg-11">
+                      <div data-toggle="collapse" data-parent="#accordion" href="#panel-two" class="panel-heading text-center accordion-toggle">Most used plugins / circles</div>
+                      <div id="panel-two" class="row panel-collapse collapse">
+                        <div class="col-lg-8">
+                          <div id="mused-chart-content" class="panel-content"></div>
+                        </div>
+                        <div class="col-lg-3 pull-right">
+                            <div id="mused-chart-tooltip"></div>
+                        </div>  
+                      </div>
 
+                      <!-- footer -->
+                      <div id="mused-chart-footer" class="panel-footer collapsable">
+                          <!-- start radios -->
+                          <div id="mused-chart-chooser" class="form-inline">
+                            <label>
+                              If you click on a circle, you will be redirected to the
+                            </label>
+                            <div class="radio">
+                              <label>
+                                <input type="radio" name="mused-chart-chooser" value="form" checked>
+                                form
+                              </label>
+                            </div>
+                            <div class="radio">
+                              <label>
+                                <input type="radio" name="mused-chart-chooser" value="doc">
+                                documentation
+                              </label>
+                            </div>
+                            <div class="radio">
+                              <label>
+                                <input type="radio" name="mused-chart-chooser" value="code">
+                                source code
+                              </label>
+                            </div>
+                          </div><!-- end radios -->
+                      </div><!-- end footer -->
+                    </div>
             </div>
 </body>
 

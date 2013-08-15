@@ -18,7 +18,7 @@ function badge_info(label, value){
   return "<div class='nav nav-pills'><span class='badge pull-right'><label>" + value + "</label></span>" + label + "</div>";
 }
 
-function piechart_users(selector, users, width, height, rad){
+function piechart_users(selector, users, remotes, width, height, rad){
 
   var radius = rad;
 
@@ -58,7 +58,7 @@ function piechart_users(selector, users, width, height, rad){
         .style("text-anchor", "middle")
         .text(function(d) {
           if(d.data.name == 'anonymous'){
-            return 'Direct access';
+            return 'Direct access ( ' + remotes.length + ' users )';
           } else if(d.data.name == 'HTS-DEV'){
             return 'HTSStation';
           }
@@ -67,7 +67,7 @@ function piechart_users(selector, users, width, height, rad){
 
 }
 
-piechart_users('#piechart', bioscript_jobs['users'], 500, 300, 150);
+piechart_users('#piechart', bioscript_jobs['users'], bioscript_jobs['remotes'], 500, 300, 150);
 
 function update_stats(thedata){
   var cdata = thedata.slice(0);

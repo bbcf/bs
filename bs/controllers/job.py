@@ -94,12 +94,15 @@ class JobController(base.BaseController):
             'days': [0] * 7,
             'hours': [0] * 24,
             'users': {},
+            'remotes': {},
             'plugins': {}
             }
         # set all users to prevent looking if user alrady set for each jobs
         users = DBSession.query(User).all()
         for user in users:
              d['users'][user.name] = 1
+             if user.name == 'anonymous':
+                d['remotes'][user.remote] = 1
         # do the same for all plugin
         plugs = operations.get_plugins_path(ordered=False)
         for plug in plugs:
@@ -113,11 +116,14 @@ class JobController(base.BaseController):
             d['days'][currentday] += 1
             d['hours'][int(dd[2])] += 1
             d['users'][job.request.user.name] += 1
+            if job.request.user.name == 'anonymous':
+                d['remotes'][job.request.user.remote] += 1
             try:
                 d['plugins'][job.request.plugin.info['title']] += 1
             except KeyError:
                 pass
         d['users'] = [{'name': k, 'value': v} for k, v in d['users'].iteritems()]
+        d['remotes'] = [{'name': k, 'value': v} for k, v in d['remotes'].iteritems()]
         return {'jobs': json.dumps(d)}
 
 
