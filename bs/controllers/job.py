@@ -121,6 +121,42 @@ class JobController(base.BaseController):
         return {'jobs': json.dumps(d)}
 
 
+    @expose('json')
+    def statistics(self):
+        jobs = DBSession.query(Job).join(PluginRequest).order_by(asc(PluginRequest.date_done)).all()
+
+        # get number of jobs / month, days, ...
+        d = {'months' : [0] * 12, 
+            'days': [0] * 7,
+            'hours': [0] * 24,
+            'users': {},
+            'plugins': {}
+            }
+        # set all users to prevent looking if user alrady set for each jobs
+        users = DBSession.query(User).all()
+        for user in users:
+             d['users'][user.name] = 1
+        # do the same for all plugin
+        plugs = operations.get_plugins_path(ordered=False)
+        for plug in plugs:
+            d['plugins'][plug['info']['title']] = 1
+
+        # now look at each jobs one by one
+        for job in jobs:
+            dd = job.request.date_done.strftime('%m %w %H').split()         
+            currentday = int(dd[1])
+            d['months'][int(dd[0]) - 1] += 1
+            d['days'][currentday] += 1
+            d['hours'][int(dd[2])] += 1
+            d['users'][job.request.user.name] += 1
+            try:
+                d['plugins'][job.request.plugin.info['title']] += 1
+            except KeyError:
+                pass
+        d['users'] = [{'name': k, 'value': v} for k, v in d['users'].iteritems()]
+        return {'jobs': json.dumps(d)}
+
+
 def serialize_job(job):
     req = job.request
     plugin = req.plugin

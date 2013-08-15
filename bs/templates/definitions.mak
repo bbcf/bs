@@ -29,6 +29,11 @@
 
 <%def name="start_chart()">
     <script type="text/javascript" src="${tg.url('/javascript/chart.js')}"></script>
+    <script type="text/javascript" src="${tg.url('/javascript/treemap.js')}"></script>
+</%def>
+
+<%def name="start_treemap()">
+    <script type="text/javascript" src="${tg.url('/javascript/treemap.js')}"></script>
 </%def>
 
 <%def name="chart_css()">

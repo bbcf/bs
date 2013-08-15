@@ -51,6 +51,8 @@ class RootController(BaseController):
                    'pending': 0,
                    'success': 0}
         for job in jobs:
+            if job.status.lower() not in mapping:
+                mapping['started'] += 1
             mapping[job.status.lower()] += 1
         return mapping
 
