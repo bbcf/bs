@@ -50,8 +50,8 @@ def identify(fn):
             return fn(*args, **kw)
         # SERVICE DEFINED
         k = None
-        if 'key' in request.str_POST or 'key' in request.str_GET:
-            k = request.str_POST.get('key', request.str_GET.get('key'))
+        if 'key' in request.POST or 'key' in request.GET:
+            k = request.POST.get('key', request.GET.get('key'))
             service = services.service_manager.check(constants.SERVICE_SHARED_KEY, k)
             if service:
                 user = model.DBSession.query(model.User).filter(
