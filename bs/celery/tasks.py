@@ -130,14 +130,15 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
 
     debug('FETCHING FILES ... %s' % form_parameters)
     raised = False
-    # FETCHING FILES
-    current_task.update_state(state='FETCHING FILES')
-    inputs_directory = fetchurls(user, plug, dwdfiles, inputs_directory, form_parameters)
-
-    debug('PLUGIN PROCESS STARTED ...')
-    # PLUGIN PROCESS
-    current_task.update_state(state='STARTED')
     try:
+        # FETCHING FILES
+        current_task.update_state(state='FETCHING FILES')
+        inputs_directory = fetchurls(user, plug, dwdfiles, inputs_directory, form_parameters)
+
+        debug('PLUGIN PROCESS STARTED ...')
+        # PLUGIN PROCESS
+        current_task.update_state(state='STARTED')
+   
         try:
             debug('user params : %s' % user_parameters)
             user_parameters = json.loads(user_parameters)
