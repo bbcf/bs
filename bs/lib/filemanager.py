@@ -199,12 +199,12 @@ def _dservice(root_directory, form_value, val, url_root, file_root):
     """
     Download the file(s). As the user is a service, fetch the file from a path.
     """
-    debug('fetch from path')
     # remove //. Service defined a directory where to take & put files
     # so the urls are fakes
     fname, val = take_filename_and_path(val)
     val = val.replace('//', '/').replace(':/', '://')
     _from = val.replace(url_root, file_root)
+    debug('fetch from path %s' % _from)
     _to = os.path.join(temporary_directory(root_directory), fname)
     shutil.copy2(_from, _to)
     return _to

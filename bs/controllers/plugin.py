@@ -259,7 +259,7 @@ class PluginController(base.BaseController):
         todel = []
         for k, v in kw.iteritems():
             m = multipattern.match(k)
-            if m:
+            if m and v:
                 todel.append(k)
                 key1, n, key2 = m.groups()
                 if not key1 in grouped_params:
