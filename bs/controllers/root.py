@@ -53,7 +53,8 @@ class RootController(BaseController):
         for job in jobs:
             if job.status.lower() not in mapping:
                 mapping['started'] += 1
-            mapping[job.status.lower()] += 1
+            else:
+                mapping[job.status.lower()] += 1
         return mapping
 
     @expose('json')
