@@ -103,12 +103,12 @@ def load_plugins():
         plug = clazz()
         #p = plug.plugin_object
         #_check_plugin_info(plug)
-        if tg.config['pylons.app_globals']:
+        if tg.config.get('pylons.app_globals'):
             _check_in_database(plug)
         plugids.append(plug.unique_id())
 
     # check deprecated plugins
-    if tg.config['pylons.app_globals']:
+    if tg.config.get('pylons.app_globals'):
         for p in DBSession.query(Plugin).all():
             if p.generated_id not in plugids:
                 p.deprecated = True
