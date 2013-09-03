@@ -220,22 +220,30 @@ class PluginController(base.BaseController):
         # we must do an HTTP call because I don't find a way
         # to call the 'render' method on 'plugin_validate' template
         request_url = tg.config.get('main.proxy') + '/plugins/_validate'
-        form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
-
-        # add some header because the request can come from another domain
-        response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
-        response.headers['Access-Control-Allow-Origin'] = '*'
-
-        # get the callback if any
-        callback = kw.get('callback', 'callback')
+        validated = True
         try:
-            form = json.loads(form)
-        except:
-            pass
-       
-        validated = isinstance(form, dict)
+            form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
 
-        info = plug.info
+            # add some header because the request can come from another domain
+            response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
+            response.headers['Access-Control-Allow-Origin'] = '*'
+
+            # get the callback if any
+            callback = kw.get('callback', 'callback')
+            try:
+                form = json.loads(form)
+            except:
+                pass
+           
+            validated = isinstance(form, dict)
+
+            info = plug.info
+
+        except Exception as e:
+            util.print_traceback()
+            validated = False
+            form = 'Problem with Bioscript server.'
+
         if not validated:
             debug('Validation failed',)
             return json.dumps({'validation': 'failed',
