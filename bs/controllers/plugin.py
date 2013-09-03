@@ -263,7 +263,7 @@ class PluginController(base.BaseController):
         # {SigMulti:1:signals: val1, SigMulti:2:signals: val2, ...}
         # and we will transform it to
         # {SigMulti: { signals : [val1, val2], ...}
-        debug('group "multi" params',)
+        
         grouped_params = {}
         todel = []
         for k, v in kw.iteritems():
@@ -281,7 +281,7 @@ class PluginController(base.BaseController):
                         sl[int(n) - 1] = v
                         grouped_params[key1][key2] = sl
 
-
+        debug('group "multi" params: %s' % grouped_params)
         # debug('check fieldstorages',)
         # # must keep fieldstorages because they were converted to str
         # fs_bk = []
