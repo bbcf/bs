@@ -221,6 +221,7 @@ class PluginController(base.BaseController):
         # to call the 'render' method on 'plugin_validate' template
         request_url = tg.config.get('main.proxy') + '/plugins/_validate'
         validated = True
+        info = plug.info
         try:
             form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
 
@@ -237,7 +238,6 @@ class PluginController(base.BaseController):
            
             validated = isinstance(form, dict)
 
-            info = plug.info
 
         except Exception as e:
             util.print_traceback()
