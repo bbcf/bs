@@ -222,6 +222,8 @@ class PluginController(base.BaseController):
         request_url = tg.config.get('main.proxy') + '/plugins/_validate'
         validated = True
         info = plug.info
+        # get the callback if any
+        callback = kw.get('callback', 'callback')
         try:
             form = urllib2.urlopen(request_url, urllib.urlencode(kw)).read()
 
@@ -229,8 +231,7 @@ class PluginController(base.BaseController):
             response.headers['Access-Control-Allow-Headers'] = 'X-CSRF-Token'
             response.headers['Access-Control-Allow-Origin'] = '*'
 
-            # get the callback if any
-            callback = kw.get('callback', 'callback')
+            
             try:
                 form = json.loads(form)
             except:
