@@ -130,6 +130,7 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
 
     debug('FETCHING FILES ... %s' % form_parameters)
     raised = False
+    task_id = plugin_job.request.id
     try:
         # FETCHING FILES
         current_task.update_state(state='FETCHING FILES')
@@ -144,7 +145,7 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
             user_parameters = json.loads(user_parameters)
         except TypeError as e:
             debug(e)
-        task_id = plugin_job.request.id
+        
 
         if service_callback is not None:
             callback_service(service_callback, plugin_info['generated_id'], task_id, 'RUNNING', additional=user_parameters)
