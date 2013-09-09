@@ -268,6 +268,7 @@ class PluginController(base.BaseController):
         todel = []
         for k, v in new_params.iteritems():
             m = multipattern.match(k)
+            print 'doing : %s (%s)' % (k, v)
             if m:
                 todel.append(k)
                 if v:
