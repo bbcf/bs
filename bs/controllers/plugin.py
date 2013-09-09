@@ -266,7 +266,7 @@ class PluginController(base.BaseController):
         
         grouped_params = {}
         todel = []
-        for k, v in kw.iteritems():
+        for k, v in new_params.iteritems():
             m = multipattern.match(k)
             if m:
                 todel.append(k)
