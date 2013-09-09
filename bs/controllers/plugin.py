@@ -268,12 +268,11 @@ class PluginController(base.BaseController):
         todel = []
         for k, v in new_params.iteritems():
             m = multipattern.match(k)
-            print 'doing : %s (%s)' % (k, v)
-            if m:
+            if m is not None:
                 todel.append(k)
-                if v:
+                if v or isinstance(v, cgi.FieldStorage):
                     key1, n, key2 = m.groups()
-                    if not key1 in grouped_params:
+                    if key1 not in grouped_params:
                         grouped_params[key1] = {}
                     if key2 in grouped_params[key1]:
                         grouped_params[key1][key2][int(n) - 1] = v
@@ -281,6 +280,7 @@ class PluginController(base.BaseController):
                         sl = SparseList()
                         sl[int(n) - 1] = v
                         grouped_params[key1][key2] = sl
+
 
         debug('group "multi" params: %s' % grouped_params)
         # debug('check fieldstorages',)
