@@ -10,7 +10,7 @@ from base import TMP_DIR
 os.environ['MPLCONFIGDIR'] = TMP_DIR
 
 
-DEBUG_LEVEL = 0
+DEBUG_LEVEL = 1
 
 
 
