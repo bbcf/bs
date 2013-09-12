@@ -162,6 +162,7 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
         results = []
         # call plugin with form parameters
         try:
+            os.chdir(TMP_DIR)
             ret = plugin(**form_parameters)
             results = [{'is_file': False,
                         'value': ret}]
