@@ -46,7 +46,9 @@ class JobController(base.BaseController):
                 'date': datedone,
                 'plugin_id': plugin_id,
                 'plugin_info': plugin_info,
-                'parameters': parameters}
+                'parameters': parameters,
+                'plugin_generated_id': plug.generated_id
+                }
 
     @expose('mako:bs.templates.job_all')
     def all(self, limit=None, status=None):

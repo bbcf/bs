@@ -12,12 +12,15 @@
     ${d.banner()}
     <div id="content">
         % if not job_id:
-           <p> No job identifier specified.</p>
+           <p> No job identifier specified.
         % elif error:
-            <p> ${error} </p>
+            <p> ${error} 
         % else:
-            <p> Job <b>${task_id}</b> ${status}.</p>
+            <p> Job <b>${task_id}</b> ${status}.
 
+        <span style="margin-left:30px;"> <a href="${tg.url('/direct/get?id=')}${plugin_generated_id}">submit another job</a></span>
+
+        </p>
             <!-- DISPLAY RESULTS -->
             % for result in results:
                 % if result['is_file']:
