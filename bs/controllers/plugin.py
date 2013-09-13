@@ -124,7 +124,15 @@ class PluginController(base.BaseController):
             print '"html_doc" and "src_code" seems to be missing for your plugin, please update bsplugins to the last version'
             print e
 
-        return {'page': 'plugin', 'desc': desc, 'title': info.get('title'), 'widget': widget, 'html_doc': html_doc, 'html_src_code': html_src_code}
+        meta = info.get('meta', {})
+        return {'page': 'plugin',
+        'desc': desc,
+        'title': info.get('title'),
+        'widget': widget,
+        'html_doc': html_doc,
+        'html_src_code': html_src_code,
+        'author': meta.get('author'),
+        'contact': meta.get('contact')}
 
     @expose()
     @expose('mako:bs.templates.plugin_validate')
