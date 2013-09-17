@@ -134,6 +134,7 @@ class PluginController(base.BaseController):
         'author': meta.get('author'),
         'contact': meta.get('contact')}
 
+
     @expose()
     @expose('mako:bs.templates.plugin_validate')
     def _validate(self, **kw):
