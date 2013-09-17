@@ -18,7 +18,7 @@ DAYS_LIMIT = 30
 class JobController(base.BaseController):
 
     @expose('mako:bs.templates.job_index')
-    def index(self, task_id=None):
+    def index(self, task_id=None, forceurl=False):
         if task_id is None:
             return {'job_id': None}
         job = DBSession.query(Job).filter(Job.task_id == task_id).first()
@@ -33,7 +33,7 @@ class JobController(base.BaseController):
         results = []
         for result in job.results:
 
-            if jobdelta > delta:
+            if jobdelta > delta and not forceurl:
                 d = jobdelta - delta
                 mess = 'File "%s" was deleted %s days ago. Files are kept in Bioscript only %s days.' % (result.fname, d.days, DAYS_LIMIT)
                 is_url = False
