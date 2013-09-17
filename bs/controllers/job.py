@@ -3,7 +3,7 @@ from tg import expose, response, url, request
 from sqlalchemy.sql.expression import desc, asc
 from bs.model import DBSession, Job, PluginRequest, Task, User, Plugin
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy.sql import expression
 from bs.lib import operations
 from bs.lib import filemanager
@@ -11,6 +11,9 @@ try:
     import simplejson as json
 except ImportError:
     import json
+
+
+DAYS_LIMIT = 30
 
 class JobController(base.BaseController):
 
@@ -21,10 +24,30 @@ class JobController(base.BaseController):
         job = DBSession.query(Job).filter(Job.task_id == task_id).first()
         if job is None:
             return {'job_id': True, 'error': 'Wrong job identifier, "%s" is not recognized as a valid job.' % task_id}
-        results = [{'is_file': result.is_file,
-                    'result': result.result,
-                    'path': get_result_url(result, task_id),
-                    'fname': result.fname} for result in job.results]
+
+        now = datetime.now()
+        delta = timedelta(days=DAYS_LIMIT)
+        deletion_date = job.task.date_done + delta
+        jobdelta = now - job.task.date_done
+
+        results = []
+        for result in job.results:
+
+            if jobdelta > delta:
+                d = jobdelta - delta
+                mess = 'File "%s" was deleted %s days ago. Files are kept in Bioscript only %s days.' % (result.fname, d.days, DAYS_LIMIT)
+                is_url = False
+            else:
+                mess = get_result_url(result, task_id)
+                is_url = True
+
+            results.append({'is_file': result.is_file,
+                'result': result.result,
+                'mess': mess,
+                'is_url': is_url,
+                'fname': result.fname,
+                'deletion-date': deletion_date,
+                })
 
         # additionnal information
         trace = job.simple_error or ''

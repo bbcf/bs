@@ -24,7 +24,11 @@
             <!-- DISPLAY RESULTS -->
             % for result in results:
                 % if result['is_file']:
-                    <p>File : <a href=${result['path']}>${result['fname']}</a></p>
+                    % if result['is_url']:
+                        <p>File : <a href=${result['mess']}>${result['fname']}</a></p>
+                    % else:
+                        <p>${result['mess']}</p>
+                    % endif
                 % else:
                     <p>Operation return : ${result['result']}</p>
                 % endif
