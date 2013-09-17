@@ -41,6 +41,7 @@ class JobController(base.BaseController):
                 mess = get_result_url(result, task_id)
                 is_url = True
 
+
             results.append({'is_file': result.is_file,
                 'result': result.result,
                 'mess': mess,
