@@ -117,6 +117,11 @@ class PluginRequest(DeclarativeBase):
             d[k] = _san(v)
         return d
 
+    def description(self):
+        desc = ''
+        for k, v in self.sanitized_parameter().iteritems():
+            desc += '%s: %s\n' % (k, v)
+        return desc
 
 class Job(DeclarativeBase):
     __tablename__ = "%sjob" % prefix

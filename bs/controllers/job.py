@@ -5,7 +5,7 @@ from bs.model import DBSession, Job, PluginRequest, Task, User, Plugin
 import os
 from datetime import datetime, timedelta
 from sqlalchemy.sql import expression
-from bs.lib import operations
+from bs.lib import operations, biorepo
 from bs.lib import filemanager
 try:
     import simplejson as json
@@ -24,27 +24,41 @@ class JobController(base.BaseController):
         job = DBSession.query(Job).filter(Job.task_id == task_id).first()
         if job is None:
             return {'job_id': True, 'error': 'Wrong job identifier, "%s" is not recognized as a valid job.' % task_id}
-
+        req = job.request
         now = datetime.now()
         delta = timedelta(days=DAYS_LIMIT)
         deletion_date = job.task.date_done + delta
         jobdelta = now - job.task.date_done
-
+        biorepodata = {}
         results = []
         for result in job.results:
-
+            uri=''
             if jobdelta > delta and not forceurl:
                 d = jobdelta - delta
                 mess = 'File "%s" was deleted %s days ago. Files are kept in Bioscript only %s days.' % (result.fname, d.days, DAYS_LIMIT)
                 is_url = False
             else:
-                mess = get_result_url(result, task_id)
+                d = delta - jobdelta
+                uri = request.application_url + '/' + get_result_url(result, task_id)
                 is_url = True
-
-
+                mess = '<b>File will be deleted in %s days</b>.  Files are kept in Bioscript only %s days.' % (d.days, DAYS_LIMIT)
+                if biorepo.SERVICE_UP:
+                    dt = {
+                        'file_path': uri,
+                        'description': req.description(),
+                        'project_name': 'Bioscript',
+                        'sample_name': req.plugin.info.get('title', '-')
+                    }
+                    biorepodata['brepo_%s' % result.id] = dt
+                    mess += ' You could save it in <a id="brepo_%s" class="biorepourl">Biorepo</a>.' % result.id
+                ## file_url : uri
+                ## desc: req.parameters
+                ## project_name: bioscript
+                ## sample: plugin.info['title']
             results.append({'is_file': result.is_file,
                 'result': result.result,
                 'mess': mess,
+                'uri': uri,
                 'is_url': is_url,
                 'fname': result.fname,
                 'deletion-date': deletion_date,
@@ -53,7 +67,7 @@ class JobController(base.BaseController):
         # additionnal information
         trace = job.simple_error or ''
         complete = job.error or ''
-        req = job.request
+        
         plug = req.plugin
         datedone = datetime.strftime(req.date_done, '%a %d %b %Y at %H:%M:%S')
         plugin_id = plug.id
@@ -71,7 +85,9 @@ class JobController(base.BaseController):
                 'plugin_id': plugin_id,
                 'plugin_info': plugin_info,
                 'parameters': parameters,
-                'plugin_generated_id': plug.generated_id
+                'plugin_generated_id': plug.generated_id,
+                'biorepodata': json.dumps(biorepodata),
+                'biorepourl': biorepo.SERVICE_UP and json.dumps(biorepo.BIOREPO_ACTION_URL) or ''
                 }
 
     @expose('mako:bs.templates.job_all')
@@ -187,7 +203,6 @@ class JobController(base.BaseController):
                 pass
         d['users'] = [{'name': k, 'value': v} for k, v in d['users'].iteritems()]
         return {'jobs': json.dumps(d)}
-
 
 def serialize_job(job):
     req = job.request

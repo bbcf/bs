@@ -25,7 +25,8 @@
             % for result in results:
                 % if result['is_file']:
                     % if result['is_url']:
-                        <p>File : <a href=${result['mess']}>${result['fname']}</a></p>
+                        <p>File : <a href=${result['uri']}>${result['fname']}</a></p>
+                         <p>${result['mess']|n}</p>
                     % else:
                         <p>${result['mess']}</p>
                     % endif
@@ -105,4 +106,42 @@
 
 </body>
 ${d.enable_a_showhide()}
+<script>
+    
+function brepoform(ident, biorepourl, parameters){
+    var out = '<form id="' + ident +'" method="POST" action="' + biorepourl + '">';
+    for (param in parameters){
+        out += '<input type="hidden" name="' + param+ '" value="' + parameters[param] + '">'
+    }
+    out += '</form>';
+    return out;
+}
+ function showloadinggif(ident){
+    var waitdiv = $('<div class="loading-wrap"><span class="triangle1"></span><span class="triangle2"></span><span class="triangle3"></span></div>');
+    waitdiv.css('left', $(this).find('input').width() + 'px');
+    waitdiv.css('top', -$(this).find('input').height() + 'px');
+    $(ident).append(waitdiv);
+ }
+
+    var biorepodata = ${biorepodata|n};
+    console.log(biorepodata);
+    $('.biorepourl').each(function(idx, el){
+        var ident = $(this).attr('id');
+        var formident = 'form_' + ident;
+        $(this).click(function(){
+            var f = brepoform(formident, ${biorepourl|n}, biorepodata[ident]);
+            console.log(f);
+            $(this).append(f);
+            console.log('#' + formident);
+            showloadinggif('#' + ident);
+            $('#' + formident).submit();
+            //console.log(biorepodata[$(this).attr('id')]);
+            });
+        });
+
+
+
+
+
+</script>
 </html>

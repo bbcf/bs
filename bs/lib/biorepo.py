@@ -1,11 +1,11 @@
 import urllib2
 import urllib
+from bs.model import DBSession, Job
+import tg
 try:
     import simplejson as json
 except ImportError:
     import json
-
-import tg
 
 
 
@@ -15,12 +15,25 @@ def debug(s):
         print s
 
 
+
 # get url from configuration file
-BIOREPO_SERVICE_URL = tg.config('biorepo.service.url')
+BIOREPO_SERVICE_URL = tg.config.get('biorepo.service.url')
+
+BIOREPO_SERVICE_ACTION = 'public/extern_create'
+BIOREPO_ACTION_URL = BIOREPO_SERVICE_URL + BIOREPO_SERVICE_ACTION
 # if there is an url, biorepo service is ON
 SERVICE_UP = False
 if BIOREPO_SERVICE_URL:
     SERVICE_UP = True
+
+def get_biorepo_url(task_id, result_id):
+    return tg.url('/job/biorepo') + '?task_id=%s&result_id=%s' % (task_id, result_id)
+    # result_id = int(result_id)
+    # job = DBSession.query(Job).filter(Job.task_id == task_id).first()
+    # for result in job.results:
+    #     if result.id == result_id:
+            
+    # return ''
 
 
 def request_to_biorepo(path, method='GET', data=None):
