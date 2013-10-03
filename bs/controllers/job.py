@@ -23,14 +23,25 @@ class JobController(base.BaseController):
             return {'job_id': None}
         job = DBSession.query(Job).filter(Job.task_id == task_id).first()
         if job is None:
-            return {'job_id': True, 'error': 'Wrong job identifier, "%s" is not recognized as a valid job.' % task_id}
+            return {'job_id': True, 'haserror': True, 'error': 'Wrong job identifier, "%s" is not recognized as a valid job.' % task_id,
+            'biorepodata': "{}",
+            'biorepourl': ''}
+        
+        if job.task is None:
+            return  {'job_id': True, 'haserror': True, 'error': 'Task "%s" is PENDING.' % task_id,
+             'biorepodata': "{}",
+            'biorepourl': ''}
         req = job.request
         now = datetime.now()
         delta = timedelta(days=DAYS_LIMIT)
+
         deletion_date = job.task.date_done + delta
         jobdelta = now - job.task.date_done
         biorepodata = {}
         results = []
+        print '#############################'
+        print job
+        print job.results
         for result in job.results:
             uri=''
             if jobdelta > delta and not forceurl:
@@ -75,7 +86,8 @@ class JobController(base.BaseController):
         parameters = req.parameters
         trace = trace.replace('\n', '<br/>')
         complete = complete.replace('\n', '<br/>')
-        return {'status': job.status,
+        return {'haserror': False,
+                'status': job.status,
                 'task_id': task_id,
                 'job_id': job.id,
                 'results': results,
