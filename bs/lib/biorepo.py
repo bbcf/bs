@@ -17,7 +17,7 @@ def debug(s):
 
 
 # get url from configuration file
-BIOREPO_SERVICE_URL = tg.config.get('biorepo.service.url')
+BIOREPO_SERVICE_URL = tg.config.get('biorepo.service.url','')
 
 BIOREPO_SERVICE_ACTION = 'public/extern_create'
 BIOREPO_ACTION_URL = BIOREPO_SERVICE_URL + BIOREPO_SERVICE_ACTION
