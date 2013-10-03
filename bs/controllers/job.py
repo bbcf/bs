@@ -39,9 +39,6 @@ class JobController(base.BaseController):
         jobdelta = now - job.task.date_done
         biorepodata = {}
         results = []
-        print '#############################'
-        print job
-        print job.results
         for result in job.results:
             uri=''
             if jobdelta > delta and not forceurl:

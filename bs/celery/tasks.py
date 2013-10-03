@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from celery.task import task
 from celery.task.http import URL
+from celery.task.http import HttpDispatchTask
 
 from bs.lib import operations, util
 import os
@@ -203,7 +204,7 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
         debug('moving files')
         # moving files to the output directory
         for output_file, output_type in plugin.output_files:
-            debug('f: %s' % output_file)
+            debug('f: %s to : %s' % (output_file, out))
             out_path = os.path.join(out, os.path.split(output_file)[1])
             io.mv(output_file, out)
             results.append({'is_file': True, 'path': out_path, 'type': output_type})
@@ -217,8 +218,9 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
                 shutil.rmtree(inputs_directory, onerror=shutilerror)
 
         # updating bioscript with the results
-        URL(bioscript_callback).get_async(task_id=task_id, results=json.dumps(results))
-
+        debug('CALLBACK to %s for task %s' % (bioscript_callback, task_id))
+        debug(cbbioscript(bioscript_callback, task_id, json.dumps(results)))
+        debug("END")
         # callback
         if service_callback is not None:
             callback_service(service_callback, plugin_info['generated_id'], task_id, 'SUCCESS',
@@ -229,6 +231,14 @@ def plugin_job(user, plug, inputs_directory, outputs_directory, dwdfiles, plugin
             callback_service(service_callback, plugin_info['generated_id'], task_id, 'FAILED', additional=user_parameters)
         raise
 
+
+def cbbioscript(uri, task_id, params):
+    dt = {
+        'task_id': task_id,
+        'results': params
+    }
+    res = urllib2.urlopen(uri, data=urllib.urlencode(dt))
+    return res.read()
 
 
 def callback_service(url, plugin_id, task_id, status, results=None, additional=None):
