@@ -62,7 +62,7 @@ ul#banner li a:hover {
 
 .banner2 {
   list-style-type: none;
-  position: fixed;
+  position: relative;
   right: 0;
   top: 0;
   width: 20%; }

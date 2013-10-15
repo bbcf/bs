@@ -75,7 +75,7 @@ ul#bs_menubar {
 #bs_menubar ul {
   margin: 30px 0 0 0;
   opacity: 0;
-  visibility: hidden;
+//  visibility: hidden;
   position: absolute;
   padding: 0;
   top: 38px;
