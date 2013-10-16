@@ -14,10 +14,16 @@ ul#banner {
   list-style-type: none;
   background-color: #636769;
   height: 40px;
-  width: 100%;
+  width: 97%;
   margin: auto;
   box-shadow: 10px 10px 5px #4b4e50;
   margin-bottom: 30px; }
+
+ul#banner li {
+  height: 40px;
+  position: relative;
+  top: 10px; 
+  float: left; }
 
 ul#banner li:first-child {
   font-size: 24px;
@@ -25,26 +31,8 @@ ul#banner li:first-child {
   top: 2px;
   margin-left: 20px; }
 
-ul#banner li {
-  height: 40px;
-  position: relative;
-  top: 10px; }
-
-ul#banner li ul {
-  list-style-type: none; }
-
-ul#banner li ul li {
-  float: none;
-  font-size: 12px;
-  position: relative;
-  left: 10px; }
-
-ul#banner li ul li:first-child {
-  left: 0px;
-  font-size: 24px; }
-
-ul#banner li {
-  float: left; }
+ul#banner li:first-child a {
+  color: black; }
 
 ul#banner li a {
   background-repeat: no-repeat;
@@ -54,25 +42,25 @@ ul#banner li a {
   text-decoration: none;
   color: #e6f1f5; }
 
-ul#banner li:first-child a {
-  color: black; }
-
 ul#banner li a:hover {
   color: #4b4e50; }
 
-.banner2 {
-  list-style-type: none;
-  position: fixed;
-  right: 0;
-  top: 0;
-  width: 20%; }
-
-.banner2 > li {
+ul#banner ul {
   float: right;
-  margin: 10px;
-  position: relative;
-  right: 0; }
+  font-size: 16px;
+  color: #4b4e50;
+  margin-right: 5px;
+  }
 
+ul#banner ul li:first-child a {
+  color:  #e6f1f5; }
+
+ul#banner ul li:first-child {
+  font-size: 16px;
+  position: relative;
+  color: #4b4e50;
+  top: 10px;
+}
 /* LINKS */
 a {
   color: #e6f1f5; }

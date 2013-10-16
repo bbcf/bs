@@ -4,13 +4,13 @@
 
  <%def name="banner(sub='')">
      <ul id="banner">
-           <li><a class="text" href="${tg.url('/')}">Bioscript</a></li>
-           <li><a href="${tg.url('/direct/')}">Operations</a></li>
-            <li><a href="${tg.url('/documentation')}">Documentation</a></li>
-    </ul>
-    <ul class="banner2">
-        <li><a href="${tg.url('/jobs/all')}">jobs</a></li>
-        <li><a href="${tg.url('/jobs/stats')}">statistics</a></li>
+        <li><a class="text" href="${tg.url('/')}">Bioscript</a></li>
+        <li><a href="${tg.url('/direct/')}">Operations</a></li>
+        <li><a href="${tg.url('/documentation')}">Documentation</a></li>
+        <ul>
+            <li><a href="${tg.url('/jobs/all')}">jobs</a></li>
+            <li><a href="${tg.url('/jobs/stats')}">statistics</a></li>
+        </ul>
     </ul>
 </%def>
 
