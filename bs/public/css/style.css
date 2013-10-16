@@ -46,6 +46,7 @@ ul#banner li a:hover {
   color: #4b4e50; }
 
 ul#banner ul {
+  list-style-type: none;
   float: right;
   font-size: 16px;
   color: #4b4e50;
