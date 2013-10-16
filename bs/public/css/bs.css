@@ -36,7 +36,6 @@
 /* BUTTONS */
 #bs_menubar {
   width: 150px;
-  margin: 30px;
   padding: 0;
   list-style-type: none;
   position: fixed; }

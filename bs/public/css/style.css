@@ -142,6 +142,7 @@ ul.simple > li {
   color: #4b4e50; }
 
 #bs_operations {
+  margin: 30px;
   height: 75px; }
 
 .job_params td {
