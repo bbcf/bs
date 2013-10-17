@@ -17,7 +17,8 @@
 
 
 <%def name="css()">
-    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/bioscript.css')}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/style.css')}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/css/bs.css')}" />
 </%def>
 
 <%def name="js()">
