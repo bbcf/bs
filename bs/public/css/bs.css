@@ -96,6 +96,7 @@
 
 #bs_menubar li:hover > ul {
   visibility: visible;
+  color: black;
 //  display: block;
   opacity: 1;
   margin: 0; }
