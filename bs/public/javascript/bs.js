@@ -80,7 +80,6 @@
             // append all to the target
             data.target.append($('<div/>', {id : 'bs_op_container'}).append($('<ul/>', {id : 'bs_menubar'}).append(el)));
 
-            data.target.append($('<ul/>', {id : 'bs_menubar'}).append(el));
         },
 
         _create_menu_element : function(name){
