@@ -92,11 +92,11 @@
 
 #bs_menubar a:hover {
   background-color: #e6f1f5;
+  color: #4b4e50;
   border-radius: 5px;}
 
 #bs_menubar li:hover > ul {
   visibility: visible;
-  color: black;
 //  display: block;
   opacity: 1;
   margin: 0; }
