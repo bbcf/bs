@@ -32,15 +32,10 @@
     padding-left: 10px; }
 
 /* BUTTONS */
-#bs_op_container {
+#bs_operations {
   margin: 30px;
   width: 200px;
-  height: 200px; 
-}
-
-#bs_operations {
-  width: 155px;
-  height: 60px; }
+  height: 200px; }
 
 #bs_menubar {
   width: 150px;
