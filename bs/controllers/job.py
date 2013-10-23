@@ -56,7 +56,7 @@ class JobController(base.BaseController):
                         'description': req.description(),
                         'project_name': 'Analysis from Bioscript',
                         'sample_name': req.plugin.info.get('title', '-'),
-                        'sample_type': 'Bioscript analysis'
+                        'sample_type': 'BioScript analysis'
                     }
                     biorepodata['brepo_%s' % result.id] = dt
                     mess += ' You could save it in <a id="brepo_%s" class="biorepourl">Biorepo</a>.' % result.id
