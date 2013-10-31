@@ -27,6 +27,11 @@
   border-radius: 5px; 
   font-style: normal;}
 
+.bs_form th {
+  text-align: right;
+  padding-right: 5px;
+}
+
 .bs_form li {
     display: inline; }
 
