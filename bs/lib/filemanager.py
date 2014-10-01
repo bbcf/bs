@@ -168,7 +168,8 @@ def fetchurls(user, plugin, dwdfiles, root_directory, form_parameters):
                 #if dwd:
                 if not already_downloaded:
                     debug("trying to download")
-                    if user.is_service:
+                    #  if user.is_service:
+                    if val.lower().startswith('http://htsstation.epfl.ch/data'):
                         # the user is a service, as HTSStation, so Urls has to be transformed into path
                         debug('is service',)
                         file_root = services.service_manager.get(user.name, constants.SERVICE_FILE_ROOT_PARAMETER)
