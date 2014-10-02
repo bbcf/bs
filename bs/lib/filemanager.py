@@ -258,7 +258,13 @@ def take_filename_and_path(value):
         except AttributeError:
             # the file name is not in a parameter so we take the last part of the url
             # minus the parameters
-            return lastpart.split('?')[0], value
+            try:
+                u = urllib2.urlopen(value)
+                infos = u.info().get('Content-Disposition')
+                filename = re.search(('filename=(?P<name>"?.+?(;|$))'), infos).group('name')
+                return filename, value
+            except:
+                return lastpart.split('?')[0], value
 
 
 def download_from_url(_from, _to):
